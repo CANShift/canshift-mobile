@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
-import { Colors, Typography, Spacing, Radius, HitSlop } from '../../theme'
+import { useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Colors, Typography, Spacing, Radius, HitSlop } from "../../theme";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,21 +10,21 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../ui/alert-dialog'
+} from "../ui/alert-dialog";
 
 const WINDOW_OPTIONS = [
-  { label: '30s', value: 30, accessibilityLabel: '30 second window' },
-  { label: '1m', value: 60, accessibilityLabel: '1 minute window' },
-  { label: '2m', value: 120, accessibilityLabel: '2 minute window' },
-]
+  { label: "30s", value: 30, accessibilityLabel: "30 second window" },
+  { label: "1m", value: 60, accessibilityLabel: "1 minute window" },
+  { label: "2m", value: 120, accessibilityLabel: "2 minute window" },
+];
 
 interface GraphControlsProps {
-  paused: boolean
-  windowSecs: number
-  onTogglePause: () => void
-  onSetWindow: (s: number) => void
-  onClear: () => void
-  vGap: number
+  paused: boolean;
+  windowSecs: number;
+  onTogglePause: () => void;
+  onSetWindow: (s: number) => void;
+  onClear: () => void;
+  vGap: number;
 }
 
 export const GraphControls = ({
@@ -35,7 +35,7 @@ export const GraphControls = ({
   onClear,
   vGap,
 }: GraphControlsProps) => {
-  const [confirmVisible, setConfirmVisible] = useState(false)
+  const [confirmVisible, setConfirmVisible] = useState(false);
   return (
     <View style={[styles.controls, { paddingVertical: vGap }]}>
       <TouchableOpacity
@@ -43,17 +43,22 @@ export const GraphControls = ({
         onPress={onTogglePause}
         hitSlop={HitSlop.vertical}
         accessibilityRole="button"
-        accessibilityLabel={paused ? 'Resume graph' : 'Pause graph'}
+        accessibilityLabel={paused ? "Resume graph" : "Pause graph"}
       >
-        <Text style={styles.pauseBtnText}>{paused ? '▶ Resume' : '⏸ Pause'}</Text>
+        <Text style={styles.pauseBtnText}>
+          {paused ? "▶ Resume" : "⏸ Pause"}
+        </Text>
       </TouchableOpacity>
       <View style={styles.windowRow}>
         {WINDOW_OPTIONS.map((opt) => (
           <TouchableOpacity
             key={opt.value}
-            style={[styles.windowBtn, windowSecs === opt.value && styles.windowBtnActive]}
+            style={[
+              styles.windowBtn,
+              windowSecs === opt.value && styles.windowBtnActive,
+            ]}
             onPress={() => {
-              onSetWindow(opt.value)
+              onSetWindow(opt.value);
             }}
             hitSlop={HitSlop.vertical}
             accessibilityRole="button"
@@ -61,7 +66,10 @@ export const GraphControls = ({
             accessibilityState={{ selected: windowSecs === opt.value }}
           >
             <Text
-              style={[styles.windowBtnText, windowSecs === opt.value && styles.windowBtnTextActive]}
+              style={[
+                styles.windowBtnText,
+                windowSecs === opt.value && styles.windowBtnTextActive,
+              ]}
             >
               {opt.label}
             </Text>
@@ -71,7 +79,7 @@ export const GraphControls = ({
       <TouchableOpacity
         style={styles.clearBtn}
         onPress={() => {
-          setConfirmVisible(true)
+          setConfirmVisible(true);
         }}
         hitSlop={HitSlop.vertical}
         accessibilityRole="button"
@@ -85,7 +93,8 @@ export const GraphControls = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Clear graph data?</AlertDialogTitle>
             <AlertDialogDescription>
-              This wipes the telemetry buffer shared with the Dash screen and cannot be undone.
+              This wipes the telemetry buffer shared with the Dash screen and
+              cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -95,13 +104,13 @@ export const GraphControls = ({
         </AlertDialogContent>
       </AlertDialog>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   controls: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: Spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
@@ -110,33 +119,36 @@ const styles = StyleSheet.create({
   pauseBtn: {
     minHeight: 36,
     paddingHorizontal: Spacing.sm,
-    justifyContent: 'center',
+    justifyContent: "center",
     borderRadius: Radius.sm,
     borderWidth: 1,
     borderColor: Colors.border,
   },
   pauseBtnText: { fontSize: Typography.xs, color: Colors.textDim },
-  windowRow: { flexDirection: 'row', gap: Spacing.xs },
+  windowRow: { flexDirection: "row", gap: Spacing.xs },
   windowBtn: {
     minHeight: 36,
     minWidth: 44,
     paddingHorizontal: Spacing.sm,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderRadius: Radius.sm,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  windowBtnActive: { borderColor: Colors.accent, backgroundColor: Colors.accentDim },
+  windowBtnActive: {
+    borderColor: Colors.accent,
+    backgroundColor: Colors.accentDim,
+  },
   windowBtnText: { fontSize: Typography.xs, color: Colors.textMuted },
-  windowBtnTextActive: { color: Colors.accent, fontWeight: '700' },
+  windowBtnTextActive: { color: Colors.accent, fontWeight: "700" },
   clearBtn: {
-    marginLeft: 'auto',
+    marginLeft: "auto",
     minHeight: 36,
     minWidth: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: Spacing.sm,
   },
   clearText: { fontSize: Typography.xs, color: Colors.textMuted },
-})
+});

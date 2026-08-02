@@ -1,6 +1,6 @@
-import React from 'react'
-import { View, Text, StyleSheet } from 'react-native'
-import Svg, { Path } from 'react-native-svg'
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import Svg, { Path } from "react-native-svg";
 import {
   GAUGE_ARC,
   GAUGE_TRACK_COLORS,
@@ -16,57 +16,75 @@ import {
   widgetFracFontSize,
   widgetStaleTextColor,
   widgetTextColor,
-} from '@canshift/core'
-import { TabularNums } from '../../theme'
-import { SIGNAL_META, type SignalKey } from '../../constants/ble'
-import { signalKeyToSensorKind } from '../../theme/signal-colors'
-import { formatWidgetValue, gaugeFillFraction, splitWidgetValue } from './widget-value'
+} from "@canshift/core";
+import { TabularNums } from "../../theme";
+import { SIGNAL_META, type SignalKey } from "../../constants/ble";
+import { signalKeyToSensorKind } from "../../theme/signal-colors";
+import {
+  formatWidgetValue,
+  gaugeFillFraction,
+  splitWidgetValue,
+} from "./widget-value";
 
 interface GaugeWidgetProps {
-  signalKey: SignalKey
-  value: number | undefined
-  size: number
-  dayMode?: boolean
+  signalKey: SignalKey;
+  value: number | undefined;
+  size: number;
+  dayMode?: boolean;
 }
 
-const DEGREES_TO_RADIANS = Math.PI / 180
-const HALF_CIRCLE_DEG = 180
+const DEGREES_TO_RADIANS = Math.PI / 180;
+const HALF_CIRCLE_DEG = 180;
 
-const polarPoint = (cx: number, cy: number, radius: number, angleDeg: number): [number, number] => {
-  const rad = angleDeg * DEGREES_TO_RADIANS
-  return [cx + radius * Math.cos(rad), cy + radius * Math.sin(rad)]
-}
+const polarPoint = (
+  cx: number,
+  cy: number,
+  radius: number,
+  angleDeg: number,
+): [number, number] => {
+  const rad = angleDeg * DEGREES_TO_RADIANS;
+  return [cx + radius * Math.cos(rad), cy + radius * Math.sin(rad)];
+};
 
-const fmt = (n: number): string => n.toFixed(3)
+const fmt = (n: number): string => n.toFixed(3);
 
 const arcPath = (
   cx: number,
   cy: number,
   radius: number,
   startDeg: number,
-  endDeg: number
+  endDeg: number,
 ): string => {
-  const [x0, y0] = polarPoint(cx, cy, radius, startDeg)
-  const [x1, y1] = polarPoint(cx, cy, radius, endDeg)
-  const largeArc = endDeg - startDeg > HALF_CIRCLE_DEG ? '1' : '0'
-  return `M ${fmt(x0)} ${fmt(y0)} A ${fmt(radius)} ${fmt(radius)} 0 ${largeArc} 1 ${fmt(x1)} ${fmt(y1)}`
-}
+  const [x0, y0] = polarPoint(cx, cy, radius, startDeg);
+  const [x1, y1] = polarPoint(cx, cy, radius, endDeg);
+  const largeArc = endDeg - startDeg > HALF_CIRCLE_DEG ? "1" : "0";
+  return `M ${fmt(x0)} ${fmt(y0)} A ${fmt(radius)} ${fmt(radius)} 0 ${largeArc} 1 ${fmt(x1)} ${fmt(y1)}`;
+};
 
-const GaugeWidget = ({ signalKey, value, size, dayMode = false }: GaugeWidgetProps) => {
-  const meta = SIGNAL_META[signalKey]
-  const kind = signalKeyToSensorKind(signalKey)
-  const stale = value === undefined
+const GaugeWidget = ({
+  signalKey,
+  value,
+  size,
+  dayMode = false,
+}: GaugeWidgetProps) => {
+  const meta = SIGNAL_META[signalKey];
+  const kind = signalKeyToSensorKind(signalKey);
+  const stale = value === undefined;
 
-  const intFontSize = gaugeValueFontSize(size)
-  const fracFontSize = widgetFracFontSize(intFontSize)
+  const intFontSize = gaugeValueFontSize(size);
+  const fracFontSize = widgetFracFontSize(intFontSize);
 
-  const unitColor = dayMode ? WIDGET_TEXT_COLORS.day : WIDGET_STALE_TEXT_COLORS.day
+  const unitColor = dayMode
+    ? WIDGET_TEXT_COLORS.day
+    : WIDGET_STALE_TEXT_COLORS.day;
 
   if (!kind) {
     const parts = stale
-      ? { int: STALE_PLACEHOLDER, frac: '' }
-      : splitWidgetValue(formatWidgetValue(value, meta.decimals), false)
-    const color = stale ? widgetStaleTextColor(dayMode) : widgetTextColor(dayMode)
+      ? { int: STALE_PLACEHOLDER, frac: "" }
+      : splitWidgetValue(formatWidgetValue(value, meta.decimals), false);
+    const color = stale
+      ? widgetStaleTextColor(dayMode)
+      : widgetTextColor(dayMode);
     return (
       <View
         style={[styles.container, { width: size, height: size }]}
@@ -82,27 +100,36 @@ const GaugeWidget = ({ signalKey, value, size, dayMode = false }: GaugeWidgetPro
           fracFontSize={fracFontSize}
         />
       </View>
-    )
+    );
   }
 
-  const range = sensorDefaultRange(kind)
-  const fraction = stale ? 0 : gaugeFillFraction(value, range.min, range.max)
-  const fillAngle = stale ? 0 : gaugeValueAngle(value, range.min, range.max)
+  const range = sensorDefaultRange(kind);
+  const fraction = stale ? 0 : gaugeFillFraction(value, range.min, range.max);
+  const fillAngle = stale ? 0 : gaugeValueAngle(value, range.min, range.max);
 
-  const stroke = gaugeArcStrokeWidth(size, size)
-  const diameter = Math.max(size - stroke - GAUGE_ARC.containerPadding, GAUGE_ARC.minDiameter)
-  const radius = diameter / 2
-  const cx = size / 2
-  const cy = size / 2 + GAUGE_ARC.yShift
+  const stroke = gaugeArcStrokeWidth(size, size);
+  const diameter = Math.max(
+    size - stroke - GAUGE_ARC.containerPadding,
+    GAUGE_ARC.minDiameter,
+  );
+  const radius = diameter / 2;
+  const cx = size / 2;
+  const cy = size / 2 + GAUGE_ARC.yShift;
 
-  const startDeg = GAUGE_ARC.rotationDeg
-  const trackPath = arcPath(cx, cy, radius, startDeg, startDeg + GAUGE_ARC.sweepDeg)
-  const fillColor = gaugeGradientColorAt(fraction)
+  const startDeg = GAUGE_ARC.rotationDeg;
+  const trackPath = arcPath(
+    cx,
+    cy,
+    radius,
+    startDeg,
+    startDeg + GAUGE_ARC.sweepDeg,
+  );
+  const fillColor = gaugeGradientColorAt(fraction);
 
   const parts = stale
-    ? { int: STALE_PLACEHOLDER, frac: '' }
-    : splitWidgetValue(formatWidgetValue(value, meta.decimals), false)
-  const valueColor = stale ? widgetStaleTextColor(dayMode) : fillColor
+    ? { int: STALE_PLACEHOLDER, frac: "" }
+    : splitWidgetValue(formatWidgetValue(value, meta.decimals), false);
+  const valueColor = stale ? widgetStaleTextColor(dayMode) : fillColor;
 
   return (
     <View
@@ -127,7 +154,12 @@ const GaugeWidget = ({ signalKey, value, size, dayMode = false }: GaugeWidgetPro
           />
         ) : null}
       </Svg>
-      <View style={[styles.overlay, { transform: [{ translateY: GAUGE_ARC.yShift }] }]}>
+      <View
+        style={[
+          styles.overlay,
+          { transform: [{ translateY: GAUGE_ARC.yShift }] },
+        ]}
+      >
         <ValueCluster
           intText={parts.int}
           fracText={parts.frac}
@@ -139,17 +171,17 @@ const GaugeWidget = ({ signalKey, value, size, dayMode = false }: GaugeWidgetPro
         />
       </View>
     </View>
-  )
-}
+  );
+};
 
 interface ValueClusterProps {
-  intText: string
-  fracText: string
-  unit: string
-  color: string
-  unitColor: string
-  intFontSize: number
-  fracFontSize: number
+  intText: string;
+  fracText: string;
+  unit: string;
+  color: string;
+  unitColor: string;
+  intFontSize: number;
+  fracFontSize: number;
 }
 
 const ValueCluster = ({
@@ -163,34 +195,50 @@ const ValueCluster = ({
 }: ValueClusterProps) => (
   <>
     <View style={styles.valueRow}>
-      <Text style={{ fontSize: intFontSize, fontWeight: '700', color, fontVariant: TabularNums }}>
+      <Text
+        style={{
+          fontSize: intFontSize,
+          fontWeight: "700",
+          color,
+          fontVariant: TabularNums,
+        }}
+      >
         {intText}
       </Text>
       {fracText ? (
         <Text
-          style={{ fontSize: fracFontSize, fontWeight: '700', color, fontVariant: TabularNums }}
+          style={{
+            fontSize: fracFontSize,
+            fontWeight: "700",
+            color,
+            fontVariant: TabularNums,
+          }}
         >
           {fracText}
         </Text>
       ) : null}
     </View>
-    {unit ? <Text style={{ fontSize: VALUE_UNIT_FONT_SIZE, color: unitColor }}>{unit}</Text> : null}
+    {unit ? (
+      <Text style={{ fontSize: VALUE_UNIT_FONT_SIZE, color: unitColor }}>
+        {unit}
+      </Text>
+    ) : null}
   </>
-)
+);
 
-export default React.memo(GaugeWidget)
+export default React.memo(GaugeWidget);
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   overlay: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   valueRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
+    flexDirection: "row",
+    alignItems: "flex-end",
   },
-})
+});

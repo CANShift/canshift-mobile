@@ -1,43 +1,48 @@
-import React from 'react'
-import { StyleSheet, Text, View, useWindowDimensions } from 'react-native'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import DashScreen from '../screens/DashScreen'
-import GraphScreen from '../screens/GraphScreen'
-import LogScreen from '../screens/LogScreen'
-import TimerScreen from '../screens/TimerScreen'
-import TrackScreen from '../screens/TrackScreen'
-import ReconnectBanner from '../components/ReconnectBanner'
-import ReconnectFailedDialog from '../components/ReconnectFailedDialog'
-import { Colors, Typography } from '../theme'
-import type { RootStackParamList } from './index'
+import React from "react";
+import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import DashScreen from "../screens/DashScreen";
+import GraphScreen from "../screens/GraphScreen";
+import LogScreen from "../screens/LogScreen";
+import TimerScreen from "../screens/TimerScreen";
+import TrackScreen from "../screens/TrackScreen";
+import ReconnectBanner from "../components/ReconnectBanner";
+import ReconnectFailedDialog from "../components/ReconnectFailedDialog";
+import { Colors, Typography } from "../theme";
+import type { RootStackParamList } from "./index";
 
 interface Props {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Connected'>
+  navigation: NativeStackNavigationProp<RootStackParamList, "Connected">;
 }
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export type ConnectedTabParamList = {
-  Dash: undefined
-  Graph: undefined
-  Timer: undefined
-  Track: undefined
-  Console: undefined
-}
+  Dash: undefined;
+  Graph: undefined;
+  Timer: undefined;
+  Track: undefined;
+  Console: undefined;
+};
 
-const Tab = createBottomTabNavigator<ConnectedTabParamList>()
+const Tab = createBottomTabNavigator<ConnectedTabParamList>();
 
 const TabIcon = ({ icon, focused }: { icon: string; focused: boolean }) => {
   return (
-    <Text style={[styles.tabIcon, { color: focused ? Colors.accent : Colors.textMuted }]}>
+    <Text
+      style={[
+        styles.tabIcon,
+        { color: focused ? Colors.accent : Colors.textMuted },
+      ]}
+    >
       {icon}
     </Text>
-  )
-}
+  );
+};
 
 export default function ConnectedNavigator({ navigation }: Props) {
-  const { width, height } = useWindowDimensions()
-  const isLandscape = width > height
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
 
   return (
     <View style={styles.container}>
@@ -53,7 +58,10 @@ export default function ConnectedNavigator({ navigation }: Props) {
                 paddingBottom: 0,
                 paddingTop: 0,
               }
-            : { backgroundColor: Colors.surface, borderTopColor: Colors.border },
+            : {
+                backgroundColor: Colors.surface,
+                borderTopColor: Colors.border,
+              },
           tabBarActiveTintColor: Colors.accent,
           tabBarInactiveTintColor: Colors.textMuted,
           tabBarLabelStyle: isLandscape
@@ -65,7 +73,7 @@ export default function ConnectedNavigator({ navigation }: Props) {
         <Tab.Screen
           name="Dash"
           options={{
-            tabBarLabel: 'Dashboard',
+            tabBarLabel: "Dashboard",
             tabBarIcon: ({ focused }) => <TabIcon icon="◉" focused={focused} />,
           }}
         >
@@ -75,7 +83,7 @@ export default function ConnectedNavigator({ navigation }: Props) {
           name="Graph"
           component={GraphScreen}
           options={{
-            tabBarLabel: 'Graph',
+            tabBarLabel: "Graph",
             tabBarIcon: ({ focused }) => <TabIcon icon="∿" focused={focused} />,
           }}
         />
@@ -83,7 +91,7 @@ export default function ConnectedNavigator({ navigation }: Props) {
           name="Timer"
           component={TimerScreen}
           options={{
-            tabBarLabel: 'Timer',
+            tabBarLabel: "Timer",
             tabBarIcon: ({ focused }) => <TabIcon icon="◷" focused={focused} />,
           }}
         />
@@ -91,7 +99,7 @@ export default function ConnectedNavigator({ navigation }: Props) {
           name="Track"
           component={TrackScreen}
           options={{
-            tabBarLabel: 'Track',
+            tabBarLabel: "Track",
             tabBarIcon: ({ focused }) => <TabIcon icon="⚑" focused={focused} />,
           }}
         />
@@ -99,17 +107,17 @@ export default function ConnectedNavigator({ navigation }: Props) {
           name="Console"
           component={LogScreen}
           options={{
-            tabBarLabel: 'Console',
+            tabBarLabel: "Console",
             tabBarIcon: ({ focused }) => <TabIcon icon="≡" focused={focused} />,
           }}
         />
       </Tab.Navigator>
       <ReconnectFailedDialog navigation={navigation} />
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
   tabIcon: { fontSize: 18 },
-})
+});

@@ -1,36 +1,42 @@
-import React, { useCallback } from 'react'
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useShallow } from 'zustand/react/shallow'
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { Colors, Typography, Spacing, HitSlop } from '../theme'
-import { useDeviceStore } from '../stores/device.store'
-import { useReconnectStore } from '../stores/reconnect.store'
-import * as BleService from '../services/ble.service'
-import type { RootStackParamList } from '../navigation'
+import React, { useCallback } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useShallow } from "zustand/react/shallow";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Colors, Typography, Spacing, HitSlop } from "../theme";
+import { useDeviceStore } from "../stores/device.store";
+import { useReconnectStore } from "../stores/reconnect.store";
+import * as BleService from "../services/ble.service";
+import type { RootStackParamList } from "../navigation";
 
 interface Props {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Connected'>
+  navigation: NativeStackNavigationProp<RootStackParamList, "Connected">;
 }
 
 export default function ReconnectBanner({ navigation }: Props) {
-  const insets = useSafeAreaInsets()
-  const isSim = useDeviceStore((s) => s.mode === 'sim')
+  const insets = useSafeAreaInsets();
+  const isSim = useDeviceStore((s) => s.mode === "sim");
   const { isReconnecting, attempt, maxAttempts } = useReconnectStore(
     useShallow((s) => ({
       isReconnecting: s.isReconnecting,
       attempt: s.attempt,
       maxAttempts: s.maxAttempts,
-    }))
-  )
+    })),
+  );
 
   const cancelAndGoToScan = useCallback(() => {
-    BleService.cancelReconnect()
-    useDeviceStore.getState().clearError()
-    navigation.replace('Scan')
-  }, [navigation])
+    BleService.cancelReconnect();
+    useDeviceStore.getState().clearError();
+    navigation.replace("Scan");
+  }, [navigation]);
 
-  if (isSim || !isReconnecting) return null
+  if (isSim || !isReconnecting) return null;
 
   return (
     <View
@@ -51,13 +57,13 @@ export default function ReconnectBanner({ navigation }: Props) {
         <Text style={styles.cancel}>Cancel</Text>
       </TouchableOpacity>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   banner: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.sm,
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.sm,
@@ -66,5 +72,9 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.statusDanger,
   },
   text: { flex: 1, fontSize: Typography.sm, color: Colors.text },
-  cancel: { fontSize: Typography.sm, color: Colors.statusDanger, fontWeight: '700' },
-})
+  cancel: {
+    fontSize: Typography.sm,
+    color: Colors.statusDanger,
+    fontWeight: "700",
+  },
+});

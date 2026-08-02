@@ -1,20 +1,20 @@
-import { create } from 'zustand'
+import { create } from "zustand";
 
-export type LogLevel = 'info' | 'warn' | 'error'
+export type LogLevel = "info" | "warn" | "error";
 
 export interface LogEntry {
-  id: string
-  timestamp: number
-  level: LogLevel
-  message: string
+  id: string;
+  timestamp: number;
+  level: LogLevel;
+  message: string;
 }
 
-const MAX_ENTRIES = 200
+const MAX_ENTRIES = 200;
 
 interface LogState {
-  entries: LogEntry[]
-  log: (level: LogLevel, message: string) => void
-  clear: () => void
+  entries: LogEntry[];
+  log: (level: LogLevel, message: string) => void;
+  clear: () => void;
 }
 
 export const useLogStore = create<LogState>()((set) => ({
@@ -27,16 +27,16 @@ export const useLogStore = create<LogState>()((set) => ({
         timestamp: Date.now(),
         level,
         message,
-      }
-      return { entries: [entry, ...state.entries].slice(0, MAX_ENTRIES) }
-    })
+      };
+      return { entries: [entry, ...state.entries].slice(0, MAX_ENTRIES) };
+    });
   },
 
   clear: () => {
-    set({ entries: [] })
+    set({ entries: [] });
   },
-}))
+}));
 
 export const log = (level: LogLevel, message: string) => {
-  useLogStore.getState().log(level, message)
-}
+  useLogStore.getState().log(level, message);
+};

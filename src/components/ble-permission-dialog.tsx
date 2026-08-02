@@ -1,5 +1,5 @@
-import React from 'react'
-import { Linking } from 'react-native'
+import React from "react";
+import { Linking } from "react-native";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,19 +9,19 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui'
+} from "@/components/ui";
 
-export type BlePermissionPlatform = 'ios' | 'android'
+export type BlePermissionPlatform = "ios" | "android";
 
 const unauthorizedMessage = (platform: BlePermissionPlatform): string => {
-  return platform === 'android'
-    ? 'CANShift needs nearby devices permission. Open app settings to grant it.'
-    : 'CANShift needs Bluetooth access to find your dashboard. Open Settings to grant permission.'
-}
+  return platform === "android"
+    ? "CANShift needs nearby devices permission. Open app settings to grant it."
+    : "CANShift needs Bluetooth access to find your dashboard. Open Settings to grant permission.";
+};
 
 interface Props {
-  platform: BlePermissionPlatform | null
-  onDismiss: () => void
+  platform: BlePermissionPlatform | null;
+  onDismiss: () => void;
 }
 
 export const BlePermissionDialog = ({ platform, onDismiss }: Props) => {
@@ -29,23 +29,26 @@ export const BlePermissionDialog = ({ platform, onDismiss }: Props) => {
     <AlertDialog
       open={platform !== null}
       onOpenChange={(next) => {
-        if (!next) onDismiss()
+        if (!next) onDismiss();
       }}
     >
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Bluetooth permission needed</AlertDialogTitle>
           <AlertDialogDescription>
-            {platform !== null ? unauthorizedMessage(platform) : ''}
+            {platform !== null ? unauthorizedMessage(platform) : ""}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction variant="default" onPress={() => void Linking.openSettings()}>
+          <AlertDialogAction
+            variant="default"
+            onPress={() => void Linking.openSettings()}
+          >
             Open Settings
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
-}
+  );
+};

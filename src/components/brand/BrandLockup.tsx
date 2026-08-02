@@ -1,5 +1,5 @@
-import React from 'react'
-import Svg, { G, Path } from 'react-native-svg'
+import React from "react";
+import Svg, { G, Path } from "react-native-svg";
 import {
   BASELINE_TEXT_PATH,
   BRAND_ACCENT,
@@ -15,18 +15,20 @@ import {
   MONOGRAM_STROKE_WIDTH,
   WORDMARK_CAN_PATH,
   WORDMARK_SHIFT_PATH,
-} from '@canshift/core'
+} from "@canshift/core";
 
 export interface BrandLockupProps {
-  width: number
-  maxHeight?: number
+  width: number;
+  maxHeight?: number;
 }
 
-const VIEWBOX_WIDTH = 590
-const VIEWBOX_HEIGHT = 190
+const VIEWBOX_WIDTH = 590;
+const VIEWBOX_HEIGHT = 190;
 
 const fittedWidth = (width: number, maxHeight?: number): number =>
-  maxHeight === undefined ? width : Math.min(width, (maxHeight * VIEWBOX_WIDTH) / VIEWBOX_HEIGHT)
+  maxHeight === undefined
+    ? width
+    : Math.min(width, (maxHeight * VIEWBOX_WIDTH) / VIEWBOX_HEIGHT);
 
 export const BrandLockup = ({ width, maxHeight }: BrandLockupProps) => (
   <Svg
@@ -37,8 +39,16 @@ export const BrandLockup = ({ width, maxHeight }: BrandLockupProps) => (
     accessibilityLabel="CANShift — dash CANbus firmware"
   >
     <G transform={LOCKUP_MONOGRAM_TRANSFORM} fill="none" strokeLinecap="butt">
-      <Path d={MONOGRAM_C_PATH} stroke={BRAND_PAPER} strokeWidth={MONOGRAM_STROKE_WIDTH} />
-      <Path d={MONOGRAM_S_PATH} stroke={BRAND_ACCENT} strokeWidth={MONOGRAM_STROKE_WIDTH} />
+      <Path
+        d={MONOGRAM_C_PATH}
+        stroke={BRAND_PAPER}
+        strokeWidth={MONOGRAM_STROKE_WIDTH}
+      />
+      <Path
+        d={MONOGRAM_S_PATH}
+        stroke={BRAND_ACCENT}
+        strokeWidth={MONOGRAM_STROKE_WIDTH}
+      />
     </G>
     <Path
       d={`M${String(LOCKUP_DIVIDER.x)} ${String(LOCKUP_DIVIDER.y)} h${String(LOCKUP_DIVIDER.width)} v${String(LOCKUP_DIVIDER.height)} h-${String(LOCKUP_DIVIDER.width)} Z`}
@@ -53,4 +63,4 @@ export const BrandLockup = ({ width, maxHeight }: BrandLockupProps) => (
       <Path fill={BRAND_PAPER} d={BASELINE_TEXT_PATH} />
     </G>
   </Svg>
-)
+);

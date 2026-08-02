@@ -1,20 +1,19 @@
-import * as Location from 'expo-location'
-import type { GpsWatcher, GpsWatcherUpdate } from './gps-subscription'
+import * as Location from "expo-location";
+import type { GpsWatcher, GpsWatcherUpdate } from "./gps-subscription";
 
-const TIME_INTERVAL_MS = 200
+const TIME_INTERVAL_MS = 200;
 
-const DISTANCE_INTERVAL_M = 1
+const DISTANCE_INTERVAL_M = 1;
 
 export type ForegroundPermissionResult =
-  | { granted: true }
-  | { granted: false; canAskAgain: boolean }
+  { granted: true } | { granted: false; canAskAgain: boolean };
 
 export const requestForegroundLocationPermission =
   async (): Promise<ForegroundPermissionResult> => {
-    const response = await Location.requestForegroundPermissionsAsync()
-    if (response.granted) return { granted: true }
-    return { granted: false, canAskAgain: response.canAskAgain }
-  }
+    const response = await Location.requestForegroundPermissionsAsync();
+    if (response.granted) return { granted: true };
+    return { granted: false, canAskAgain: response.canAskAgain };
+  };
 
 export const expoLocationWatcher: GpsWatcher = {
   async start(onUpdate) {
@@ -25,14 +24,14 @@ export const expoLocationWatcher: GpsWatcher = {
         distanceInterval: DISTANCE_INTERVAL_M,
       },
       (location) => {
-        onUpdate(toUpdate(location))
-      }
-    )
+        onUpdate(toUpdate(location));
+      },
+    );
     return () => {
-      subscription.remove()
-    }
+      subscription.remove();
+    };
   },
-}
+};
 
 const toUpdate = (location: Location.LocationObject): GpsWatcherUpdate => {
   return {
@@ -41,5 +40,5 @@ const toUpdate = (location: Location.LocationObject): GpsWatcherUpdate => {
     lng: location.coords.longitude,
     speedMs: location.coords.speed,
     headingDeg: location.coords.heading,
-  }
-}
+  };
+};

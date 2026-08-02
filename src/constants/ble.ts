@@ -1,42 +1,46 @@
-export const BLE_SERVICE_UUID = '4fa0b6a0-0000-0000-0000-000000000001' as const
+export const BLE_SERVICE_UUID = "4fa0b6a0-0000-0000-0000-000000000001" as const;
 
-export const BLE_CHAR_TELE = '4fa0b6a0-0000-0000-0000-000000000002' as const
+export const BLE_CHAR_TELE = "4fa0b6a0-0000-0000-0000-000000000002" as const;
 
-export const BLE_CHAR_STATUS = '4fa0b6a0-0000-0000-0000-000000000003' as const
+export const BLE_CHAR_STATUS = "4fa0b6a0-0000-0000-0000-000000000003" as const;
 
-export const BLE_CHAR_SETTINGS = '4fa0b6a0-0000-0000-0000-000000000004' as const
+export const BLE_CHAR_SETTINGS =
+  "4fa0b6a0-0000-0000-0000-000000000004" as const;
 
-export const BLE_CHAR_CMD = '4fa0b6a0-0000-0000-0000-000000000005' as const
+export const BLE_CHAR_CMD = "4fa0b6a0-0000-0000-0000-000000000005" as const;
 
-export const BLE_CHAR_TIMER_CMD = '4fa0b6a0-0000-0000-0000-000000000006' as const
+export const BLE_CHAR_TIMER_CMD =
+  "4fa0b6a0-0000-0000-0000-000000000006" as const;
 
-export const BLE_CHAR_TIMER_STATE = '4fa0b6a0-0000-0000-0000-000000000007' as const
+export const BLE_CHAR_TIMER_STATE =
+  "4fa0b6a0-0000-0000-0000-000000000007" as const;
 
-export const BLE_CHAR_TIMER_LAP = '4fa0b6a0-0000-0000-0000-000000000008' as const
+export const BLE_CHAR_TIMER_LAP =
+  "4fa0b6a0-0000-0000-0000-000000000008" as const;
 
-export const BLE_DEVICE_NAME = 'CANShift' as const
+export const BLE_DEVICE_NAME = "CANShift" as const;
 
 export interface SignalMeta {
-  label: string
-  unit: string
-  decimals: number
+  label: string;
+  unit: string;
+  decimals: number;
 }
 
 export const SIGNAL_META = {
-  r: { label: 'RPM', unit: '', decimals: 0 },
-  tps: { label: 'Throttle', unit: '%', decimals: 0 },
-  map: { label: 'MAP', unit: 'kPa', decimals: 0 },
-  mi: { label: 'Map', unit: '', decimals: 0 },
-  bst: { label: 'Boost', unit: 'bar', decimals: 2 },
-  iat: { label: 'Intake Air', unit: '°C', decimals: 0 },
-  ct: { label: 'Coolant', unit: '°C', decimals: 0 },
-  ot: { label: 'Oil Temp', unit: '°C', decimals: 0 },
-  op: { label: 'Oil Pressure', unit: 'bar', decimals: 1 },
-  fp: { label: 'Fuel Press.', unit: 'bar', decimals: 1 },
-  lam: { label: 'Lambda', unit: 'λ', decimals: 2 },
-  s: { label: 'Speed', unit: 'kph', decimals: 0 },
-  g: { label: 'Gear', unit: '', decimals: 0 },
-  bat: { label: 'Battery', unit: 'V', decimals: 1 },
-} satisfies Record<string, SignalMeta>
+  r: { label: "RPM", unit: "", decimals: 0 },
+  tps: { label: "Throttle", unit: "%", decimals: 0 },
+  map: { label: "MAP", unit: "kPa", decimals: 0 },
+  mi: { label: "Map", unit: "", decimals: 0 },
+  bst: { label: "Boost", unit: "bar", decimals: 2 },
+  iat: { label: "Intake Air", unit: "°C", decimals: 0 },
+  ct: { label: "Coolant", unit: "°C", decimals: 0 },
+  ot: { label: "Oil Temp", unit: "°C", decimals: 0 },
+  op: { label: "Oil Pressure", unit: "bar", decimals: 1 },
+  fp: { label: "Fuel Press.", unit: "bar", decimals: 1 },
+  lam: { label: "Lambda", unit: "λ", decimals: 2 },
+  s: { label: "Speed", unit: "kph", decimals: 0 },
+  g: { label: "Gear", unit: "", decimals: 0 },
+  bat: { label: "Battery", unit: "V", decimals: 1 },
+} satisfies Record<string, SignalMeta>;
 
-export type SignalKey = keyof typeof SIGNAL_META
+export type SignalKey = keyof typeof SIGNAL_META;

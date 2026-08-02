@@ -1,10 +1,10 @@
-import { View, Text, StyleSheet } from 'react-native'
-import { Colors, Typography, Spacing } from '../theme'
+import { View, Text, StyleSheet } from "react-native";
+import { Colors, Typography, Spacing } from "../theme";
 
 export interface InfoRowProps {
-  label: string
-  value: string
-  muted?: boolean
+  label: string;
+  value: string;
+  muted?: boolean;
 }
 
 export const InfoRow = ({ label, value, muted = false }: InfoRowProps) => (
@@ -14,13 +14,13 @@ export const InfoRow = ({ label, value, muted = false }: InfoRowProps) => (
       {value}
     </Text>
   </View>
-)
+);
 
 const styles = StyleSheet.create({
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     gap: Spacing.md,
   },
   label: {
@@ -29,13 +29,13 @@ const styles = StyleSheet.create({
   },
   value: {
     flexShrink: 1,
-    textAlign: 'right',
+    textAlign: "right",
     fontSize: Typography.sm,
-    fontWeight: '600',
+    fontWeight: "600",
     color: Colors.text,
   },
   valueMuted: {
     color: Colors.textDim,
-    fontWeight: '400',
+    fontWeight: "400",
   },
-})
+});

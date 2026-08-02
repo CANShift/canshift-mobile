@@ -1,43 +1,45 @@
-import { create } from 'zustand'
+import { create } from "zustand";
 import {
   createLapCrossingDetector,
   type LapCrossingDetector,
   type LapCrossingDetectorOptions,
   type LineSegment,
-} from '../lib/lap-detect'
+} from "../lib/lap-detect";
 
-export const MAX_GPS_SAMPLES = 9000
+export const MAX_GPS_SAMPLES = 9000;
 
 export interface GpsSample {
-  t: number
-  lat: number
-  lng: number
-  speedMs: number
-  headingDeg: number
+  t: number;
+  lat: number;
+  lng: number;
+  speedMs: number;
+  headingDeg: number;
 }
 
 export interface LapRecord {
-  number: number
-  startMs: number
-  endMs: number
-  durationMs: number
+  number: number;
+  startMs: number;
+  endMs: number;
+  durationMs: number;
 }
 
 interface TrackSessionState {
-  recording: boolean
-  sessionStartMs: number
-  sessionStartSampleIndex: number
-  laps: LapRecord[]
-  bestLapMs: number
-  writeIndex: number
-  startFinishSet: boolean
+  recording: boolean;
+  sessionStartMs: number;
+  sessionStartSampleIndex: number;
+  laps: LapRecord[];
+  bestLapMs: number;
+  writeIndex: number;
+  startFinishSet: boolean;
 }
 
-const samples: (GpsSample | undefined)[] = new Array<GpsSample | undefined>(MAX_GPS_SAMPLES)
-let head = 0
-let size = 0
-let writeIndex = 0
-let detector: LapCrossingDetector | null = null
+const samples: (GpsSample | undefined)[] = new Array<GpsSample | undefined>(
+  MAX_GPS_SAMPLES,
+);
+let head = 0;
+let size = 0;
+let writeIndex = 0;
+let detector: LapCrossingDetector | null = null;
 
 export const useTrackSessionStore = create<TrackSessionState>(() => ({
   recording: false,
@@ -47,42 +49,42 @@ export const useTrackSessionStore = create<TrackSessionState>(() => ({
   bestLapMs: 0,
   writeIndex: 0,
   startFinishSet: false,
-}))
+}));
 
 export const startSession = (nowMs: number = Date.now()): void => {
-  detector?.reset()
+  detector?.reset();
   useTrackSessionStore.setState({
     recording: true,
     sessionStartMs: nowMs,
     sessionStartSampleIndex: writeIndex,
     laps: [],
     bestLapMs: 0,
-  })
-}
+  });
+};
 
 export const armStartFinishLine = (
   line: LineSegment,
-  opts: LapCrossingDetectorOptions = {}
+  opts: LapCrossingDetectorOptions = {},
 ): void => {
-  detector = createLapCrossingDetector(line, opts)
-  useTrackSessionStore.setState({ startFinishSet: true })
-}
+  detector = createLapCrossingDetector(line, opts);
+  useTrackSessionStore.setState({ startFinishSet: true });
+};
 
 export const clearStartFinishLine = (): void => {
-  detector = null
-  useTrackSessionStore.setState({ startFinishSet: false })
-}
+  detector = null;
+  useTrackSessionStore.setState({ startFinishSet: false });
+};
 
 export const stopSession = (): void => {
-  useTrackSessionStore.setState({ recording: false })
-}
+  useTrackSessionStore.setState({ recording: false });
+};
 
 export const clearAll = (): void => {
-  for (let i = 0; i < MAX_GPS_SAMPLES; i += 1) samples[i] = undefined
-  head = 0
-  size = 0
-  writeIndex = 0
-  detector = null
+  for (let i = 0; i < MAX_GPS_SAMPLES; i += 1) samples[i] = undefined;
+  head = 0;
+  size = 0;
+  writeIndex = 0;
+  detector = null;
   useTrackSessionStore.setState({
     recording: false,
     sessionStartMs: 0,
@@ -91,71 +93,81 @@ export const clearAll = (): void => {
     bestLapMs: 0,
     writeIndex: 0,
     startFinishSet: false,
-  })
-}
+  });
+};
 
 const detectLapCrossing = (sample: GpsSample): void => {
-  if (detector === null) return
-  const state = useTrackSessionStore.getState()
-  if (!state.recording) return
-  const crossingMs = detector.update({ t: sample.t, lat: sample.lat, lng: sample.lng })
-  if (crossingMs === null) return
-  const lastLap = state.laps[state.laps.length - 1]
-  const lapStartMs = lastLap?.endMs ?? state.sessionStartMs
-  if (crossingMs <= lapStartMs) return
-  recordLap(lapStartMs, crossingMs)
-}
+  if (detector === null) return;
+  const state = useTrackSessionStore.getState();
+  if (!state.recording) return;
+  const crossingMs = detector.update({
+    t: sample.t,
+    lat: sample.lat,
+    lng: sample.lng,
+  });
+  if (crossingMs === null) return;
+  const lastLap = state.laps[state.laps.length - 1];
+  const lapStartMs = lastLap?.endMs ?? state.sessionStartMs;
+  if (crossingMs <= lapStartMs) return;
+  recordLap(lapStartMs, crossingMs);
+};
 
 export const pushSample = (sample: GpsSample): void => {
-  samples[head] = { ...sample }
-  head = (head + 1) % MAX_GPS_SAMPLES
-  if (size < MAX_GPS_SAMPLES) size += 1
-  writeIndex += 1
-  useTrackSessionStore.setState({ writeIndex })
-  detectLapCrossing(sample)
-}
+  samples[head] = { ...sample };
+  head = (head + 1) % MAX_GPS_SAMPLES;
+  if (size < MAX_GPS_SAMPLES) size += 1;
+  writeIndex += 1;
+  useTrackSessionStore.setState({ writeIndex });
+  detectLapCrossing(sample);
+};
 
 export const getLatestSample = (): GpsSample | undefined => {
-  return getSampleAt(writeIndex - 1)
-}
+  return getSampleAt(writeIndex - 1);
+};
 
 export const getWriteIndex = (): number => {
-  return writeIndex
-}
+  return writeIndex;
+};
 
 export const getSampleAt = (monotonicIndex: number): GpsSample | undefined => {
-  if (size === 0) return undefined
-  const oldestAvailable = writeIndex - size
-  if (monotonicIndex < oldestAvailable || monotonicIndex >= writeIndex) return undefined
-  const offset = writeIndex - monotonicIndex
-  const ringIdx = (head - offset + MAX_GPS_SAMPLES) % MAX_GPS_SAMPLES
-  return samples[ringIdx]
-}
+  if (size === 0) return undefined;
+  const oldestAvailable = writeIndex - size;
+  if (monotonicIndex < oldestAvailable || monotonicIndex >= writeIndex)
+    return undefined;
+  const offset = writeIndex - monotonicIndex;
+  const ringIdx = (head - offset + MAX_GPS_SAMPLES) % MAX_GPS_SAMPLES;
+  return samples[ringIdx];
+};
 
-export const getRange = (fromIndex: number, toIndex: number): readonly GpsSample[] => {
-  if (toIndex <= fromIndex || size === 0) return []
-  const oldestAvailable = writeIndex - size
-  const from = Math.max(fromIndex, oldestAvailable)
-  const to = Math.min(toIndex, writeIndex)
-  if (to <= from) return []
-  const count = to - from
-  const out: GpsSample[] = new Array<GpsSample>(count)
+export const getRange = (
+  fromIndex: number,
+  toIndex: number,
+): readonly GpsSample[] => {
+  if (toIndex <= fromIndex || size === 0) return [];
+  const oldestAvailable = writeIndex - size;
+  const from = Math.max(fromIndex, oldestAvailable);
+  const to = Math.min(toIndex, writeIndex);
+  if (to <= from) return [];
+  const count = to - from;
+  const out: GpsSample[] = new Array<GpsSample>(count);
   for (let i = 0; i < count; i += 1) {
-    const monotonic = from + i
-    const sample = getSampleAt(monotonic)
-    if (sample !== undefined) out[i] = sample
+    const monotonic = from + i;
+    const sample = getSampleAt(monotonic);
+    if (sample !== undefined) out[i] = sample;
   }
-  return out
-}
+  return out;
+};
 
 export const recordLap = (startMs: number, endMs: number): LapRecord => {
-  const durationMs = endMs - startMs
-  const state = useTrackSessionStore.getState()
-  const number = state.laps.length + 1
-  const lap: LapRecord = { number, startMs, endMs, durationMs }
-  const nextLaps = [...state.laps, lap]
+  const durationMs = endMs - startMs;
+  const state = useTrackSessionStore.getState();
+  const number = state.laps.length + 1;
+  const lap: LapRecord = { number, startMs, endMs, durationMs };
+  const nextLaps = [...state.laps, lap];
   const nextBest =
-    state.bestLapMs === 0 || durationMs < state.bestLapMs ? durationMs : state.bestLapMs
-  useTrackSessionStore.setState({ laps: nextLaps, bestLapMs: nextBest })
-  return lap
-}
+    state.bestLapMs === 0 || durationMs < state.bestLapMs
+      ? durationMs
+      : state.bestLapMs;
+  useTrackSessionStore.setState({ laps: nextLaps, bestLapMs: nextBest });
+  return lap;
+};
