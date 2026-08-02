@@ -1,51 +1,51 @@
-import React from 'react'
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { CURRENT_SCHEMA_VERSION } from '@canshift/core'
-import { readAppVersion } from '../lib/expo-version'
-import { ScreenHeader } from '../components/ScreenHeader'
-import { InfoRow } from '../components/InfoRow'
-import { useDeviceStore } from '../stores/device.store'
-import type { ConnectionState } from '../stores/device.store'
-import { Colors, Radius, Spacing, Typography } from '../theme'
-import type { RootStackParamList } from '../navigation'
+import React from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { CURRENT_SCHEMA_VERSION } from "@canshift/core";
+import { readAppVersion } from "../lib/expo-version";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { InfoRow } from "../components/InfoRow";
+import { useDeviceStore } from "../stores/device.store";
+import type { ConnectionState } from "../stores/device.store";
+import { Colors, Radius, Spacing, Typography } from "../theme";
+import type { RootStackParamList } from "../navigation";
 
 interface Props {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'About'>
+  navigation: NativeStackNavigationProp<RootStackParamList, "About">;
 }
 
-const EM_DASH = '—'
-const NOT_CONNECTED = 'Not connected'
+const EM_DASH = "—";
+const NOT_CONNECTED = "Not connected";
 
 const CONNECTION_LABEL: Record<ConnectionState, string> = {
-  idle: 'Disconnected',
-  scanning: 'Scanning',
-  connecting: 'Connecting',
-  connected: 'Connected',
-  error: 'Error',
-}
+  idle: "Disconnected",
+  scanning: "Scanning",
+  connecting: "Connecting",
+  connected: "Connected",
+  error: "Error",
+};
 
 export default function AboutScreen({ navigation }: Props) {
-  const connectionState = useDeviceStore((s) => s.connectionState)
-  const firmwareVersion = useDeviceStore((s) => s.firmwareVersion)
-  const deviceName = useDeviceStore((s) => s.deviceName)
-  const deviceId = useDeviceStore((s) => s.deviceId)
+  const connectionState = useDeviceStore((s) => s.connectionState);
+  const firmwareVersion = useDeviceStore((s) => s.firmwareVersion);
+  const deviceName = useDeviceStore((s) => s.deviceName);
+  const deviceId = useDeviceStore((s) => s.deviceId);
 
-  const appVersion = readAppVersion()
-  const connected = connectionState === 'connected'
+  const appVersion = readAppVersion();
+  const connected = connectionState === "connected";
   const firmwareValue = connected
     ? firmwareVersion !== null
       ? `v${firmwareVersion}`
       : EM_DASH
-    : NOT_CONNECTED
+    : NOT_CONNECTED;
 
   return (
     <SafeAreaView style={styles.container}>
       <ScreenHeader
         title="ABOUT"
         onBack={() => {
-          navigation.goBack()
+          navigation.goBack();
         }}
       />
 
@@ -57,7 +57,10 @@ export default function AboutScreen({ navigation }: Props) {
             value={appVersion !== null ? `v${appVersion}` : EM_DASH}
             muted={appVersion === null}
           />
-          <InfoRow label="Config schema version" value={`v${CURRENT_SCHEMA_VERSION}`} />
+          <InfoRow
+            label="Config schema version"
+            value={`v${CURRENT_SCHEMA_VERSION}`}
+          />
         </View>
 
         <View style={styles.card}>
@@ -77,11 +80,15 @@ export default function AboutScreen({ navigation }: Props) {
             value={deviceName ?? NOT_CONNECTED}
             muted={deviceName === null}
           />
-          <InfoRow label="Device ID" value={deviceId ?? EM_DASH} muted={deviceId === null} />
+          <InfoRow
+            label="Device ID"
+            value={deviceId ?? EM_DASH}
+            muted={deviceId === null}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -97,9 +104,9 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: Typography.xs,
-    fontWeight: '600',
+    fontWeight: "600",
     color: Colors.textDim,
     letterSpacing: 0.8,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
-})
+});

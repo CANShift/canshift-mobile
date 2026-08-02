@@ -1,33 +1,34 @@
-import { create } from 'zustand'
-import type { BleConnectionError } from '../services/ble.errors'
+import { create } from "zustand";
+import type { BleConnectionError } from "../services/ble.errors";
 
-export type ConnectionState = 'idle' | 'scanning' | 'connecting' | 'connected' | 'error'
+export type ConnectionState =
+  "idle" | "scanning" | "connecting" | "connected" | "error";
 
-export type DeviceMode = 'idle' | 'sim' | 'ble'
+export type DeviceMode = "idle" | "sim" | "ble";
 
 interface DeviceState {
-  connectionState: ConnectionState
-  mode: DeviceMode
-  deviceId: string | null
-  deviceName: string | null
-  firmwareVersion: string | null
-  canHealthy: boolean
-  isDayMode: boolean | null
-  error: BleConnectionError | null
+  connectionState: ConnectionState;
+  mode: DeviceMode;
+  deviceId: string | null;
+  deviceName: string | null;
+  firmwareVersion: string | null;
+  canHealthy: boolean;
+  isDayMode: boolean | null;
+  error: BleConnectionError | null;
 
-  setConnectionState: (s: ConnectionState) => void
-  setMode: (m: DeviceMode) => void
-  setDevice: (id: string, name: string) => void
-  setFirmwareStatus: (version: string, canHealthy: boolean) => void
-  setIsDayMode: (v: boolean) => void
-  setError: (err: BleConnectionError | null) => void
-  clearError: () => void
-  disconnect: () => void
+  setConnectionState: (s: ConnectionState) => void;
+  setMode: (m: DeviceMode) => void;
+  setDevice: (id: string, name: string) => void;
+  setFirmwareStatus: (version: string, canHealthy: boolean) => void;
+  setIsDayMode: (v: boolean) => void;
+  setError: (err: BleConnectionError | null) => void;
+  clearError: () => void;
+  disconnect: () => void;
 }
 
 export const useDeviceStore = create<DeviceState>()((set) => ({
-  connectionState: 'idle',
-  mode: 'idle',
+  connectionState: "idle",
+  mode: "idle",
   deviceId: null,
   deviceName: null,
   firmwareVersion: null,
@@ -36,43 +37,43 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
   error: null,
 
   setConnectionState: (connectionState) => {
-    set({ connectionState })
+    set({ connectionState });
   },
 
   setMode: (mode) => {
-    set({ mode })
+    set({ mode });
   },
 
   setDevice: (deviceId, deviceName) => {
-    set({ deviceId, deviceName, connectionState: 'connected', error: null })
+    set({ deviceId, deviceName, connectionState: "connected", error: null });
   },
 
   setFirmwareStatus: (firmwareVersion, canHealthy) => {
-    set({ firmwareVersion, canHealthy })
+    set({ firmwareVersion, canHealthy });
   },
 
   setIsDayMode: (isDayMode) => {
-    set({ isDayMode })
+    set({ isDayMode });
   },
 
   setError: (error) => {
-    set({ error, connectionState: 'error' })
+    set({ error, connectionState: "error" });
   },
 
   clearError: () => {
-    set({ error: null, connectionState: 'idle' })
+    set({ error: null, connectionState: "idle" });
   },
 
   disconnect: () => {
     set({
-      connectionState: 'idle',
-      mode: 'idle',
+      connectionState: "idle",
+      mode: "idle",
       deviceId: null,
       deviceName: null,
       firmwareVersion: null,
       canHealthy: false,
       isDayMode: null,
       error: null,
-    })
+    });
   },
-}))
+}));

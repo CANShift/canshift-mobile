@@ -1,5 +1,5 @@
-import React from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
 import {
   STALE_PLACEHOLDER,
   VALUE_UNIT_FONT_SIZE,
@@ -9,38 +9,49 @@ import {
   widgetFracFontSize,
   widgetStaleTextColor,
   widgetTextColor,
-} from '@canshift/core'
-import { Colors, Radius, Spacing, TabularNums, Typography } from '../../theme'
-import { SIGNAL_META, type SignalKey } from '../../constants/ble'
-import { sensorRampColorAt, signalKeyToSensorKind } from '../../theme/signal-colors'
-import { formatWidgetValue, splitWidgetValue } from './widget-value'
+} from "@canshift/core";
+import { Colors, Radius, Spacing, TabularNums, Typography } from "../../theme";
+import { SIGNAL_META, type SignalKey } from "../../constants/ble";
+import {
+  sensorRampColorAt,
+  signalKeyToSensorKind,
+} from "../../theme/signal-colors";
+import { formatWidgetValue, splitWidgetValue } from "./widget-value";
 
 interface LabelWidgetProps {
-  signalKey: SignalKey
-  value: number | undefined
-  width: number
-  height: number
-  dayMode?: boolean
+  signalKey: SignalKey;
+  value: number | undefined;
+  width: number;
+  height: number;
+  dayMode?: boolean;
 }
 
-const LabelWidget = ({ signalKey, value, width, height, dayMode = false }: LabelWidgetProps) => {
-  const meta = SIGNAL_META[signalKey]
-  const kind = signalKeyToSensorKind(signalKey)
-  const stale = value === undefined
+const LabelWidget = ({
+  signalKey,
+  value,
+  width,
+  height,
+  dayMode = false,
+}: LabelWidgetProps) => {
+  const meta = SIGNAL_META[signalKey];
+  const kind = signalKeyToSensorKind(signalKey);
+  const stale = value === undefined;
 
-  const intFontSize = labelFontSize(width, height)
-  const fracFontSize = widgetFracFontSize(intFontSize)
+  const intFontSize = labelFontSize(width, height);
+  const fracFontSize = widgetFracFontSize(intFontSize);
 
   const parts = stale
-    ? { int: STALE_PLACEHOLDER, frac: '' }
-    : splitWidgetValue(formatWidgetValue(value, meta.decimals), true)
+    ? { int: STALE_PLACEHOLDER, frac: "" }
+    : splitWidgetValue(formatWidgetValue(value, meta.decimals), true);
 
   const tint = stale
     ? widgetStaleTextColor(dayMode)
     : kind
       ? sensorRampColorAt(kind, value)
-      : widgetTextColor(dayMode)
-  const unitColor = dayMode ? WIDGET_TEXT_COLORS.day : WIDGET_STALE_TEXT_COLORS.day
+      : widgetTextColor(dayMode);
+  const unitColor = dayMode
+    ? WIDGET_TEXT_COLORS.day
+    : WIDGET_STALE_TEXT_COLORS.day;
 
   return (
     <View
@@ -54,7 +65,7 @@ const LabelWidget = ({ signalKey, value, width, height, dayMode = false }: Label
         <Text
           style={{
             fontSize: intFontSize,
-            fontWeight: '700',
+            fontWeight: "700",
             color: tint,
             fontVariant: TabularNums,
           }}
@@ -66,7 +77,7 @@ const LabelWidget = ({ signalKey, value, width, height, dayMode = false }: Label
           <Text
             style={{
               fontSize: fracFontSize,
-              fontWeight: '700',
+              fontWeight: "700",
               color: tint,
               fontVariant: TabularNums,
             }}
@@ -76,16 +87,21 @@ const LabelWidget = ({ signalKey, value, width, height, dayMode = false }: Label
           </Text>
         ) : null}
         {meta.unit ? (
-          <Text style={[styles.unit, { fontSize: VALUE_UNIT_FONT_SIZE, color: unitColor }]}>
+          <Text
+            style={[
+              styles.unit,
+              { fontSize: VALUE_UNIT_FONT_SIZE, color: unitColor },
+            ]}
+          >
             {meta.unit}
           </Text>
         ) : null}
       </View>
     </View>
-  )
-}
+  );
+};
 
-export default React.memo(LabelWidget)
+export default React.memo(LabelWidget);
 
 const styles = StyleSheet.create({
   card: {
@@ -94,8 +110,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     borderRadius: Radius.md,
     padding: Spacing.sm,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   label: {
     fontSize: Typography.xs,
@@ -104,11 +120,11 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   valueRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
+    flexDirection: "row",
+    alignItems: "flex-end",
     gap: 3,
   },
   unit: {
     marginBottom: 3,
   },
-})
+});

@@ -1,10 +1,10 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
-import { ChevronLeft } from 'lucide-react-native'
-import { Colors, Fonts, Typography, Spacing, HitSlop } from '../theme'
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { ChevronLeft } from "lucide-react-native";
+import { Colors, Fonts, Typography, Spacing, HitSlop } from "../theme";
 
 interface ScreenHeaderProps {
-  title: string
-  onBack?: () => void
+  title: string;
+  onBack?: () => void;
 }
 
 export const ScreenHeader = ({ title, onBack }: ScreenHeaderProps) => (
@@ -26,19 +26,24 @@ export const ScreenHeader = ({ title, onBack }: ScreenHeaderProps) => (
     <Text style={styles.title}>{title}</Text>
     <View style={styles.spacer} />
   </View>
-)
+);
 
 const styles = StyleSheet.create({
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  backBtn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 2 },
+  backBtn: {
+    minHeight: 44,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+  },
   back: { fontSize: Typography.md, color: Colors.accent },
   title: {
     fontFamily: Fonts.uiExtraBold,
@@ -47,4 +52,4 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   spacer: { width: 48 },
-})
+});

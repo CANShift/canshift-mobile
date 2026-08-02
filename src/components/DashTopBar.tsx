@@ -1,16 +1,16 @@
-import React, { useCallback, useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
-import { Menu, Power, Circle, CircleDot } from 'lucide-react-native'
-import { useNavigation } from '@react-navigation/native'
-import { useShallow } from 'zustand/react/shallow'
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { Colors, Typography, Spacing, Radius } from '../theme'
-import { useDeviceStore } from '../stores/device.store'
-import { useSignalValue, useSignalsIsLive } from '../stores/signals.store'
-import * as BleService from '../services/ble.service'
-import * as SimService from '../services/sim.service'
-import type { RootStackParamList } from '../navigation'
-import { Sheet, SheetContent } from './ui/sheet'
+import React, { useCallback, useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Menu, Power, Circle, CircleDot } from "lucide-react-native";
+import { useNavigation } from "@react-navigation/native";
+import { useShallow } from "zustand/react/shallow";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Colors, Typography, Spacing, Radius } from "../theme";
+import { useDeviceStore } from "../stores/device.store";
+import { useSignalValue, useSignalsIsLive } from "../stores/signals.store";
+import * as BleService from "../services/ble.service";
+import * as SimService from "../services/sim.service";
+import type { RootStackParamList } from "../navigation";
+import { Sheet, SheetContent } from "./ui/sheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,9 +20,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from './ui/alert-dialog'
+} from "./ui/alert-dialog";
 
-type RootNav = NativeStackNavigationProp<RootStackParamList>
+type RootNav = NativeStackNavigationProp<RootStackParamList>;
 
 export default function DashTopBar() {
   const { deviceName, firmwareVersion, canHealthy, isSim } = useDeviceStore(
@@ -30,40 +30,45 @@ export default function DashTopBar() {
       deviceName: s.deviceName,
       firmwareVersion: s.firmwareVersion,
       canHealthy: s.canHealthy,
-      isSim: s.mode === 'sim',
-    }))
-  )
-  const isLive = useSignalsIsLive()
-  const mi = useSignalValue('mi')
-  const activeMapIndex = mi !== undefined ? Math.round(mi) : undefined
-  const [menuVisible, setMenuVisible] = useState(false)
-  const [disconnectVisible, setDisconnectVisible] = useState(false)
+      isSim: s.mode === "sim",
+    })),
+  );
+  const isLive = useSignalsIsLive();
+  const mi = useSignalValue("mi");
+  const activeMapIndex = mi !== undefined ? Math.round(mi) : undefined;
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [disconnectVisible, setDisconnectVisible] = useState(false);
 
-  const tabNav = useNavigation()
-  const rootNav = tabNav.getParent<RootNav>()
+  const tabNav = useNavigation();
+  const rootNav = tabNav.getParent<RootNav>();
 
   const handleDisconnect = useCallback(() => {
-    setDisconnectVisible(true)
-  }, [])
+    setDisconnectVisible(true);
+  }, []);
 
   const confirmDisconnect = useCallback(async () => {
     if (SimService.isRunning()) {
-      SimService.stop()
+      SimService.stop();
     } else {
-      await BleService.disconnect()
+      await BleService.disconnect();
     }
-    rootNav.replace('Scan')
-  }, [rootNav])
+    rootNav.replace("Scan");
+  }, [rootNav]);
 
   return (
     <>
       <View style={styles.topBar}>
         <View>
-          <Text style={styles.deviceName}>{deviceName ?? 'CANShift'}</Text>
+          <Text style={styles.deviceName}>{deviceName ?? "CANShift"}</Text>
           <View style={styles.versionRow}>
-            <Text style={styles.version}>{firmwareVersion ? `v${firmwareVersion} · ` : '· '}</Text>
+            <Text style={styles.version}>
+              {firmwareVersion ? `v${firmwareVersion} · ` : "· "}
+            </Text>
             <Text
-              style={[styles.version, { color: canHealthy ? Colors.success : Colors.textMuted }]}
+              style={[
+                styles.version,
+                { color: canHealthy ? Colors.success : Colors.textMuted },
+              ]}
             >
               CAN
             </Text>
@@ -92,7 +97,7 @@ export default function DashTopBar() {
           )}
           <TouchableOpacity
             onPress={() => {
-              setMenuVisible(true)
+              setMenuVisible(true);
             }}
             style={styles.iconBtn}
             accessibilityRole="button"
@@ -104,7 +109,7 @@ export default function DashTopBar() {
             onPress={handleDisconnect}
             style={styles.iconBtn}
             accessibilityRole="button"
-            accessibilityLabel={isSim ? 'End demo' : 'Disconnect'}
+            accessibilityLabel={isSim ? "End demo" : "Disconnect"}
           >
             <Power size={20} color={Colors.accent} />
           </TouchableOpacity>
@@ -114,15 +119,19 @@ export default function DashTopBar() {
       <AlertDialog open={disconnectVisible} onOpenChange={setDisconnectVisible}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{isSim ? 'End demo mode?' : 'Disconnect'}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {isSim ? "End demo mode?" : "Disconnect"}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              {isSim ? 'Stop the simulator and return to scan?' : 'Disconnect from the dashboard?'}
+              {isSim
+                ? "Stop the simulator and return to scan?"
+                : "Disconnect from the dashboard?"}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onPress={() => void confirmDisconnect()}>
-              {isSim ? 'End demo' : 'Disconnect'}
+              {isSim ? "End demo" : "Disconnect"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -137,8 +146,8 @@ export default function DashTopBar() {
                   style={styles.menuItem}
                   accessibilityRole="button"
                   onPress={() => {
-                    setMenuVisible(false)
-                    rootNav.navigate('Settings')
+                    setMenuVisible(false);
+                    rootNav.navigate("Settings");
                   }}
                 >
                   <Text style={styles.menuItemText}>Settings</Text>
@@ -150,8 +159,8 @@ export default function DashTopBar() {
               style={styles.menuItem}
               accessibilityRole="button"
               onPress={() => {
-                setMenuVisible(false)
-                rootNav.navigate('About')
+                setMenuVisible(false);
+                rootNav.navigate("About");
               }}
             >
               <Text style={styles.menuItemText}>About</Text>
@@ -161,32 +170,43 @@ export default function DashTopBar() {
               style={styles.menuItem}
               accessibilityRole="button"
               onPress={() => {
-                setMenuVisible(false)
+                setMenuVisible(false);
               }}
             >
-              <Text style={[styles.menuItemText, { color: Colors.textMuted }]}>Cancel</Text>
+              <Text style={[styles.menuItemText, { color: Colors.textMuted }]}>
+                Cancel
+              </Text>
             </TouchableOpacity>
           </View>
         </SheetContent>
       </Sheet>
     </>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  deviceName: { fontSize: Typography.md, fontWeight: '600', color: Colors.text },
+  deviceName: {
+    fontSize: Typography.md,
+    fontWeight: "600",
+    color: Colors.text,
+  },
   version: { fontSize: Typography.xs, color: Colors.textMuted },
-  versionRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
-  topBarRight: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  versionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginTop: 2,
+  },
+  topBarRight: { flexDirection: "row", alignItems: "center", gap: Spacing.sm },
   mapBadge: {
     backgroundColor: Colors.successBg,
     borderWidth: 1,
@@ -195,7 +215,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
   },
-  mapText: { fontSize: Typography.xs, color: Colors.success, fontWeight: '700' },
+  mapText: {
+    fontSize: Typography.xs,
+    color: Colors.success,
+    fontWeight: "700",
+  },
   simBadge: {
     backgroundColor: Colors.accentDim,
     borderWidth: 1,
@@ -204,7 +228,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
   },
-  simText: { fontSize: Typography.xs, color: Colors.accent, fontWeight: '700' },
+  simText: { fontSize: Typography.xs, color: Colors.accent, fontWeight: "700" },
   staleBadge: {
     backgroundColor: Colors.accentDim,
     borderWidth: 1,
@@ -213,12 +237,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
   },
-  staleText: { fontSize: Typography.xs, color: Colors.accent, fontWeight: '700' },
+  staleText: {
+    fontSize: Typography.xs,
+    color: Colors.accent,
+    fontWeight: "700",
+  },
   iconBtn: {
     minWidth: 44,
     minHeight: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   menuSheet: {
     backgroundColor: Colors.surfaceHigh,
@@ -227,8 +255,12 @@ const styles = StyleSheet.create({
   menuItem: {
     paddingVertical: Spacing.lg,
     paddingHorizontal: Spacing.xl,
-    alignItems: 'center',
+    alignItems: "center",
   },
   menuItemText: { fontSize: Typography.md, color: Colors.text },
-  menuDivider: { height: 1, backgroundColor: Colors.border, marginHorizontal: Spacing.lg },
-})
+  menuDivider: {
+    height: 1,
+    backgroundColor: Colors.border,
+    marginHorizontal: Spacing.lg,
+  },
+});

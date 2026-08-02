@@ -1,28 +1,28 @@
-import * as React from 'react'
-import { Text } from 'react-native'
-import { render } from '@testing-library/react-native'
-import { Card, CardHeader, CardTitle, CardContent } from '../card'
+import * as React from "react";
+import { Text } from "react-native";
+import { render } from "@testing-library/react-native";
+import { Card, CardHeader, CardTitle, CardContent } from "../card";
 
-describe('Card', () => {
-  it('renders children', () => {
+describe("Card", () => {
+  it("renders children", () => {
     const { getByText } = render(
       <Card>
         <Text>Hello</Text>
-      </Card>
-    )
-    expect(getByText('Hello')).toBeTruthy()
-  })
+      </Card>,
+    );
+    expect(getByText("Hello")).toBeTruthy();
+  });
 
-  it('renders the accent variant', () => {
+  it("renders the accent variant", () => {
     const { getByText } = render(
       <Card variant="accent">
         <Text>Accent</Text>
-      </Card>
-    )
-    expect(getByText('Accent')).toBeTruthy()
-  })
+      </Card>,
+    );
+    expect(getByText("Accent")).toBeTruthy();
+  });
 
-  it('composes Header + Title + Content', () => {
+  it("composes Header + Title + Content", () => {
     const { getByText } = render(
       <Card>
         <CardHeader>
@@ -31,9 +31,9 @@ describe('Card', () => {
         <CardContent>
           <Text>Body</Text>
         </CardContent>
-      </Card>
-    )
-    expect(getByText('Title')).toBeTruthy()
-    expect(getByText('Body')).toBeTruthy()
-  })
-})
+      </Card>,
+    );
+    expect(getByText("Title")).toBeTruthy();
+    expect(getByText("Body")).toBeTruthy();
+  });
+});

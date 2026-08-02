@@ -1,25 +1,30 @@
-import { useState, useMemo, useCallback } from 'react'
-import { View, Text, StyleSheet, LayoutChangeEvent } from 'react-native'
-import Svg, { Polyline, Line, Text as SvgText } from 'react-native-svg'
-import { Colors, TabularNums, Typography, Spacing } from '../../theme'
-import { getSignalColor } from '../../theme/signal-colors'
-import { SIGNAL_META, type SignalKey } from '../../constants/ble'
-import { SIGNAL_RANGE, buildPoints, formatTime, formatValue } from '../../lib/graph-math'
-import type { SignalValues } from '../../stores/telemetry.store'
-import { useGraphSeries } from '../../hooks/use-graph-series'
-import { SignalPillRow } from './SignalPillRow'
-import { GraphControls } from './GraphControls'
+import { useState, useMemo, useCallback } from "react";
+import { View, Text, StyleSheet, LayoutChangeEvent } from "react-native";
+import Svg, { Polyline, Line, Text as SvgText } from "react-native-svg";
+import { Colors, TabularNums, Typography, Spacing } from "../../theme";
+import { getSignalColor } from "../../theme/signal-colors";
+import { SIGNAL_META, type SignalKey } from "../../constants/ble";
+import {
+  SIGNAL_RANGE,
+  buildPoints,
+  formatTime,
+  formatValue,
+} from "../../lib/graph-math";
+import type { SignalValues } from "../../stores/telemetry.store";
+import { useGraphSeries } from "../../hooks/use-graph-series";
+import { SignalPillRow } from "./SignalPillRow";
+import { GraphControls } from "./GraphControls";
 
 export interface ChartPanelProps {
-  visibleSignals: SignalKey[]
-  windowSecs: number
-  paused: boolean
-  pausedAt: number
-  onTogglePause: () => void
-  onSetWindow: (s: number) => void
-  onClear: () => void
-  onToggleSignal: (key: SignalKey) => void
-  compact: boolean
+  visibleSignals: SignalKey[];
+  windowSecs: number;
+  paused: boolean;
+  pausedAt: number;
+  onTogglePause: () => void;
+  onSetWindow: (s: number) => void;
+  onClear: () => void;
+  onToggleSignal: (key: SignalKey) => void;
+  compact: boolean;
 }
 
 export const ChartPanel = ({
@@ -33,30 +38,45 @@ export const ChartPanel = ({
   onToggleSignal,
   compact,
 }: ChartPanelProps) => {
-  const [chartSize, setChartSize] = useState({ width: 300, height: 160 })
+  const [chartSize, setChartSize] = useState({ width: 300, height: 160 });
 
   const onChartLayout = useCallback((e: LayoutChangeEvent) => {
-    const { width, height } = e.nativeEvent.layout
-    setChartSize({ width, height })
-  }, [])
+    const { width, height } = e.nativeEvent.layout;
+    setChartSize({ width, height });
+  }, []);
 
-  const { rolling, windowStart, windowEnd, hasData } = useGraphSeries(windowSecs, paused, pausedAt)
+  const { rolling, windowStart, windowEnd, hasData } = useGraphSeries(
+    windowSecs,
+    paused,
+    pausedAt,
+  );
 
   const lines = useMemo(() => {
-    const latest: SignalValues = rolling[rolling.length - 1]?.v ?? {}
+    const latest: SignalValues = rolling[rolling.length - 1]?.v ?? {};
     return visibleSignals.map((key) => ({
       key,
       color: getSignalColor(key),
-      points: buildPoints(rolling, key, windowStart, windowEnd, chartSize.width, chartSize.height),
+      points: buildPoints(
+        rolling,
+        key,
+        windowStart,
+        windowEnd,
+        chartSize.width,
+        chartSize.height,
+      ),
       latestValue: latest[key],
-    }))
-  }, [rolling, windowStart, windowEnd, visibleSignals, chartSize])
+    }));
+  }, [rolling, windowStart, windowEnd, visibleSignals, chartSize]);
 
-  const vGap = compact ? 2 : Spacing.xs
+  const vGap = compact ? 2 : Spacing.xs;
 
   return (
     <>
-      <SignalPillRow visibleSignals={visibleSignals} onToggleSignal={onToggleSignal} vGap={vGap} />
+      <SignalPillRow
+        visibleSignals={visibleSignals}
+        onToggleSignal={onToggleSignal}
+        vGap={vGap}
+      />
 
       <GraphControls
         paused={paused}
@@ -96,16 +116,22 @@ export const ChartPanel = ({
                   strokeLinejoin="round"
                   strokeLinecap="round"
                 />
-              ) : null
+              ) : null,
             )}
             {lines.map((line) => {
-              const range = SIGNAL_RANGE[line.key]
-              if (line.latestValue === undefined) return null
+              const range = SIGNAL_RANGE[line.key];
+              if (line.latestValue === undefined) return null;
               const norm = Math.max(
                 0,
-                Math.min(1, (line.latestValue - range.min) / (range.max - range.min))
-              )
-              const y = Math.max(10, Math.min(chartSize.height - 4, (1 - norm) * chartSize.height))
+                Math.min(
+                  1,
+                  (line.latestValue - range.min) / (range.max - range.min),
+                ),
+              );
+              const y = Math.max(
+                10,
+                Math.min(chartSize.height - 4, (1 - norm) * chartSize.height),
+              );
               return (
                 <SvgText
                   key={line.key}
@@ -115,9 +141,10 @@ export const ChartPanel = ({
                   textAnchor="end"
                   fontWeight="600"
                 >
-                  {SIGNAL_META[line.key].label} {formatValue(line.key, line.latestValue)}
+                  {SIGNAL_META[line.key].label}{" "}
+                  {formatValue(line.key, line.latestValue)}
                 </SvgText>
-              )
+              );
             })}
           </Svg>
         )}
@@ -125,7 +152,9 @@ export const ChartPanel = ({
 
       <View style={styles.timeAxis}>
         <Text style={styles.timeLabel}>{formatTime(windowStart)}</Text>
-        <Text style={styles.timeLabel}>{formatTime((windowStart + windowEnd) / 2)}</Text>
+        <Text style={styles.timeLabel}>
+          {formatTime((windowStart + windowEnd) / 2)}
+        </Text>
         <Text style={styles.timeLabel}>{formatTime(windowEnd)}</Text>
       </View>
 
@@ -144,8 +173,8 @@ export const ChartPanel = ({
         </View>
       )}
     </>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   chartContainer: {
@@ -154,29 +183,33 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  noDataOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  noDataOverlay: { flex: 1, justifyContent: "center", alignItems: "center" },
   noDataText: { color: Colors.textMuted, fontSize: Typography.sm },
 
   timeAxis: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingHorizontal: Spacing.sm,
     paddingVertical: 4,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  timeLabel: { fontSize: Typography.xxs, color: Colors.textMuted, fontVariant: TabularNums },
+  timeLabel: {
+    fontSize: Typography.xxs,
+    color: Colors.textMuted,
+    fontVariant: TabularNums,
+  },
 
   valuesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     paddingHorizontal: Spacing.sm,
   },
   valueChip: {
-    width: '20%',
-    alignItems: 'center',
+    width: "20%",
+    alignItems: "center",
     paddingVertical: 4,
   },
-  valueKey: { fontSize: 10, fontWeight: '600', letterSpacing: 0.3 },
-  valueNum: { fontSize: 15, fontWeight: '700', fontVariant: TabularNums },
-})
+  valueKey: { fontSize: 10, fontWeight: "600", letterSpacing: 0.3 },
+  valueNum: { fontSize: 15, fontWeight: "700", fontVariant: TabularNums },
+});

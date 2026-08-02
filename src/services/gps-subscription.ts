@@ -1,22 +1,24 @@
-import { pushSample } from '../stores/track-session.store'
+import { pushSample } from "../stores/track-session.store";
 
 export interface GpsWatcherUpdate {
-  t: number
-  lat: number
-  lng: number
-  speedMs: number | null
-  headingDeg: number | null
+  t: number;
+  lat: number;
+  lng: number;
+  speedMs: number | null;
+  headingDeg: number | null;
 }
 
 export interface GpsWatcher {
-  start(onUpdate: (update: GpsWatcherUpdate) => void): Promise<() => void>
+  start(onUpdate: (update: GpsWatcherUpdate) => void): Promise<() => void>;
 }
 
 export interface GpsSubscription {
-  stop(): void
+  stop(): void;
 }
 
-export const startGpsSubscription = async (watcher: GpsWatcher): Promise<GpsSubscription> => {
+export const startGpsSubscription = async (
+  watcher: GpsWatcher,
+): Promise<GpsSubscription> => {
   const detach = await watcher.start((update) => {
     pushSample({
       t: update.t,
@@ -24,14 +26,14 @@ export const startGpsSubscription = async (watcher: GpsWatcher): Promise<GpsSubs
       lng: update.lng,
       speedMs: update.speedMs ?? 0,
       headingDeg: update.headingDeg ?? 0,
-    })
-  })
-  let stopped = false
+    });
+  });
+  let stopped = false;
   return {
     stop() {
-      if (stopped) return
-      stopped = true
-      detach()
+      if (stopped) return;
+      stopped = true;
+      detach();
     },
-  }
-}
+  };
+};

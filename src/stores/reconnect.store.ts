@@ -1,14 +1,14 @@
-import { create } from 'zustand'
+import { create } from "zustand";
 
 interface ReconnectState {
-  isReconnecting: boolean
-  attempt: number
-  maxAttempts: number
-  deviceId: string | null
+  isReconnecting: boolean;
+  attempt: number;
+  maxAttempts: number;
+  deviceId: string | null;
 
-  start: (deviceId: string, maxAttempts: number) => void
-  setAttempt: (attempt: number) => void
-  stop: () => void
+  start: (deviceId: string, maxAttempts: number) => void;
+  setAttempt: (attempt: number) => void;
+  stop: () => void;
 }
 
 export const useReconnectStore = create<ReconnectState>()((set) => ({
@@ -18,14 +18,14 @@ export const useReconnectStore = create<ReconnectState>()((set) => ({
   deviceId: null,
 
   start: (deviceId, maxAttempts) => {
-    set({ isReconnecting: true, attempt: 0, maxAttempts, deviceId })
+    set({ isReconnecting: true, attempt: 0, maxAttempts, deviceId });
   },
 
   setAttempt: (attempt) => {
-    set({ attempt })
+    set({ attempt });
   },
 
   stop: () => {
-    set({ isReconnecting: false, attempt: 0, maxAttempts: 0, deviceId: null })
+    set({ isReconnecting: false, attempt: 0, maxAttempts: 0, deviceId: null });
   },
-}))
+}));
