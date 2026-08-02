@@ -1,4 +1,4 @@
-import type { TimerCommand } from '@tmbk/canshift-core'
+import type { TimerCommand } from '@canshift/core'
 import { bleService } from './ble.service'
 import { log } from '../stores/log.store'
 import { useDeviceStore } from '../stores/device.store'

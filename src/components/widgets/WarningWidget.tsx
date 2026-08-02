@@ -10,7 +10,7 @@ import {
   WIDGET_ZONE_COLORS,
   sensorDefaultDangerThreshold,
   widgetStaleTextColor,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 import { Colors, Typography } from '../../theme'
 import { SIGNAL_META, type SignalKey } from '../../constants/ble'
 import { signalKeyToSensorKind } from '../../theme/signal-colors'

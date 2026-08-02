@@ -9,7 +9,7 @@ import {
   widgetFracFontSize,
   widgetStaleTextColor,
   widgetTextColor,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 import { Colors, Radius, Spacing, TabularNums, Typography } from '../../theme'
 import { SIGNAL_META, type SignalKey } from '../../constants/ble'
 import { sensorRampColorAt, signalKeyToSensorKind } from '../../theme/signal-colors'

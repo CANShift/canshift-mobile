@@ -7,7 +7,7 @@ const workspaceRoot = path.resolve(projectRoot, '..')
 
 const config = getDefaultConfig(projectRoot)
 
-// Allow Metro to follow the `file:../canshift-core` linked dep up one level.
+// Allow Metro to follow the `file:node_modules/@canshift/core` linked dep up one level.
 config.watchFolders = [path.resolve(workspaceRoot, 'canshift-core')]
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),

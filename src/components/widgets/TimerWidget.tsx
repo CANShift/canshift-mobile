@@ -7,7 +7,7 @@ import {
   TIMER_STATE_BORDER_WIDTH,
   timerFontSize,
   widgetTextColor,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 import { Colors, Radius, Spacing, TabularNums } from '../../theme'
 import { useTimerStore, type TimerStatus } from '../../stores/timer.store'
 import { useTimerElapsed } from '../../hooks/use-timer-elapsed'

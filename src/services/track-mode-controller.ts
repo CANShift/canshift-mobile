@@ -1,4 +1,4 @@
-import type { TrackTelemetry } from '@tmbk/canshift-core'
+import type { TrackTelemetry } from '@canshift/core'
 import { startGpsSubscription, type GpsSubscription, type GpsWatcher } from './gps-subscription'
 import {
   expoLocationWatcher,

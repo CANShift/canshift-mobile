@@ -1,6 +1,6 @@
 import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
-import { gearFontSize } from '@tmbk/canshift-core'
+import { gearFontSize } from '@canshift/core'
 import { SIGNAL_META, type SignalKey } from '../../constants/ble'
 import { gearColor, gearGlyphFor } from './widget-value'
 

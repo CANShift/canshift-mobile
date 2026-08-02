@@ -1,4 +1,4 @@
-import type { TrackTelemetry } from '@tmbk/canshift-core'
+import type { TrackTelemetry } from '@canshift/core'
 import {
   clearAll,
   recordLap,

@@ -1,4 +1,4 @@
-// canshift-core-shim.ts — Jest-only re-export for @tmbk/canshift-core.
+// canshift-core-shim.ts — Jest-only re-export for @canshift/core.
 //
 // Mobile tests cannot import the full barrel because Zod's CJS interop
 // path requires @babel/runtime helpers that aren't resolvable from outside

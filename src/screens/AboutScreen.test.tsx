@@ -9,8 +9,8 @@ jest.mock('../lib/expo-version', () => ({
   readAppVersion: () => '1.2.3',
 }))
 
-jest.mock('@tmbk/canshift-core', () => ({
-  ...jest.requireActual<typeof import('@tmbk/canshift-core')>('@tmbk/canshift-core'),
+jest.mock('@canshift/core', () => ({
+  ...jest.requireActual<typeof import('@canshift/core')>('@canshift/core'),
   CURRENT_SCHEMA_VERSION: '1.24.0',
 }))
 

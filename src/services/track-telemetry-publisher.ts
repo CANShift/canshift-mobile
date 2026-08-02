@@ -1,4 +1,4 @@
-import { TrackTelemetrySchema, type TrackTelemetry } from '@tmbk/canshift-core'
+import { TrackTelemetrySchema, type TrackTelemetry } from '@canshift/core'
 import { log } from '../stores/log.store'
 import { useTrackSessionStore } from '../stores/track-session.store'
 import { buildTrackTelemetry } from './track-telemetry'

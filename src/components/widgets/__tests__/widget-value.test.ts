@@ -2,7 +2,7 @@ import {
   WIDGET_TEXT_COLORS,
   WIDGET_STALE_TEXT_COLORS,
   WIDGET_ZONE_COLORS,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 import {
   formatTimerElapsed,
   formatWidgetValue,

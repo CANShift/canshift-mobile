@@ -16,7 +16,7 @@ import {
   widgetFracFontSize,
   widgetStaleTextColor,
   widgetTextColor,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 import { TabularNums } from '../../theme'
 import { SIGNAL_META, type SignalKey } from '../../constants/ble'
 import { signalKeyToSensorKind } from '../../theme/signal-colors'

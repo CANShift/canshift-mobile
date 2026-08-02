@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { fireEvent, render } from '@testing-library/react-native'
-import { STALE_PLACEHOLDER } from '@tmbk/canshift-core'
+import { STALE_PLACEHOLDER } from '@canshift/core'
 import GaugeWidget from '../GaugeWidget'
 import LabelWidget from '../LabelWidget'
 import GearWidget from '../GearWidget'

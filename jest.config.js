@@ -22,7 +22,7 @@ module.exports = {
     // the validation/migration barrel chain (which pulls in @babel/runtime
     // helpers that jest can't locate from outside mobile's node_modules
     // tree).
-    '^@tmbk/canshift-core$': '<rootDir>/__mocks__/canshift-core-shim.ts',
+    '^@canshift/core$': '<rootDir>/__mocks__/canshift-core-shim.ts',
     // Core source files reached through the shim get transpiled by babel-jest,
     // which injects @babel/runtime helper requires. Those resolve relative to
     // the core package (installed --omit=dev, no babel there) — pin them to

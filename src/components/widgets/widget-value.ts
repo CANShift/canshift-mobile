@@ -9,7 +9,7 @@ import {
   isWarningTripped,
   widgetStaleTextColor,
   widgetTextColor,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 
 const TIMER_MSEC_FORMAT_MAX_MS = 60_000
 

@@ -1,84 +1,66 @@
-# canshift-mobile — Security triage
+# Security Policy
 
-This document tracks the npm audit findings for `canshift-mobile` and their
-classification. Re-triage quarterly or after every Expo SDK upgrade.
+## Supported Versions
 
-Last audit: 2026-06-02 (Expo SDK 52, jest-expo 52).
-Findings: 16 (3 low, 13 high). All transitive dev-tooling. The previously
-moderate `ws` finding from the 2026-05-08 sweep was cleared by a non-breaking
-`npm audit fix` that lifted `ws` past the affected window; the table below is
-the residual after that pass.
+CANShift ships from `main` — only the latest release of each component
+receives security fixes. There is no LTS branch.
 
-## Classification key
+| Component                   | Supported |
+| --------------------------- | --------- |
+| Studio-web (latest release) | ✅        |
+| Firmware (latest on `main`) | ✅        |
+| Mobile (latest release)     | ✅        |
+| Anything earlier            | ❌        |
 
-- **runtime** — code path reaches user devices in production builds.
-- **build-tooling** — only runs during `expo prebuild` / `expo install` /
-  EAS build on developer machines and CI.
-- **test-tooling** — only runs in Jest under `npm test`.
-- **false-positive** — advisory disputed or doesn't apply to our usage.
+A new release is tagged automatically whenever
+`canshift-firmware/package.json` bumps and the change merges to `main`.
 
-## Findings
+## Reporting a Vulnerability
 
-| #   | Source package                   | Advisory                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Severity | Class         | Rationale                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| --- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `tar` (<=7.5.10 — we are on 6.x) | [GHSA-34x7-hfp2-rc4v](https://github.com/advisories/GHSA-34x7-hfp2-rc4v), [GHSA-8qq5-rm4j-mr97](https://github.com/advisories/GHSA-8qq5-rm4j-mr97), [GHSA-83g3-92jg-28cx](https://github.com/advisories/GHSA-83g3-92jg-28cx), [GHSA-qffp-2rhf-9h96](https://github.com/advisories/GHSA-qffp-2rhf-9h96), [GHSA-9ppj-qmqm-q256](https://github.com/advisories/GHSA-9ppj-qmqm-q256), [GHSA-r6q2-hw4h-h46w](https://github.com/advisories/GHSA-r6q2-hw4h-h46w) — hardlink/symlink path traversal + APFS Unicode race during archive extraction | high     | build-tooling | Pulled in by `@expo/cli` and `cacache` during `expo prebuild` / `npm install`. Never bundled into the iOS/Android app. Trigger requires extracting an attacker-crafted tarball, which only happens against npm registry traffic on a dev machine or CI runner. Fix path is Expo SDK 55+ (semver-major) — deferred to the planned SDK upgrade (#436). The `preinstall` guard in `package.json` already blocks the breaking tar v7 fork. Re-triaged 2026-06-02 against the open `#882` audit. |
-| 2   | `@xmldom/xmldom` (<0.8.12)       | [GHSA-wh4c-j3r5-mjhp](https://github.com/advisories/GHSA-wh4c-j3r5-mjhp), [GHSA-2v35-w6hq-6mfw](https://github.com/advisories/GHSA-2v35-w6hq-6mfw), and 3 siblings — XML injection / uncontrolled recursion during XML serialization                                                                                                                                                                                                                                                                                                       | high     | build-tooling | Pulled in by `@expo/plist` to read/write iOS plist files during `expo prebuild`. We control the input plists (our own `app.json` projection). Trigger requires the build to parse attacker-crafted XML. Fix path is Expo SDK 55 (semver-major). The `preinstall` guard blocks the breaking xmldom v0.9 fork.                                                                                                                                                                                |
-| 3   | `cacache`                        | inherits `tar`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | high     | build-tooling | Same as #1 — used by `@expo/cli` only at install/build time.                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| 4   | `@expo/cli`                      | inherits #1 + #2 + #3                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | high     | build-tooling | Build-time CLI. Not in the app bundle.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| 5   | `@expo/config`                   | inherits `@expo/config-plugins`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | high     | build-tooling | Build-time config resolution. Not in the app bundle.                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| 6   | `@expo/config-plugins`           | inherits `@expo/plist` (#2)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | high     | build-tooling | Build-time config plugin runner. Not in the app bundle.                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| 7   | `@expo/metro-config`             | inherits `@expo/config`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | high     | build-tooling | Metro bundler config. Runs on developer machine / CI; not on user devices.                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| 8   | `@expo/plist`                    | inherits `@xmldom/xmldom` (#2)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | high     | build-tooling | iOS plist read/write during prebuild. Not in the app bundle.                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| 9   | `@expo/prebuild-config`          | inherits `@expo/config-plugins`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | high     | build-tooling | Prebuild config resolution. Not in the app bundle.                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| 10  | `expo`                           | inherits all the above                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | high     | build-tooling | The umbrella SDK package surfaces the transitive vulnerabilities of its CLI/build chain. The runtime portion of `expo` is not affected by these advisories.                                                                                                                                                                                                                                                                                                                                 |
-| 11  | `expo-asset`                     | inherits `expo-constants`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | high     | build-tooling | Same chain as above (pulls `@expo/config` at build time).                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| 12  | `expo-constants`                 | inherits `@expo/config`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | high     | build-tooling | Same chain as above.                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| 13  | `jest-expo`                      | inherits `@expo/config` + `jest-environment-jsdom`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | high     | test-tooling  | Jest preset; runs only under `npm test`, never on user devices.                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| 14  | `jest-environment-jsdom`         | inherits `jsdom`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | low      | test-tooling  | Jest DOM env. Tests only.                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| 15  | `jsdom`                          | inherits `http-proxy-agent`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | low      | test-tooling  | DOM polyfill for Jest. Tests only.                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| 16  | `http-proxy-agent`               | inherits `@tootallnate/once`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | low      | test-tooling  | HTTP agent pulled in by `jsdom`. Tests only.                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| 17  | `@tootallnate/once` (<3.0.1)     | [GHSA-vpq2-c234-7xj6](https://github.com/advisories/GHSA-vpq2-c234-7xj6) — incorrect control flow scoping (CVSS 3.3 / local)                                                                                                                                                                                                                                                                                                                                                                                                               | low      | test-tooling  | Pulled in by `http-proxy-agent` -> `jsdom` -> `jest-environment-jsdom`. Tests only.                                                                                                                                                                                                                                                                                                                                                                                                         |
+Please **do not** open a public GitHub issue, discussion, or PR for security
+reports.
 
-## Status summary
+Use the repository's
+[**Report a vulnerability**](https://github.com/tburkhalterr/CANShift/security/advisories/new)
+button (Security tab → Advisories → "Report a vulnerability"). This opens a
+private GitHub Security Advisory visible only to you and the maintainers.
 
-- **Runtime impact:** 0 findings.
-- **Build-tooling:** 12 findings (all rooted in `tar` and `@xmldom/xmldom`,
-  blocked from being upgraded by the Expo SDK 52 internals — see the
-  `preinstall` guard in `package.json` and #382).
-- **Test-tooling:** 5 findings (all rooted in `jsdom` via `jest-expo`).
-- **False-positive:** 0.
-- **Fix path:** Expo SDK 55 upgrade closes 16/17. The remaining one is
-  `@tootallnate/once` which the SDK 55 upgrade also resolves transitively
-  (via `jest-expo@55`). No standalone fix is applied here because every
-  finding requires a semver-major bump that we are not ready to take.
+In your report please include:
 
-## Why no `npm audit fix --force`
+- Affected component (`canshift-core`, `canshift-studio-web`, `canshift-firmware`,
+  or `canshift-mobile`) and the commit SHA or release tag you tested against.
+- A short description of the issue and the impact (what an attacker can read,
+  write, or run).
+- Reproduction steps or a proof-of-concept.
 
-`npm audit fix --force` is what introduced the broken overrides removed in #382.
-Both `tar@7` and `@xmldom/xmldom@0.9` break Expo SDK 52 prebuild internals
-(`tar.extract` undefined, `DOMParser.parseFromString` mimeType undefined). The
-`preinstall` script in `package.json` blocks them from being re-introduced.
+You can expect:
 
-Manual triage only. Track Expo SDK 55 upgrade as the remediation path for the
-build-tooling chain.
+- An acknowledgement within **5 working days**.
+- A triage decision (accepted / declined / needs-info) within **14 days**.
+- For accepted reports: a coordinated fix, a patched release, and a credited
+  advisory published via GitHub Security Advisories.
 
-## Unmaintained-package decisions
+## Scope
 
-### `clsx` — kept
+In scope:
 
-`expo-doctor` flags `clsx` as unmaintained per the React Native Directory
-metadata. False positive: clsx 2.1.1 (latest) was released April 2024, the
-API is stable, the package is ~200 LOC, has no native code, and no network
-surface. We use it inside `cn()` together with `tailwind-merge` for
-class-name composition; replacing it would not eliminate the surface area.
+- Remote-exploitable issues in firmware HAL surfaces — BLE GATT, USB JSON
+  protocol, Wi-Fi AP HTTP server, WS dispatcher, Wi-Fi OTA endpoint, OTA HMAC.
+- `canshift-studio-web` payload parsing, WS transport, and outbound network
+  calls (release fetch, firmware download).
+- Mobile BLE / OTA flows.
+- Schema-validation bypasses in `canshift-core` that let a malicious config
+  reach the firmware.
 
-Decision: keep, pinned to `^2.1.1`, excluded from
-`expo.doctor.reactNativeDirectoryCheck` in `package.json`.
+Out of scope:
 
-## Re-triage trigger
-
-Re-run this triage when any of the following happen:
-
-- A new advisory appears that is NOT covered by the table above.
-- We bump Expo SDK or jest-expo (expected to clear most of the table).
-- A finding's classification changes from build/test-tooling to runtime.
+- Findings against forks or third-party hardware not listed in
+  `canshift-firmware/include/hardware_profile.h`.
+- Issues that require unrestricted physical access to an unlocked device
+  (e.g. dumping flash with a soldered programmer).
+- Self-XSS in the dash-hosted Studio with no privilege boundary crossed.
+- Denial-of-service from malformed local CAN traffic — the device is expected
+  to be on a trusted bus.
+- Vulnerabilities in unmaintained or end-of-life dependencies that we already
+  pin around (see `canshift-mobile/package.json` `//overrides` for examples)
+  — open a dependency PR instead.

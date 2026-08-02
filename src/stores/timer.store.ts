@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { TimerBleLap, TimerBleState } from '@tmbk/canshift-core'
+import type { TimerBleLap, TimerBleState } from '@canshift/core'
 import { insertLap, type IncomingLap, type SessionLap } from '../lib/timer-laps'
 
 export type TimerStatus = 'idle' | 'running' | 'paused'

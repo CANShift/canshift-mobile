@@ -15,7 +15,7 @@ import {
   MONOGRAM_STROKE_WIDTH,
   WORDMARK_CAN_PATH,
   WORDMARK_SHIFT_PATH,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 
 export interface BrandLockupProps {
   width: number

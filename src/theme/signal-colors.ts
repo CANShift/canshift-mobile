@@ -1,4 +1,4 @@
-import { SENSOR_DEFAULT_RAMPS, colorAtValue, type SensorKind } from '@tmbk/canshift-core'
+import { SENSOR_DEFAULT_RAMPS, colorAtValue, type SensorKind } from '@canshift/core'
 import type { SignalKey } from '../constants/ble'
 
 export const KEY_TO_SENSOR_KIND: Record<string, SensorKind> = {

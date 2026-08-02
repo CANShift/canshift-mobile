@@ -1,6 +1,6 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
-import { TIMER_BORDER_COLORS } from '@tmbk/canshift-core'
+import { TIMER_BORDER_COLORS } from '@canshift/core'
 import { Colors, Radius, Spacing, TabularNums, Typography } from '../../theme'
 import type { TimerStatus } from '../../stores/timer.store'
 import { formatTimerElapsed } from '../widgets/widget-value'

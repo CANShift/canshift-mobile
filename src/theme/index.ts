@@ -1,5 +1,5 @@
 import type { TextStyle } from 'react-native'
-import { DARK_TOKENS } from '@tmbk/canshift-core'
+import { DARK_TOKENS } from '@canshift/core'
 
 const MOBILE_ALIASES = {
   surfaceHigh: DARK_TOKENS.colors.surface2,
@@ -23,7 +23,7 @@ export const Fonts = {
 
 export const TabularNums: NonNullable<TextStyle['fontVariant']> = ['tabular-nums']
 
-export type { DesignTokens } from '@tmbk/canshift-core'
+export type { DesignTokens } from '@canshift/core'
 
 export const HitSlop = {
   default: { top: 8, bottom: 8, left: 8, right: 8 },

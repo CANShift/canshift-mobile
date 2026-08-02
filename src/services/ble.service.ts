@@ -32,7 +32,7 @@ import {
   parseTimerLap,
   parseTimerState,
   type TimerCommand,
-} from '@tmbk/canshift-core'
+} from '@canshift/core'
 import { useTimerStore } from '../stores/timer.store'
 import { recordSessionLap } from '../stores/timer-sessions.store'
 import { decodeBase64, encodeBase64 } from './base64'

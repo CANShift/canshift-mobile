@@ -1,4 +1,4 @@
-import type { TrackTelemetry } from '@tmbk/canshift-core'
+import type { TrackTelemetry } from '@canshift/core'
 import { clearAll, recordLap, useTrackSessionStore } from '../stores/track-session.store'
 import type { GpsWatcher, GpsWatcherUpdate } from './gps-subscription'
 import { createTrackModeController, toTrackStateCmd } from './track-mode-controller'
