@@ -6,9 +6,8 @@ const readWith = (constantsShape: Record<string, unknown>): string | null => {
       default: constantsShape,
     }));
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- jest.isolateModules requires a synchronous re-require; dynamic `import()` returns a Promise and doesn't share the isolated registry.
-    const { readAppVersion } =
-      require("./expo-version") as typeof import("./expo-version");
-    value = readAppVersion();
+    const expoVersion = require("./expo-version") as typeof import("./expo-version");
+    value = expoVersion.readAppVersion();
   });
   return value;
 };
