@@ -2,7 +2,7 @@
 
 Companion app for the CANShift dashboard. Live BLE telemetry and settings
 push from your phone. See the
-[monorepo root](../README.md) for the full system overview.
+[CANShift organization](https://github.com/CANShift) for the full system overview.
 
 **Stack:** Expo SDK 54 (bare workflow via prebuild) · React Native 0.81.5 ·
 React 19.1 · TypeScript 5 · Zustand 5 · `react-native-ble-plx` 3.5.1 ·
@@ -93,7 +93,7 @@ src/
 ## BLE protocol
 
 The mobile app talks to the firmware-side GATT server in
-[`canshift-firmware/src/hal/ble/ble_server.cpp`](../canshift-firmware/src/hal/ble/ble_server.cpp).
+[`canshift-firmware/src/hal/ble/ble_server.cpp`](https://github.com/CANShift/canshift-firmware/blob/main/src/hal/ble/ble_server.cpp).
 UUIDs and the compact telemetry key map are mirrored in
 `src/constants/ble.ts` — keep both sides in sync when characteristics change.
 
@@ -182,7 +182,7 @@ the attempt cap is reached.
 `SettingsScreen` prefers the explicit, idempotent command:
 
 ```ts
-await BleService.sendCmd('set_day_night', { day: target }) // preferred (#288)
+await BleService.sendCmd("set_day_night", { day: target }); // preferred (#288)
 ```
 
 `toggle_day_night` is still accepted by current firmware but is **not**
@@ -224,10 +224,10 @@ union the UI can switch on exhaustively:
 
 ```ts
 type AndroidBlePermissionResult =
-  | { kind: 'granted' }
-  | { kind: 'denied' }
-  | { kind: 'never_ask_again' }
-  | { kind: 'not_applicable' }
+  | { kind: "granted" }
+  | { kind: "denied" }
+  | { kind: "never_ask_again" }
+  | { kind: "not_applicable" };
 ```
 
 `ScanScreen` renders an "Open Settings" CTA when the result is
@@ -256,7 +256,7 @@ Configured in `app.json > expo.plugins`:
 `canshift-core` is shipped as a workspace dependency since #887:
 
 ```json
-"@tmbk/canshift-core": "file:../canshift-core"
+"@canshift/core": "^1.0.0"
 ```
 
 The `prestart` / `prebuild` / `prepare` scripts in `package.json` rebuild
@@ -270,7 +270,7 @@ mobile surface gains config editing.
 
 ## Contributing & issues
 
-The repo is monorepo-wide; please read the root [README](../README.md) and
+Please read the org overview at [github.com/CANShift](https://github.com/CANShift) and
 [CLAUDE.md](../CLAUDE.md) before opening a PR. Branch naming:
 `type/short-description` (e.g. `feat/mobile-graph-pinning`). Conventional
 commit subjects only — no body, no co-author lines.
