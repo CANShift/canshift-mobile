@@ -1,0 +1,45 @@
+name: iOS native
+
+on:
+  pull_request:
+    paths:
+      - 'app.json'
+      - 'plugins/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/ios-native.yml'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '24'
+
+jobs:
+  ios:
+    name: iOS simulator build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - run: npm ci
+
+      - name: prebuild
+        run: npx expo prebuild --clean --platform ios
+
+      - name: xcodebuild
+        working-directory: ios
+        run: |
+          set -o pipefail
+          WORKSPACE=$(ls | grep '\.xcworkspace$' | head -1)
+          SCHEME="${WORKSPACE%.xcworkspace}"
+          xcodebuild \
+            -workspace "$WORKSPACE" \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            build | xcbeautify --quieter
