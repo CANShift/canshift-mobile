@@ -1,4 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 116 100" width="116" height="100" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" fill="none">
+  <rect width="1024" height="1024" fill="#151313"></rect>
+  <svg x="297.0" y="326.6" width="430.1" height="370.8" viewBox="0 0 116 100">
   <g transform="translate(10,0) skewX(-11)" fill="none">
     <path d="M26 78 V64" stroke="#F3F2F2" stroke-width="13"></path>
     <path d="M48 78 V52" stroke="#F3F2F2" stroke-width="13"></path>
@@ -6,4 +8,5 @@
     <path d="M92 78 V24" stroke="#FF4747" stroke-width="13"></path>
     <path d="M18 90 H100" stroke="#F3F2F2" stroke-width="7"></path>
   </g>
+  </svg>
 </svg>
