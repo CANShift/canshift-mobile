@@ -1,5 +1,10 @@
 # CANShift Mobile
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/icons/mobile-dark.svg">
+  <img src=".github/icons/mobile.svg" alt="" height="72">
+</picture>
+
 Companion app for the CANShift dashboard. Live BLE telemetry and settings
 push from your phone. See the
 [CANShift organization](https://github.com/CANShift) for the full system overview.
