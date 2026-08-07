@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   TelemetrySample,
   getRange,
@@ -33,6 +33,13 @@ export interface GraphSeries {
   hasData: boolean;
 }
 
+const EMPTY_SERIES: GraphSeries = {
+  rolling: [],
+  windowStart: 0,
+  windowEnd: 0,
+  hasData: false,
+};
+
 export const useGraphSeries = (
   windowSecs: number,
   paused: boolean,
@@ -41,6 +48,7 @@ export const useGraphSeries = (
   const tick = useGraphTick(paused);
   const rollingRef = useRef<TelemetrySample[]>([]);
   const lastSeenIndexRef = useRef<number>(0);
+  const [series, setSeries] = useState<GraphSeries>(EMPTY_SERIES);
 
   useEffect(() => {
     const writeIdx = getWriteIndex();
@@ -49,7 +57,7 @@ export const useGraphSeries = (
     lastSeenIndexRef.current = writeIdx;
   }, [windowSecs]);
 
-  return useMemo(() => {
+  useEffect(() => {
     const now = paused ? pausedAt : Date.now();
     const windowStart = now - windowSecs * 1000;
 
@@ -67,11 +75,13 @@ export const useGraphSeries = (
     const rolling = rollingRef.current;
     ingestIncremental(rolling, fresh, windowStart);
 
-    return {
+    setSeries({
       rolling,
       windowStart,
       windowEnd: now,
       hasData: rolling.length > 1,
-    };
+    });
   }, [tick, windowSecs, paused, pausedAt]);
+
+  return series;
 };
