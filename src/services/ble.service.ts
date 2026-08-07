@@ -426,20 +426,54 @@ export class BleService {
     return true;
   }
 
-  private bindDeviceSubscriptions(device: Device): void {
-    this.connectedDevice = device;
-
-    this.teleSub = device.monitorCharacteristicForService(
+  private monitorCharacteristic(
+    device: Device,
+    characteristic: string,
+    label: string,
+    handle: (value: string) => void,
+  ): Subscription {
+    return device.monitorCharacteristicForService(
       BLE_SERVICE_UUID,
-      BLE_CHAR_TELE,
+      characteristic,
       (error: Error | null, char: Characteristic | null) => {
         if (error) {
-          log("warn", `BLE: telemetry monitor error — ${error.message}`);
+          log("warn", `BLE: ${label} monitor error — ${error.message}`);
           return;
         }
         if (!char?.value) return;
         if (!this.connectedDevice) return;
-        const payload = parseTelemetry(decodeBase64ToBytes(char.value));
+        handle(char.value);
+      },
+    );
+  }
+
+  private async seedCharacteristic(
+    device: Device,
+    characteristic: string,
+    label: string,
+    handle: (value: string) => void,
+  ): Promise<void> {
+    try {
+      const char = await this.runGatt(() =>
+        device.readCharacteristicForService(BLE_SERVICE_UUID, characteristic),
+      );
+      if (!char.value) return;
+      handle(char.value);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      log("warn", `BLE: failed to seed ${label} — ${msg}`);
+    }
+  }
+
+  private bindDeviceSubscriptions(device: Device): void {
+    this.connectedDevice = device;
+
+    this.teleSub = this.monitorCharacteristic(
+      device,
+      BLE_CHAR_TELE,
+      "telemetry",
+      (value) => {
+        const payload = parseTelemetry(decodeBase64ToBytes(value));
         if (!payload) {
           log("warn", "BLE: rejected malformed telemetry payload");
           return;
@@ -448,17 +482,12 @@ export class BleService {
       },
     );
 
-    this.statusSub = device.monitorCharacteristicForService(
-      BLE_SERVICE_UUID,
+    this.statusSub = this.monitorCharacteristic(
+      device,
       BLE_CHAR_STATUS,
-      (error: Error | null, char: Characteristic | null) => {
-        if (error) {
-          log("warn", `BLE: status monitor error — ${error.message}`);
-          return;
-        }
-        if (!char?.value) return;
-        if (!this.connectedDevice) return;
-        const result = parseBleStatus(decodeBase64(char.value));
+      "status",
+      (value) => {
+        const result = parseBleStatus(decodeBase64(value));
         if (result.kind !== "ok") {
           log(
             "warn",
@@ -476,17 +505,12 @@ export class BleService {
       },
     );
 
-    this.timerStateSub = device.monitorCharacteristicForService(
-      BLE_SERVICE_UUID,
+    this.timerStateSub = this.monitorCharacteristic(
+      device,
       BLE_CHAR_TIMER_STATE,
-      (error: Error | null, char: Characteristic | null) => {
-        if (error) {
-          log("warn", `BLE: timer state monitor error — ${error.message}`);
-          return;
-        }
-        if (!char?.value) return;
-        if (!this.connectedDevice) return;
-        const result = parseTimerState(decodeBase64(char.value));
+      "timer state",
+      (value) => {
+        const result = parseTimerState(decodeBase64(value));
         if (result.kind !== "ok") {
           log(
             "warn",
@@ -498,17 +522,12 @@ export class BleService {
       },
     );
 
-    this.timerLapSub = device.monitorCharacteristicForService(
-      BLE_SERVICE_UUID,
+    this.timerLapSub = this.monitorCharacteristic(
+      device,
       BLE_CHAR_TIMER_LAP,
-      (error: Error | null, char: Characteristic | null) => {
-        if (error) {
-          log("warn", `BLE: timer lap monitor error — ${error.message}`);
-          return;
-        }
-        if (!char?.value) return;
-        if (!this.connectedDevice) return;
-        const result = parseTimerLap(decodeBase64(char.value));
+      "timer lap",
+      (value) => {
+        const result = parseTimerLap(decodeBase64(value));
         if (result.kind !== "ok") {
           log(
             "warn",
@@ -602,27 +621,22 @@ export class BleService {
   }
 
   private async seedTimerFromDevice(device: Device): Promise<void> {
-    try {
-      const stateChar = await this.runGatt(() =>
-        device.readCharacteristicForService(
-          BLE_SERVICE_UUID,
-          BLE_CHAR_TIMER_STATE,
-        ),
-      );
-      if (!stateChar.value) return;
-      const result = parseTimerState(decodeBase64(stateChar.value));
-      if (result.kind !== "ok") {
-        log(
-          "warn",
-          `BLE: rejected malformed initial timer state payload (${result.kind})`,
-        );
-        return;
-      }
-      useTimerStore.getState().applyDeviceState(result.state);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      log("warn", `BLE: failed to seed TIMER state — ${msg}`);
-    }
+    await this.seedCharacteristic(
+      device,
+      BLE_CHAR_TIMER_STATE,
+      "TIMER state",
+      (value) => {
+        const result = parseTimerState(decodeBase64(value));
+        if (result.kind !== "ok") {
+          log(
+            "warn",
+            `BLE: rejected malformed initial timer state payload (${result.kind})`,
+          );
+          return;
+        }
+        useTimerStore.getState().applyDeviceState(result.state);
+      },
+    );
   }
 
   private async seedStatusFromDevice(
@@ -632,32 +646,30 @@ export class BleService {
       canHealthy: boolean,
     ) => void = useDeviceStore.getState().setFirmwareStatus,
   ): Promise<void> {
-    try {
-      const statusChar = await this.runGatt(() =>
-        device.readCharacteristicForService(BLE_SERVICE_UUID, BLE_CHAR_STATUS),
-      );
-      if (!statusChar.value) return;
-      const result = parseBleStatus(decodeBase64(statusChar.value));
-      if (result.kind !== "ok") {
-        log(
-          "warn",
-          `BLE: rejected malformed initial status payload (${result.kind})`,
+    await this.seedCharacteristic(
+      device,
+      BLE_CHAR_STATUS,
+      "STATUS",
+      (value) => {
+        const result = parseBleStatus(decodeBase64(value));
+        if (result.kind !== "ok") {
+          log(
+            "warn",
+            `BLE: rejected malformed initial status payload (${result.kind})`,
+          );
+          return;
+        }
+        const status = result.status;
+        setFirmwareStatus(
+          status.firmwareVersion ?? "?",
+          status.canHealthy ?? false,
         );
-        return;
-      }
-      const status = result.status;
-      setFirmwareStatus(
-        status.firmwareVersion ?? "?",
-        status.canHealthy ?? false,
-      );
-      const store = useDeviceStore.getState();
-      if (status.isDay !== undefined) {
-        store.setIsDayMode(status.isDay);
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      log("warn", `BLE: failed to seed STATUS — ${msg}`);
-    }
+        const store = useDeviceStore.getState();
+        if (status.isDay !== undefined) {
+          store.setIsDayMode(status.isDay);
+        }
+      },
+    );
   }
 
   private startStalenessTimer(): void {
