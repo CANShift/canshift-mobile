@@ -1,8 +1,10 @@
 import {
   clearBuffer,
+  getBufferCap,
   getRange,
   getWriteIndex,
   pushSample,
+  setBufferCap,
 } from "./telemetry.store";
 
 const MAX_SAMPLES = 3000;
@@ -14,6 +16,7 @@ const snapshot = () => {
 describe("telemetry.store", () => {
   beforeEach(() => {
     clearBuffer();
+    setBufferCap(3000);
   });
 
   it("pushes a sample and stores a defensive copy of the values payload", () => {
@@ -125,6 +128,38 @@ describe("telemetry.store", () => {
 
     it("returns an empty array when called on an empty buffer", () => {
       expect(getRange(0, 5)).toEqual([]);
+    });
+  });
+
+  describe("setBufferCap", () => {
+    it("defaults to a 3000-sample retained window", () => {
+      expect(getBufferCap()).toBe(3000);
+    });
+
+    it("limits the retained window to the configured cap", () => {
+      for (let i = 0; i < 5000; i += 1) pushSample({ r: i });
+      setBufferCap(1000);
+      const slice = snapshot();
+      expect(slice).toHaveLength(1000);
+      expect(slice[0]?.v.r).toBe(4000);
+      expect(slice[999]?.v.r).toBe(4999);
+    });
+
+    it("re-exposes physically-retained history when the cap is raised", () => {
+      for (let i = 0; i < 5000; i += 1) pushSample({ r: i });
+      setBufferCap(1000);
+      expect(snapshot()).toHaveLength(1000);
+      setBufferCap(6000);
+      const slice = snapshot();
+      expect(slice).toHaveLength(5000);
+      expect(slice[0]?.v.r).toBe(0);
+    });
+
+    it("clamps the cap to [1, 6000]", () => {
+      setBufferCap(999999);
+      expect(getBufferCap()).toBe(6000);
+      setBufferCap(0);
+      expect(getBufferCap()).toBe(1);
     });
   });
 });

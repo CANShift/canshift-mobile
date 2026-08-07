@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import {
   TelemetrySample,
+  getBufferCap,
   getRange,
   getWriteIndex,
 } from "../stores/telemetry.store";
 import { useGraphTick } from "./use-graph-tick";
-
-const SEED_SAMPLE_COUNT = 3000;
 
 export const ingestIncremental = (
   rolling: TelemetrySample[],
@@ -52,7 +51,7 @@ export const useGraphSeries = (
 
   useEffect(() => {
     const writeIdx = getWriteIndex();
-    const fromIdx = Math.max(0, writeIdx - SEED_SAMPLE_COUNT);
+    const fromIdx = Math.max(0, writeIdx - getBufferCap());
     rollingRef.current = [...getRange(fromIdx, writeIdx)];
     lastSeenIndexRef.current = writeIdx;
   }, [windowSecs]);
