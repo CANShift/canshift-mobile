@@ -44,6 +44,23 @@ export const parseTelemetry = (raw: string): TelemetrySample | null => {
   return result;
 };
 
+export interface DeviceScreenSettings {
+  brightness: number;
+  sleep: number;
+}
+
+export const parseDeviceSettings = (
+  raw: string,
+): DeviceScreenSettings | null => {
+  const parsed = safeJsonParse(raw);
+  if (!isPlainObject(parsed)) return null;
+  const { brightness, sleep } = parsed;
+  if (typeof brightness !== "number" || !Number.isFinite(brightness))
+    return null;
+  if (typeof sleep !== "number" || !Number.isFinite(sleep)) return null;
+  return { brightness, sleep };
+};
+
 export const _resetSessionState = (): void => {
   warnedUnknownKeys.clear();
 };

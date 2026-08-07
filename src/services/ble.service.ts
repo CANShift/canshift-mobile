@@ -24,11 +24,10 @@ import { clearBuffer } from "../stores/telemetry.store";
 import { log } from "../stores/log.store";
 import { useReconnectStore } from "../stores/reconnect.store";
 import { useAppSettingsStore } from "../stores/app-settings.store";
-import { parseTelemetry } from "./ble.validators";
+import { parseDeviceSettings, parseTelemetry } from "./ble.validators";
 import {
   encodeTimerCommand,
   parseBleStatus,
-  parseSettings,
   parseTimerLap,
   parseTimerState,
   type TimerCommand,
@@ -341,15 +340,12 @@ export class BleService {
       ),
     );
     if (!char.value) return null;
-    const result = parseSettings(decodeBase64(char.value));
-    if (result.kind !== "ok") {
-      log(
-        "warn",
-        `Ignoring malformed settings from device (${result.kind}) — using defaults`,
-      );
+    const settings = parseDeviceSettings(decodeBase64(char.value));
+    if (settings === null) {
+      log("warn", "Ignoring malformed settings from device — using defaults");
       return null;
     }
-    return result.settings;
+    return settings;
   }
 
   async sendTimerCommand(command: TimerCommand): Promise<void> {

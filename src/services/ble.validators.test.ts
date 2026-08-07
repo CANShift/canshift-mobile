@@ -1,5 +1,33 @@
-import { _resetSessionState, parseTelemetry } from "./ble.validators";
+import {
+  _resetSessionState,
+  parseDeviceSettings,
+  parseTelemetry,
+} from "./ble.validators";
 import { useLogStore } from "../stores/log.store";
+
+describe("parseDeviceSettings", () => {
+  it("extracts brightness and sleep, tolerating extra wire fields", () => {
+    expect(
+      parseDeviceSettings('{"brightness":80,"sleep":30,"rotation":180}'),
+    ).toEqual({
+      brightness: 80,
+      sleep: 30,
+    });
+  });
+
+  it("returns null for malformed JSON or a non-object", () => {
+    expect(parseDeviceSettings("{brightness:80")).toBeNull();
+    expect(parseDeviceSettings("42")).toBeNull();
+    expect(parseDeviceSettings("[]")).toBeNull();
+  });
+
+  it("returns null when brightness or sleep is missing or non-finite", () => {
+    expect(parseDeviceSettings('{"brightness":80}')).toBeNull();
+    expect(parseDeviceSettings('{"sleep":30}')).toBeNull();
+    expect(parseDeviceSettings('{"brightness":"80","sleep":30}')).toBeNull();
+    expect(parseDeviceSettings('{"brightness":null,"sleep":30}')).toBeNull();
+  });
+});
 
 describe("parseTelemetry — sanitisation", () => {
   beforeEach(() => {
