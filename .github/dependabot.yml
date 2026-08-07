@@ -6,18 +6,34 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     ignore:
-      # Expo SDK-aligned + React Native peer-pinned packages move with the
-      # Expo SDK (`expo install` / SDK upgrade), never standalone bumps —
-      # Dependabot proposed incompatible jumps (e.g. expo-constants 18 -> 57
-      # on SDK 54) that fail the iOS build.
+      # Expo SDK-aligned + React Native native modules move with the Expo SDK
+      # (`expo install` / SDK upgrade), never standalone bumps — Dependabot
+      # proposed jumps (expo-constants 18 -> 57, react-native-svg 15.12 -> 15.15)
+      # that pass JS checks but fail the iOS native build.
       - dependency-name: "expo"
       - dependency-name: "expo-*"
       - dependency-name: "react"
       - dependency-name: "react-dom"
       - dependency-name: "react-native"
+      - dependency-name: "react-native-*"
       - dependency-name: "@types/react"
-      # Toolchain majors need a coordinated migration (Metro/Jest/Babel).
+      # Pinned to @canshift/core's major so schemas stay compatible.
+      - dependency-name: "zod"
+        update-types: ["version-update:semver-major"]
+      # Toolchain majors need a coordinated migration.
       - dependency-name: "@babel/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@typescript-eslint/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "lint-staged"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "prettier"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "jest"
         update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
