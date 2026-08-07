@@ -48,6 +48,7 @@ import { BleReconnector } from "./ble-reconnect";
 export interface ScanResult {
   id: string;
   name: string;
+  rssi: number | null;
 }
 
 let s_bleNativeAvailable = true;
@@ -221,7 +222,11 @@ export class BleService {
             !found.has(device.id)
           ) {
             found.add(device.id);
-            onFound({ id: device.id, name: device.name });
+            onFound({
+              id: device.id,
+              name: device.name,
+              rssi: device.rssi ?? null,
+            });
           }
         },
       );
