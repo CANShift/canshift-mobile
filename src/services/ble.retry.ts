@@ -10,7 +10,8 @@ export const withGattRetry = async <T>(
   {
     retries = 1,
     backoffMs = 500,
-  }: { retries?: number; backoffMs?: number } = {},
+    maxBackoffMs = 4000,
+  }: { retries?: number; backoffMs?: number; maxBackoffMs?: number } = {},
 ): Promise<T> => {
   let lastErr: unknown;
   for (let attempt = 0; attempt <= retries; attempt++) {
@@ -19,7 +20,8 @@ export const withGattRetry = async <T>(
     } catch (err) {
       lastErr = err;
       if (!isTransient(err) || attempt === retries) throw err;
-      await new Promise<void>((resolve) => setTimeout(resolve, backoffMs));
+      const delay = Math.min(backoffMs * 2 ** attempt, maxBackoffMs);
+      await new Promise<void>((resolve) => setTimeout(resolve, delay));
     }
   }
   throw lastErr;

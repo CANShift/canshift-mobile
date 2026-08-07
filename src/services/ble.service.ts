@@ -17,6 +17,7 @@ import {
   BLE_CHAR_TIMER_STATE,
   BLE_CHAR_TIMER_LAP,
   BLE_DEVICE_NAME,
+  BLE_PREFERRED_MTU,
 } from "../constants/ble";
 import { useDeviceStore } from "../stores/device.store";
 import { useSignalsStore } from "../stores/signals.store";
@@ -258,6 +259,7 @@ export class BleService {
     try {
       const device = await this.manager.connectToDevice(deviceId, {
         autoConnect: false,
+        requestMTU: BLE_PREFERRED_MTU,
       });
       await device.discoverAllServicesAndCharacteristics();
       this.connectedDevice = device;

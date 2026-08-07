@@ -20,6 +20,8 @@ export const BLE_CHAR_TIMER_LAP =
 
 export const BLE_DEVICE_NAME = "CANShift" as const;
 
+export const BLE_PREFERRED_MTU = 247;
+
 export interface SignalMeta {
   label: string;
   unit: string;
