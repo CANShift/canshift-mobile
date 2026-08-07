@@ -2,7 +2,7 @@ import { useDeviceStore } from "../stores/device.store";
 import { useSignalsStore } from "../stores/signals.store";
 import { clearBuffer } from "../stores/telemetry.store";
 import { log } from "../stores/log.store";
-import { parseTelemetry } from "./ble.validators";
+import { type TelemetrySample } from "./ble.validators";
 
 let tickInterval: ReturnType<typeof setInterval> | null = null;
 let elapsed = 0;
@@ -36,7 +36,7 @@ export const start = () => {
     const g = gear(r);
     const tps = Math.round(Math.abs(Math.sin(elapsed / 8)) * 100);
 
-    const sample = {
+    const sample: TelemetrySample = {
       r,
       s,
       g,
@@ -49,12 +49,7 @@ export const start = () => {
       bst: parseFloat((tps > 50 ? rand(0.8, 0.2) : rand(0.0, 0.05)).toFixed(2)),
       iat: Math.round(rand(35, 4)),
     };
-    const payload = parseTelemetry(JSON.stringify(sample));
-    if (!payload) {
-      log("warn", "sim: rejected malformed telemetry payload");
-      return;
-    }
-    useSignalsStore.getState().update(payload);
+    useSignalsStore.getState().update(sample);
   }, 100);
 };
 

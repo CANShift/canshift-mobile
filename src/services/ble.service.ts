@@ -35,7 +35,7 @@ import {
 } from "@canshift/core";
 import { useTimerStore } from "../stores/timer.store";
 import { recordSessionLap } from "../stores/timer-sessions.store";
-import { decodeBase64, encodeBase64 } from "./base64";
+import { decodeBase64, decodeBase64ToBytes, encodeBase64 } from "./base64";
 import { rememberDevice, forgetDevice, getLastDevice } from "./last-device";
 import {
   requestAndroidBlePermissions,
@@ -439,7 +439,7 @@ export class BleService {
         }
         if (!char?.value) return;
         if (!this.connectedDevice) return;
-        const payload = parseTelemetry(decodeBase64(char.value));
+        const payload = parseTelemetry(decodeBase64ToBytes(char.value));
         if (!payload) {
           log("warn", "BLE: rejected malformed telemetry payload");
           return;
