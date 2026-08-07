@@ -5,6 +5,20 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # Expo SDK-aligned + React Native peer-pinned packages move with the
+      # Expo SDK (`expo install` / SDK upgrade), never standalone bumps —
+      # Dependabot proposed incompatible jumps (e.g. expo-constants 18 -> 57
+      # on SDK 54) that fail the iOS build.
+      - dependency-name: "expo"
+      - dependency-name: "expo-*"
+      - dependency-name: "react"
+      - dependency-name: "react-dom"
+      - dependency-name: "react-native"
+      - dependency-name: "@types/react"
+      # Toolchain majors need a coordinated migration (Metro/Jest/Babel).
+      - dependency-name: "@babel/*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
