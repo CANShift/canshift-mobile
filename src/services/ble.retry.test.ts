@@ -37,6 +37,40 @@ describe("withGattRetry", () => {
     expect(op).toHaveBeenCalledTimes(1);
   });
 
+  it("backs off exponentially between attempts (500ms then 1000ms)", async () => {
+    const op = jest
+      .fn()
+      .mockRejectedValueOnce(new Error("GATT busy"))
+      .mockRejectedValueOnce(new Error("GATT busy"))
+      .mockResolvedValueOnce("ok");
+
+    const promise = withGattRetry(op, { retries: 2, backoffMs: 500 });
+    await Promise.resolve();
+    expect(op).toHaveBeenCalledTimes(1);
+
+    await jest.advanceTimersByTimeAsync(499);
+    expect(op).toHaveBeenCalledTimes(1);
+    await jest.advanceTimersByTimeAsync(1);
+    expect(op).toHaveBeenCalledTimes(2);
+
+    await jest.advanceTimersByTimeAsync(999);
+    expect(op).toHaveBeenCalledTimes(2);
+    await jest.advanceTimersByTimeAsync(1);
+    expect(op).toHaveBeenCalledTimes(3);
+
+    await expect(promise).resolves.toBe("ok");
+  });
+
+  it("caps the backoff at maxBackoffMs", async () => {
+    const op = jest.fn().mockRejectedValue(new Error("GATT busy"));
+    const assertion = expect(
+      withGattRetry(op, { retries: 5, backoffMs: 1000, maxBackoffMs: 2000 }),
+    ).rejects.toThrow("GATT busy");
+    await jest.runAllTimersAsync();
+    await assertion;
+    expect(op).toHaveBeenCalledTimes(6);
+  });
+
   it("throws after exhausting all retries on a persistent transient error", async () => {
     const transientErr = new Error("timed out waiting for GATT response");
     const op = jest.fn().mockRejectedValue(transientErr);
