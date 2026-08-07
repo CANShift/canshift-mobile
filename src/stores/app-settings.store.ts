@@ -2,6 +2,7 @@ import { create } from "zustand";
 import * as SecureStore from "expo-secure-store";
 import { z } from "zod";
 import { log } from "./log.store";
+import { setBufferCap } from "./telemetry.store";
 
 export type AppTheme = "system" | "light" | "dark";
 export type Units = "metric" | "imperial";
@@ -106,6 +107,7 @@ export const useAppSettingsStore = create<AppSettingsState>()((set, get) => {
       const persisted = await readPersisted();
       if (persisted !== null) {
         set({ ...persisted, hydrated: true });
+        setBufferCap(persisted.telemetryBufferSize);
         return;
       }
       const migrated = await migrateLegacyPreRelease();
@@ -114,6 +116,7 @@ export const useAppSettingsStore = create<AppSettingsState>()((set, get) => {
         ...(migrated !== null ? { showPreRelease: migrated } : {}),
       };
       set({ ...next, hydrated: true });
+      setBufferCap(next.telemetryBufferSize);
       void writePersisted(next);
     },
 
@@ -122,6 +125,7 @@ export const useAppSettingsStore = create<AppSettingsState>()((set, get) => {
     },
     setTelemetryBufferSize: (telemetryBufferSize) => {
       update({ telemetryBufferSize });
+      setBufferCap(telemetryBufferSize);
     },
     setReconnectBehavior: (reconnectBehavior) => {
       update({ reconnectBehavior });
