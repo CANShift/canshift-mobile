@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,13 +10,25 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ChevronRight } from "lucide-react-native";
+import {
+  ChevronRight,
+  Info,
+  Play,
+  Search,
+  Signal,
+  SignalHigh,
+  SignalLow,
+  SignalMedium,
+  Square,
+} from "lucide-react-native";
+import type { LucideIcon } from "lucide-react-native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Colors, Typography, Spacing, Radius, HitSlop } from "../theme";
+import { Colors, Typography, Spacing, Radius, Fonts, HitSlop } from "../theme";
 import { useDeviceStore } from "../stores/device.store";
 import { useReconnectStore } from "../stores/reconnect.store";
 import * as BleService from "../services/ble.service";
 import type { BlePermissionState } from "../services/ble.service";
+import { getLastDevice } from "../services/last-device";
 import { mapBleError } from "../services/ble.errors";
 import { bleErrorMessage } from "../services/ble-error-message";
 import * as SimService from "../services/sim.service";
@@ -35,40 +47,75 @@ interface Props {
 interface FoundDevice {
   id: string;
   name: string;
+  rssi: number | null;
 }
+
+const ACCENT_BAR_HEIGHT = 64;
+const SECONDARY_ROW_HEIGHT = 56;
+const RSSI_STRONG = -60;
+const RSSI_FAIR = -75;
+
+interface SignalStrength {
+  Icon: LucideIcon;
+  color: string;
+}
+
+const signalStrength = (rssi: number | null): SignalStrength => {
+  if (rssi === null) return { Icon: Signal, color: Colors.textMuted };
+  if (rssi >= RSSI_STRONG) return { Icon: SignalHigh, color: Colors.accent };
+  if (rssi >= RSSI_FAIR) return { Icon: SignalMedium, color: Colors.textDim };
+  return { Icon: SignalLow, color: Colors.textMuted };
+};
 
 interface DeviceRowProps {
   device: FoundDevice;
+  lastPaired: boolean;
   connecting: boolean;
   disabled: boolean;
   onPress: (device: FoundDevice) => void;
 }
 
 const DeviceRow = React.memo(
-  ({ device, connecting, disabled, onPress }: DeviceRowProps) => (
-    <TouchableOpacity
-      onPress={() => {
-        onPress(device);
-      }}
-      disabled={connecting || disabled}
-      accessibilityRole="button"
-      accessibilityLabel={`Connect to ${device.name}`}
-      accessibilityState={{ disabled: connecting || disabled }}
-    >
-      <Card className="flex-row items-center gap-3">
-        <View style={styles.deviceDot} />
-        <View style={styles.deviceInfo}>
-          <Text style={styles.deviceName}>{device.name}</Text>
-          <Text style={styles.deviceId}>{device.id}</Text>
-        </View>
-        {connecting ? (
-          <ActivityIndicator color={Colors.accent} size="small" />
-        ) : (
-          <ChevronRight size={18} color={Colors.textMuted} />
-        )}
-      </Card>
-    </TouchableOpacity>
-  ),
+  ({ device, lastPaired, connecting, disabled, onPress }: DeviceRowProps) => {
+    const strength = signalStrength(device.rssi);
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          onPress(device);
+        }}
+        disabled={connecting || disabled}
+        accessibilityRole="button"
+        accessibilityLabel={`Connect to ${device.name}`}
+        accessibilityState={{ disabled: connecting || disabled }}
+      >
+        <Card className="flex-row items-center gap-3">
+          <strength.Icon size={22} color={strength.color} />
+          <View style={styles.deviceInfo}>
+            <View style={styles.deviceNameRow}>
+              <Text style={styles.deviceName} numberOfLines={1}>
+                {device.name}
+              </Text>
+              {lastPaired && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>LAST PAIRED</Text>
+                </View>
+              )}
+            </View>
+            <Text style={styles.deviceMeta} numberOfLines={1}>
+              {device.rssi === null
+                ? device.id
+                : `${String(device.rssi)} dBm · ${device.id}`}
+            </Text>
+          </View>
+          {connecting ? (
+            <ActivityIndicator color={Colors.accent} size="small" />
+          ) : (
+            <ChevronRight size={18} color={Colors.textMuted} />
+          )}
+        </Card>
+      </TouchableOpacity>
+    );
+  },
 );
 DeviceRow.displayName = "DeviceRow";
 
@@ -77,12 +124,17 @@ export default function ScanScreen({ navigation }: Props) {
   const [hasScanned, setHasScanned] = useState(false);
   const [connectingId, setConnectingId] = useState<string | null>(null);
   const [devices, setDevices] = useState<FoundDevice[]>([]);
+  const [lastPairedId, setLastPairedId] = useState<string | null>(null);
   const [unauthorizedPlatform, setUnauthorizedPlatform] =
     useState<BlePermissionPlatform | null>(null);
   const connectionState = useDeviceStore((s) => s.connectionState);
   const isReconnecting = useReconnectStore((s) => s.isReconnecting);
   const reconnectAttempt = useReconnectStore((s) => s.attempt);
   const reconnectMaxAttempts = useReconnectStore((s) => s.maxAttempts);
+
+  useEffect(() => {
+    void getLastDevice().then(setLastPairedId);
+  }, []);
 
   const promptUnauthorized = useCallback(
     (platform: BlePermissionPlatform): void => {
@@ -196,6 +248,8 @@ export default function ScanScreen({ navigation }: Props) {
 
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
+  const primaryDisabled = connectionState === "connecting";
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -204,21 +258,23 @@ export default function ScanScreen({ navigation }: Props) {
           onPress={() => {
             navigation.navigate("About");
           }}
+          hitSlop={HitSlop.default}
           accessibilityRole="button"
           accessibilityLabel="About"
         >
-          <Text style={styles.infoBtnText}>ⓘ</Text>
+          <Info size={20} color={Colors.textDim} />
         </TouchableOpacity>
       </View>
-      <View style={styles.center}>
-        <View style={styles.logo}>
-          <BrandLockup
-            width={windowWidth * 0.75}
-            maxHeight={windowHeight * 0.25}
-          />
-        </View>
-        <Text style={styles.subtitle}>Connect to your dashboard</Text>
 
+      <View style={styles.hero}>
+        <BrandLockup
+          width={windowWidth * 0.72}
+          maxHeight={windowHeight * 0.22}
+        />
+        <Text style={styles.subtitle}>Connect to your dashboard</Text>
+      </View>
+
+      <View style={styles.results}>
         {isReconnecting && (
           <Card
             variant="accent"
@@ -240,32 +296,6 @@ export default function ScanScreen({ navigation }: Props) {
           </Card>
         )}
 
-        <TouchableOpacity
-          style={[styles.scanBtn, scanning && styles.scanBtnActive]}
-          onPress={scanning ? stopScan : startScan}
-          disabled={connectionState === "connecting"}
-          accessibilityRole="button"
-          accessibilityLabel={
-            scanning
-              ? "Stop scanning"
-              : hasScanned
-                ? "Scan again"
-                : "Scan for devices"
-          }
-          accessibilityState={{ disabled: connectionState === "connecting" }}
-        >
-          {scanning ? (
-            <View style={styles.scanBtnRow}>
-              <ActivityIndicator color={Colors.accent} size="small" />
-              <Text style={styles.scanBtnText}>Stop scanning</Text>
-            </View>
-          ) : (
-            <Text style={styles.scanBtnText}>
-              {hasScanned ? "Scan again" : "Scan for devices"}
-            </Text>
-          )}
-        </TouchableOpacity>
-
         {scanning && (
           <Text style={styles.scanHint}>Searching for CANShift devices…</Text>
         )}
@@ -285,32 +315,62 @@ export default function ScanScreen({ navigation }: Props) {
         )}
 
         {devices.length > 0 && (
-          <View style={styles.listWrapper}>
-            <FlatList
-              data={devices}
-              keyExtractor={(d) => d.id}
-              contentContainerStyle={styles.list}
-              scrollEnabled={devices.length > 3}
-              renderItem={({ item }) => (
-                <DeviceRow
-                  device={item}
-                  connecting={connectingId === item.id}
-                  disabled={connectingId !== null && connectingId !== item.id}
-                  onPress={connectTo}
-                />
-              )}
-            />
-          </View>
+          <FlatList
+            data={devices}
+            keyExtractor={(d) => d.id}
+            contentContainerStyle={styles.list}
+            renderItem={({ item }) => (
+              <DeviceRow
+                device={item}
+                lastPaired={item.id === lastPairedId}
+                connecting={connectingId === item.id}
+                disabled={connectingId !== null && connectingId !== item.id}
+                onPress={connectTo}
+              />
+            )}
+          />
         )}
       </View>
 
-      <TouchableOpacity
-        style={styles.demoBtn}
-        onPress={startDemo}
-        accessibilityRole="button"
-      >
-        <Text style={styles.demoBtnText}>Demo mode</Text>
-      </TouchableOpacity>
+      <View style={styles.footer}>
+        <TouchableOpacity
+          style={[styles.scanBar, primaryDisabled && styles.scanBarDisabled]}
+          onPress={scanning ? stopScan : startScan}
+          disabled={primaryDisabled}
+          accessibilityRole="button"
+          accessibilityLabel={
+            scanning
+              ? "Stop scanning"
+              : hasScanned
+                ? "Scan again"
+                : "Scan for devices"
+          }
+          accessibilityState={{ disabled: primaryDisabled }}
+        >
+          <Text style={styles.scanBarLabel}>
+            {scanning
+              ? "Stop scanning"
+              : hasScanned
+                ? "Scan again"
+                : "Scan for devices"}
+          </Text>
+          {scanning ? (
+            <Square size={18} color={Colors.bg} fill={Colors.bg} />
+          ) : (
+            <Search size={20} color={Colors.bg} />
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.demoRow}
+          onPress={startDemo}
+          accessibilityRole="button"
+          accessibilityLabel="Demo simulation"
+        >
+          <Play size={16} color={Colors.textDim} />
+          <Text style={styles.demoLabel}>Demo — simulation</Text>
+        </TouchableOpacity>
+      </View>
 
       <BlePermissionDialog
         platform={unauthorizedPlatform}
@@ -339,89 +399,118 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  infoBtnText: { fontSize: Typography.lg, color: Colors.textDim },
-  center: {
-    flex: 1,
-    justifyContent: "center",
+  hero: {
     alignItems: "center",
-  },
-  logo: {
-    marginBottom: Spacing.sm,
+    paddingTop: Spacing.xl,
+    paddingBottom: Spacing.lg,
   },
   subtitle: {
+    fontFamily: Fonts.ui,
     fontSize: Typography.sm,
     color: Colors.textMuted,
-    marginTop: Spacing.xs,
-    marginBottom: Spacing.xl,
+    marginTop: Spacing.md,
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
   },
-  scanBtn: {
-    width: "100%",
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.md,
-    paddingVertical: Spacing.md,
-    minHeight: 44,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  scanBtnActive: { borderColor: Colors.accent },
-  scanBtnText: { fontSize: Typography.md, color: Colors.text },
-  scanBtnRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.sm,
+  results: {
+    flex: 1,
   },
   reconnectText: {
+    fontFamily: Fonts.ui,
     fontSize: Typography.sm,
     color: Colors.text,
     flex: 1,
   },
   reconnectCancel: {
+    fontFamily: Fonts.uiSemiBold,
     fontSize: Typography.sm,
     color: Colors.accent,
-    fontWeight: "700",
   },
   scanHint: {
+    fontFamily: Fonts.ui,
     fontSize: Typography.xs,
     color: Colors.textMuted,
     textAlign: "center",
     marginTop: Spacing.sm,
   },
   emptyState: {
-    width: "100%",
     alignItems: "center",
-    marginTop: Spacing.lg,
+    marginTop: Spacing.xl,
     gap: Spacing.xs,
   },
   emptyTitle: {
+    fontFamily: Fonts.uiSemiBold,
     fontSize: Typography.md,
     color: Colors.text,
-    fontWeight: "600",
   },
   emptyHint: {
+    fontFamily: Fonts.ui,
     fontSize: Typography.sm,
     color: Colors.textMuted,
     textAlign: "center",
   },
-  listWrapper: {
-    width: "100%",
-    maxHeight: 220,
-    marginTop: Spacing.lg,
-  },
-  list: { gap: Spacing.sm },
-  deviceDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.accent,
-  },
+  list: { gap: Spacing.sm, paddingTop: Spacing.sm },
   deviceInfo: { flex: 1 },
+  deviceNameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.sm,
+  },
   deviceName: {
+    fontFamily: Fonts.uiSemiBold,
     fontSize: Typography.md,
     color: Colors.text,
-    fontWeight: "600",
+    flexShrink: 1,
   },
-  deviceId: { fontSize: Typography.xs, color: Colors.textMuted, marginTop: 2 },
-  demoBtn: { paddingVertical: Spacing.lg, alignItems: "center" },
-  demoBtnText: { fontSize: Typography.sm, color: Colors.textDim },
+  deviceMeta: {
+    fontFamily: Fonts.ui,
+    fontSize: Typography.xs,
+    color: Colors.textMuted,
+    marginTop: 2,
+  },
+  badge: {
+    borderRadius: Radius.sm,
+    backgroundColor: Colors.accentDim,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 2,
+  },
+  badgeText: {
+    fontFamily: Fonts.uiExtraBold,
+    fontSize: Typography.xs,
+    color: Colors.accent,
+    letterSpacing: 1,
+  },
+  footer: {
+    paddingBottom: Spacing.sm,
+  },
+  scanBar: {
+    height: ACCENT_BAR_HEIGHT,
+    backgroundColor: Colors.accent,
+    borderRadius: Radius.md,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: Spacing.lg,
+  },
+  scanBarDisabled: { opacity: 0.5 },
+  scanBarLabel: {
+    fontFamily: Fonts.uiExtraBold,
+    fontSize: Typography.md,
+    color: Colors.bg,
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
+  },
+  demoRow: {
+    height: SECONDARY_ROW_HEIGHT,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.sm,
+  },
+  demoLabel: {
+    fontFamily: Fonts.uiSemiBold,
+    fontSize: Typography.sm,
+    color: Colors.textDim,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
 });
