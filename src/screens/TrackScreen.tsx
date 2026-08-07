@@ -8,7 +8,7 @@ import { LapStats } from "../components/track/LapStats";
 import { TrackControls } from "../components/track/TrackControls";
 import { Toast } from "../components/ui";
 import { useCurrentLapMs } from "../hooks/use-current-lap-ms";
-import { startFinishLineFromPosition } from "../lib/start-finish-line";
+import { startFinishLineFromPosition } from "@canshift/core";
 import { trackModeController } from "../services/track-mode-controller";
 import { log } from "../stores/log.store";
 import {
