@@ -12,10 +12,7 @@ import {
 } from "@canshift/core";
 import { Colors, Radius, Spacing, TabularNums, Typography } from "../../theme";
 import { SIGNAL_META, type SignalKey } from "../../constants/ble";
-import {
-  sensorRampColorAt,
-  signalKeyToSensorKind,
-} from "../../theme/signal-colors";
+import { signalRampColor } from "../../theme/signal-colors";
 import { formatWidgetValue, splitWidgetValue } from "./widget-value";
 
 interface LabelWidgetProps {
@@ -34,7 +31,6 @@ const LabelWidget = ({
   dayMode = false,
 }: LabelWidgetProps) => {
   const meta = SIGNAL_META[signalKey];
-  const kind = signalKeyToSensorKind(signalKey);
   const stale = value === undefined;
 
   const intFontSize = labelFontSize(width, height);
@@ -46,9 +42,7 @@ const LabelWidget = ({
 
   const tint = stale
     ? widgetStaleTextColor(dayMode)
-    : kind
-      ? sensorRampColorAt(kind, value)
-      : widgetTextColor(dayMode);
+    : (signalRampColor(signalKey, value) ?? widgetTextColor(dayMode));
   const unitColor = dayMode
     ? WIDGET_TEXT_COLORS.day
     : WIDGET_STALE_TEXT_COLORS.day;

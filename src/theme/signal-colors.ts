@@ -29,8 +29,16 @@ const DEFAULT_COLOR = "#888888";
 export const signalKeyToSensorKind = (key: string): SensorKind | undefined =>
   KEY_TO_SENSOR_KIND[key];
 
-export const sensorRampColorAt = (kind: SensorKind, value: number): string =>
-  colorAtValue(SENSOR_DEFAULT_RAMPS[kind], value);
+const STOICH_GASOLINE_AFR = 14.7;
+
+const rampValueForKey = (key: string, value: number): number =>
+  key === "lam" ? value * STOICH_GASOLINE_AFR : value;
+
+export const signalRampColor = (key: string, value: number): string | null => {
+  const kind = KEY_TO_SENSOR_KIND[key];
+  if (kind === undefined) return null;
+  return colorAtValue(SENSOR_DEFAULT_RAMPS[kind], rampValueForKey(key, value));
+};
 
 export const getSignalColor = (key: string): string => {
   const kind = KEY_TO_SENSOR_KIND[key];
