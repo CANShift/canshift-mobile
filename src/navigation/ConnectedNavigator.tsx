@@ -10,6 +10,7 @@ import TimerScreen from "../screens/TimerScreen";
 import TrackScreen from "../screens/TrackScreen";
 import ReconnectBanner from "../components/ReconnectBanner";
 import ReconnectFailedDialog from "../components/ReconnectFailedDialog";
+import { CriticalAlertOverlay } from "../components/CriticalAlertOverlay";
 import { Colors, Typography, Fonts } from "../theme";
 import type { RootStackParamList } from "./index";
 
@@ -120,6 +121,7 @@ export default function ConnectedNavigator({ navigation }: Props) {
         />
       </Tab.Navigator>
       <ReconnectFailedDialog navigation={navigation} />
+      <CriticalAlertOverlay />
     </View>
   );
 }
