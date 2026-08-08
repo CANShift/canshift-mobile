@@ -62,7 +62,7 @@ export default function DashTopBar() {
           <Text style={styles.deviceName}>{deviceName ?? "CANShift"}</Text>
           <View style={styles.versionRow}>
             <Text style={styles.version}>
-              {firmwareVersion ? `v${firmwareVersion} · ` : "· "}
+              {!isSim && firmwareVersion ? `v${firmwareVersion} · ` : "· "}
             </Text>
             <Text
               style={[
