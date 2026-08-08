@@ -1,7 +1,16 @@
-import React, { useState } from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import React, { useMemo, useState, useCallback } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Button } from "../components/ui";
+import { useShallow } from "zustand/react/shallow";
+import { SegmentedControl } from "../components/ui";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,8 +21,23 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../components/ui/alert-dialog";
-import { Colors, Typography, Spacing } from "../theme";
-import { useLogStore, type LogEntry, type LogLevel } from "../stores/log.store";
+import { Colors, Typography, Spacing, Radius, Fonts, HitSlop } from "../theme";
+import {
+  useLogStore,
+  log,
+  type LogEntry,
+  type LogLevel,
+} from "../stores/log.store";
+import { useDeviceStore } from "../stores/device.store";
+import { sendCmd } from "../services/ble.service";
+
+type ConsoleTab = "can" | "log" | "send";
+
+const TABS: { value: ConsoleTab; label: string }[] = [
+  { value: "can", label: "CAN" },
+  { value: "log", label: "Log" },
+  { value: "send", label: "Send" },
+];
 
 const LEVEL_COLOR: Record<LogLevel, string> = {
   info: Colors.textDim,
@@ -21,10 +45,8 @@ const LEVEL_COLOR: Record<LogLevel, string> = {
   error: Colors.danger,
 };
 
-const formatTime = (ms: number): string => {
-  const d = new Date(ms);
-  return d.toLocaleTimeString("en-US", { hour12: false });
-};
+const formatTime = (ms: number): string =>
+  new Date(ms).toLocaleTimeString("en-US", { hour12: false });
 
 const LogEntryRow = React.memo(function LogEntryRow({
   entry,
@@ -44,36 +66,77 @@ const LogEntryRow = React.memo(function LogEntryRow({
   );
 });
 
-export default function LogScreen() {
+const LogTab = () => {
   const entries = useLogStore((s) => s.entries);
   const clear = useLogStore((s) => s.clear);
+  const [pausedSnapshot, setPausedSnapshot] = useState<LogEntry[] | null>(null);
+  const [filter, setFilter] = useState("");
   const [confirmVisible, setConfirmVisible] = useState(false);
 
+  const paused = pausedSnapshot !== null;
+  const source = pausedSnapshot ?? entries;
+
+  const visible = useMemo(() => {
+    const query = filter.trim().toLowerCase();
+    if (!query) return source;
+    return source.filter(
+      (e) => e.message.toLowerCase().includes(query) || e.level.includes(query),
+    );
+  }, [source, filter]);
+
+  const togglePause = useCallback(() => {
+    setPausedSnapshot((current) => (current === null ? [...entries] : null));
+  }, [entries]);
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Log</Text>
-        {entries.length > 0 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onPress={() => {
-              setConfirmVisible(true);
-            }}
-            className="px-1"
-          >
-            <Text className="text-sm text-primary">Clear</Text>
-          </Button>
-        )}
+    <>
+      <View style={styles.controls}>
+        <Pressable
+          style={[styles.pauseBtn, paused && styles.pauseBtnActive]}
+          onPress={togglePause}
+          hitSlop={HitSlop.vertical}
+          accessibilityRole="button"
+          accessibilityLabel={paused ? "Resume log" : "Pause log"}
+        >
+          <Text style={[styles.pauseText, paused && styles.pauseTextActive]}>
+            {paused ? "Paused" : "Live"}
+          </Text>
+        </Pressable>
+        <TextInput
+          style={styles.filterInput}
+          value={filter}
+          onChangeText={setFilter}
+          placeholder="Filter…"
+          placeholderTextColor={Colors.textMuted}
+          autoCapitalize="none"
+          autoCorrect={false}
+          accessibilityLabel="Filter log entries"
+        />
+        <Pressable
+          style={styles.clearBtn}
+          onPress={() => {
+            setConfirmVisible(true);
+          }}
+          hitSlop={HitSlop.vertical}
+          accessibilityRole="button"
+          accessibilityLabel="Clear log"
+        >
+          <Text style={styles.clearText}>Clear</Text>
+        </Pressable>
       </View>
+
       <FlatList
-        data={entries}
+        data={visible}
         keyExtractor={(e) => e.id}
         contentContainerStyle={
-          entries.length === 0 ? styles.emptyContainer : styles.list
+          visible.length === 0 ? styles.emptyContainer : styles.list
         }
         renderItem={({ item }) => <LogEntryRow entry={item} />}
-        ListEmptyComponent={<Text style={styles.emptyText}>No events yet</Text>}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>
+            {filter.trim() ? "No matching events" : "No events yet"}
+          </Text>
+        }
       />
 
       <AlertDialog open={confirmVisible} onOpenChange={setConfirmVisible}>
@@ -90,55 +153,246 @@ export default function LogScreen() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </>
+  );
+};
+
+const SendTab = () => {
+  const { mode, connectionState } = useDeviceStore(
+    useShallow((s) => ({
+      mode: s.mode,
+      connectionState: s.connectionState,
+    })),
+  );
+  const [command, setCommand] = useState("");
+  const [sending, setSending] = useState(false);
+  const canSend = mode === "ble" && connectionState === "connected";
+
+  const handleSend = useCallback(async () => {
+    const trimmed = command.trim();
+    if (!trimmed || sending) return;
+    setSending(true);
+    try {
+      await sendCmd(trimmed);
+      log("info", `Console → sent "${trimmed}"`);
+      setCommand("");
+    } catch (err) {
+      Alert.alert(
+        "Send failed",
+        err instanceof Error ? err.message : String(err),
+      );
+    } finally {
+      setSending(false);
+    }
+  }, [command, sending]);
+
+  if (!canSend) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>
+          {mode === "sim"
+            ? "Command send isn't available in demo mode."
+            : "Connect to a dashboard over Bluetooth to send commands."}
+        </Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.sendBody}>
+      <Text style={styles.sendLabel}>Command</Text>
+      <TextInput
+        style={styles.sendInput}
+        value={command}
+        onChangeText={setCommand}
+        placeholder="e.g. reset_odo"
+        placeholderTextColor={Colors.textMuted}
+        autoCapitalize="none"
+        autoCorrect={false}
+        onSubmitEditing={() => void handleSend()}
+        returnKeyType="send"
+        accessibilityLabel="Command to send"
+      />
+      <Pressable
+        style={[
+          styles.sendBtn,
+          (!command.trim() || sending) && styles.sendBtnOff,
+        ]}
+        onPress={() => void handleSend()}
+        disabled={!command.trim() || sending}
+        accessibilityRole="button"
+        accessibilityLabel="Send command"
+      >
+        <Text style={styles.sendBtnText}>{sending ? "Sending…" : "Send"}</Text>
+      </Pressable>
+    </View>
+  );
+};
+
+const CanTab = () => (
+  <View style={styles.emptyContainer}>
+    <Text style={styles.emptyTitle}>No CAN stream</Text>
+    <Text style={styles.emptyText}>
+      Raw CAN frames aren't streamed to the companion app yet — the dashboard
+      sends telemetry, status and timer channels over Bluetooth, not the raw
+      bus.
+    </Text>
+  </View>
+);
+
+export default function LogScreen() {
+  const [tab, setTab] = useState<ConsoleTab>("log");
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.tabsWrap}>
+        <SegmentedControl options={TABS} value={tab} onChange={setTab} />
+      </View>
+      {tab === "log" && <LogTab />}
+      {tab === "send" && <SendTab />}
+      {tab === "can" && <CanTab />}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
-  header: {
+  tabsWrap: { padding: Spacing.lg },
+
+  controls: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: Spacing.sm,
     paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    paddingBottom: Spacing.md,
   },
-  title: { fontSize: Typography.md, fontWeight: "600", color: Colors.text },
+  pauseBtn: {
+    minHeight: 40,
+    paddingHorizontal: Spacing.md,
+    justifyContent: "center",
+    borderRadius: Radius.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  pauseBtnActive: {
+    borderColor: Colors.accent,
+    backgroundColor: Colors.accentDim,
+  },
+  pauseText: {
+    fontFamily: Fonts.uiSemiBold,
+    fontSize: Typography.xs,
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+    color: Colors.textMuted,
+  },
+  pauseTextActive: { color: Colors.accent },
+  filterInput: {
+    flex: 1,
+    minHeight: 40,
+    borderRadius: Radius.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing.md,
+    color: Colors.text,
+    fontFamily: Fonts.ui,
+    fontSize: Typography.sm,
+  },
+  clearBtn: {
+    minHeight: 40,
+    justifyContent: "center",
+    paddingHorizontal: Spacing.sm,
+  },
+  clearText: {
+    fontFamily: Fonts.uiSemiBold,
+    fontSize: Typography.xs,
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+    color: Colors.textMuted,
+  },
+
   list: { paddingVertical: Spacing.xs },
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: Spacing.xl,
+    gap: Spacing.xs,
   },
-  emptyText: { color: Colors.textMuted, fontSize: Typography.sm },
+  emptyTitle: {
+    fontFamily: Fonts.uiSemiBold,
+    fontSize: Typography.md,
+    color: Colors.text,
+  },
+  emptyText: {
+    fontFamily: Fonts.ui,
+    color: Colors.textMuted,
+    fontSize: Typography.sm,
+    textAlign: "center",
+    lineHeight: 20,
+  },
   row: {
     flexDirection: "row",
     alignItems: "flex-start",
     paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: Spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
     gap: Spacing.sm,
   },
   timestamp: {
+    fontFamily: Fonts.ui,
     fontSize: Typography.xs,
     color: Colors.textMuted,
     minWidth: 66,
     flexShrink: 0,
+    fontVariant: ["tabular-nums"],
   },
   level: {
+    fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.xs,
-    fontWeight: "700",
+    letterSpacing: 0.6,
     minWidth: 38,
     flexShrink: 0,
   },
   message: {
     flex: 1,
+    fontFamily: Fonts.ui,
     fontSize: Typography.xs,
     color: Colors.text,
     lineHeight: 17,
+  },
+
+  sendBody: { padding: Spacing.lg, gap: Spacing.sm },
+  sendLabel: {
+    fontFamily: Fonts.uiSemiBold,
+    fontSize: Typography.xs,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    color: Colors.textMuted,
+  },
+  sendInput: {
+    minHeight: 48,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing.md,
+    color: Colors.text,
+    fontFamily: Fonts.ui,
+    fontSize: Typography.md,
+  },
+  sendBtn: {
+    minHeight: 48,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.accent,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sendBtnOff: { opacity: 0.5 },
+  sendBtnText: {
+    fontFamily: Fonts.uiExtraBold,
+    fontSize: Typography.md,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    color: Colors.bg,
   },
 });
