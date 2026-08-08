@@ -24,6 +24,7 @@ interface GraphControlsProps {
   onTogglePause: () => void;
   onSetWindow: (s: number) => void;
   onClear: () => void;
+  onExport: () => void;
   vGap: number;
 }
 
@@ -33,6 +34,7 @@ export const GraphControls = ({
   onTogglePause,
   onSetWindow,
   onClear,
+  onExport,
   vGap,
 }: GraphControlsProps) => {
   const [confirmVisible, setConfirmVisible] = useState(false);
@@ -76,6 +78,15 @@ export const GraphControls = ({
           </TouchableOpacity>
         ))}
       </View>
+      <TouchableOpacity
+        style={styles.exportBtn}
+        onPress={onExport}
+        hitSlop={HitSlop.vertical}
+        accessibilityRole="button"
+        accessibilityLabel="Export graph data as CSV"
+      >
+        <Text style={styles.exportText}>Export</Text>
+      </TouchableOpacity>
       <TouchableOpacity
         style={styles.clearBtn}
         onPress={() => {
@@ -142,8 +153,20 @@ const styles = StyleSheet.create({
   },
   windowBtnText: { fontSize: Typography.xs, color: Colors.textMuted },
   windowBtnTextActive: { color: Colors.accent, fontWeight: "700" },
-  clearBtn: {
+  exportBtn: {
     marginLeft: "auto",
+    minHeight: 36,
+    minWidth: 44,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: Spacing.sm,
+  },
+  exportText: {
+    fontSize: Typography.xs,
+    color: Colors.accent,
+    fontWeight: "700",
+  },
+  clearBtn: {
     minHeight: 36,
     minWidth: 44,
     justifyContent: "center",
