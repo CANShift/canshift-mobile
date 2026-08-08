@@ -55,6 +55,8 @@ export type {
 } from "./sheet";
 export { Section } from "./section";
 export type { SectionProps } from "./section";
+export { SegmentedControl } from "./segmented-control";
+export type { SegmentedControlOption } from "./segmented-control";
 export { Toast, Toaster } from "./toast";
 export type {
   ToastShowParams,
