@@ -16,6 +16,7 @@ import {
   GaugeWidget,
   GearWidget,
   LabelWidget,
+  ShiftStrip,
   TimerWidget,
   WarningWidget,
 } from "../components/widgets";
@@ -150,6 +151,10 @@ export default function DashScreen(_: Props) {
     <SafeAreaView style={styles.container}>
       <DashTopBar />
 
+      <View style={styles.shiftStripWrap}>
+        <ShiftStrip />
+      </View>
+
       {isLandscape ? (
         <View style={styles.landscapeBody}>
           <View style={styles.landscapePrimaryRow}>
@@ -227,6 +232,10 @@ export default function DashScreen(_: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
+  shiftStripWrap: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
+  },
   scroll: { padding: Spacing.lg, gap: Spacing.lg },
 
   primaryRow: {

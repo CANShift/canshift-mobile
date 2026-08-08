@@ -3,3 +3,4 @@ export { default as LabelWidget } from "./LabelWidget";
 export { default as GearWidget } from "./GearWidget";
 export { default as WarningWidget } from "./WarningWidget";
 export { default as TimerWidget } from "./TimerWidget";
+export { default as ShiftStrip } from "./ShiftStrip";
