@@ -23,6 +23,7 @@ export interface ChartPanelProps {
   onTogglePause: () => void;
   onSetWindow: (s: number) => void;
   onClear: () => void;
+  onExport: () => void;
   onToggleSignal: (key: SignalKey) => void;
   compact: boolean;
 }
@@ -35,6 +36,7 @@ export const ChartPanel = ({
   onTogglePause,
   onSetWindow,
   onClear,
+  onExport,
   onToggleSignal,
   compact,
 }: ChartPanelProps) => {
@@ -84,6 +86,7 @@ export const ChartPanel = ({
         onTogglePause={onTogglePause}
         onSetWindow={onSetWindow}
         onClear={onClear}
+        onExport={onExport}
         vGap={vGap}
       />
 

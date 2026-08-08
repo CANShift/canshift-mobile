@@ -1,8 +1,14 @@
 import { useState, useCallback } from "react";
-import { StyleSheet, useWindowDimensions } from "react-native";
+import { Alert, StyleSheet, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "../theme";
-import { clearBuffer } from "../stores/telemetry.store";
+import {
+  clearBuffer,
+  getBufferCap,
+  getRange,
+  getWriteIndex,
+} from "../stores/telemetry.store";
+import { exportGraphCsv } from "../services/graph-export";
 import DashTopBar from "../components/DashTopBar";
 import {
   ChartPanel,
@@ -31,6 +37,24 @@ export default function GraphScreen() {
     );
   }, []);
 
+  const handleExport = useCallback(async () => {
+    const writeIndex = getWriteIndex();
+    const from = Math.max(0, writeIndex - getBufferCap());
+    const samples = getRange(from, writeIndex);
+    if (samples.length === 0) {
+      Alert.alert("Nothing to export", "No telemetry has been captured yet.");
+      return;
+    }
+    try {
+      await exportGraphCsv(samples, visibleSignals);
+    } catch (err) {
+      Alert.alert(
+        "Export failed",
+        err instanceof Error ? err.message : String(err),
+      );
+    }
+  }, [visibleSignals]);
+
   const panelProps: ChartPanelProps = {
     visibleSignals,
     windowSecs,
@@ -39,6 +63,9 @@ export default function GraphScreen() {
     onTogglePause: handleTogglePause,
     onSetWindow: setWindowSecs,
     onClear: clearBuffer,
+    onExport: () => {
+      void handleExport();
+    },
     onToggleSignal: handleToggleSignal,
     compact: isLandscape,
   };
