@@ -256,11 +256,11 @@ export default function ScanScreen({ navigation }: Props) {
         <TouchableOpacity
           style={styles.infoBtn}
           onPress={() => {
-            navigation.navigate("About");
+            navigation.navigate("Device");
           }}
           hitSlop={HitSlop.default}
           accessibilityRole="button"
-          accessibilityLabel="About"
+          accessibilityLabel="Device and app info"
         >
           <Info size={20} color={Colors.textDim} />
         </TouchableOpacity>
