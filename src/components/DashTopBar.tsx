@@ -4,7 +4,7 @@ import { Menu, Power, Circle, CircleDot } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useShallow } from "zustand/react/shallow";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Colors, Typography, Spacing, Radius } from "../theme";
+import { Colors, Typography, Spacing, Radius, Fonts } from "../theme";
 import { useDeviceStore } from "../stores/device.store";
 import { useSignalValue, useSignalsIsLive } from "../stores/signals.store";
 import * as BleService from "../services/ble.service";
@@ -195,11 +195,16 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.border,
   },
   deviceName: {
+    fontFamily: Fonts.uiSemiBold,
     fontSize: Typography.md,
-    fontWeight: "600",
     color: Colors.text,
   },
-  version: { fontSize: Typography.xs, color: Colors.textMuted },
+  version: {
+    fontFamily: Fonts.ui,
+    fontSize: Typography.xs,
+    color: Colors.textMuted,
+    letterSpacing: 0.5,
+  },
   versionRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -216,9 +221,10 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   mapText: {
+    fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.xs,
     color: Colors.success,
-    fontWeight: "700",
+    letterSpacing: 0.8,
   },
   simBadge: {
     backgroundColor: Colors.accentDim,
@@ -228,7 +234,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
   },
-  simText: { fontSize: Typography.xs, color: Colors.accent, fontWeight: "700" },
+  simText: {
+    fontFamily: Fonts.uiExtraBold,
+    fontSize: Typography.xs,
+    color: Colors.accent,
+    letterSpacing: 0.8,
+  },
   staleBadge: {
     backgroundColor: Colors.accentDim,
     borderWidth: 1,
@@ -238,9 +249,10 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   staleText: {
+    fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.xs,
     color: Colors.accent,
-    fontWeight: "700",
+    letterSpacing: 0.8,
   },
   iconBtn: {
     minWidth: 44,
