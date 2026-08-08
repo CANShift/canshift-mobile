@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import DashScreen from "../screens/DashScreen";
@@ -9,7 +10,7 @@ import TimerScreen from "../screens/TimerScreen";
 import TrackScreen from "../screens/TrackScreen";
 import ReconnectBanner from "../components/ReconnectBanner";
 import ReconnectFailedDialog from "../components/ReconnectFailedDialog";
-import { Colors, Typography } from "../theme";
+import { Colors, Typography, Fonts } from "../theme";
 import type { RootStackParamList } from "./index";
 
 interface Props {
@@ -27,12 +28,16 @@ export type ConnectedTabParamList = {
 
 const Tab = createBottomTabNavigator<ConnectedTabParamList>();
 
+const TAB_BAR_HEIGHT = 84;
+const TAB_BAR_HEIGHT_LANDSCAPE = 48;
+const TAB_BAR_RULE = 2;
+
 const TabIcon = ({ icon, focused }: { icon: string; focused: boolean }) => {
   return (
     <Text
       style={[
         styles.tabIcon,
-        { color: focused ? Colors.accent : Colors.textMuted },
+        { color: focused ? Colors.primary : Colors.textMuted },
       ]}
     >
       {icon}
@@ -42,6 +47,7 @@ const TabIcon = ({ icon, focused }: { icon: string; focused: boolean }) => {
 
 export default function ConnectedNavigator({ navigation }: Props) {
   const { width, height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const isLandscape = width > height;
 
   return (
@@ -50,30 +56,31 @@ export default function ConnectedNavigator({ navigation }: Props) {
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
-          tabBarStyle: isLandscape
-            ? {
-                backgroundColor: Colors.surface,
-                borderTopColor: Colors.border,
-                height: 44,
-                paddingBottom: 0,
-                paddingTop: 0,
-              }
-            : {
-                backgroundColor: Colors.surface,
-                borderTopColor: Colors.border,
-              },
-          tabBarActiveTintColor: Colors.accent,
+          tabBarStyle: {
+            backgroundColor: Colors.surface,
+            borderTopWidth: TAB_BAR_RULE,
+            borderTopColor: Colors.border,
+            height:
+              (isLandscape ? TAB_BAR_HEIGHT_LANDSCAPE : TAB_BAR_HEIGHT) +
+              insets.bottom,
+            paddingTop: isLandscape ? 4 : 12,
+            paddingBottom: insets.bottom + (isLandscape ? 4 : 12),
+          },
+          tabBarActiveTintColor: Colors.primary,
           tabBarInactiveTintColor: Colors.textMuted,
-          tabBarLabelStyle: isLandscape
-            ? { fontSize: 9, marginBottom: 2 }
-            : { fontSize: Typography.xs },
+          tabBarLabelStyle: {
+            fontFamily: Fonts.ui,
+            fontSize: isLandscape ? 9 : 10,
+            letterSpacing: 0.8,
+            textTransform: "uppercase",
+          },
           tabBarIconStyle: isLandscape ? { marginTop: 2 } : undefined,
         }}
       >
         <Tab.Screen
           name="Dash"
           options={{
-            tabBarLabel: "Dashboard",
+            tabBarLabel: "Dash",
             tabBarIcon: ({ focused }) => <TabIcon icon="◉" focused={focused} />,
           }}
         >
@@ -119,5 +126,5 @@ export default function ConnectedNavigator({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
-  tabIcon: { fontSize: 18 },
+  tabIcon: { fontSize: Typography.lg },
 });
