@@ -23,7 +23,6 @@ import {
 } from "lucide-react-native";
 import type { LucideIcon } from "lucide-react-native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { BRAND_ACCENT } from "@canshift/core";
 import { Colors, Typography, Spacing, Radius, Fonts, HitSlop } from "../theme";
 import { useDeviceStore } from "../stores/device.store";
 import { useReconnectStore } from "../stores/reconnect.store";
@@ -486,7 +485,7 @@ const styles = StyleSheet.create({
   },
   scanBar: {
     height: ACCENT_BAR_HEIGHT,
-    backgroundColor: BRAND_ACCENT,
+    backgroundColor: Colors.accent,
     borderRadius: Radius.md,
     flexDirection: "row",
     alignItems: "center",
