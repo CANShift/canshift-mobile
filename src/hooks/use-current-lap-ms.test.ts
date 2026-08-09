@@ -21,45 +21,45 @@ afterEach(() => {
 });
 
 describe("useCurrentLapMs", () => {
-  it("returns 0 while not recording", () => {
-    const { result } = renderHook(() => useCurrentLapMs());
-    act(() => {
+  it("returns 0 while not recording", async () => {
+    const { result } = await renderHook(() => useCurrentLapMs());
+    await act(() => {
       jest.advanceTimersByTime(500);
     });
     expect(result.current).toBe(0);
   });
 
-  it("ticks forward from session start while recording", () => {
+  it("ticks forward from session start while recording", async () => {
     useTrackSessionStore.setState({ recording: true, sessionStartMs: 10_000 });
-    const { result } = renderHook(() => useCurrentLapMs());
-    act(() => {
+    const { result } = await renderHook(() => useCurrentLapMs());
+    await act(() => {
       jest.advanceTimersByTime(750);
     });
     expect(result.current).toBe(750);
   });
 
-  it("restarts from the last lap end when a lap is recorded", () => {
+  it("restarts from the last lap end when a lap is recorded", async () => {
     useTrackSessionStore.setState({ recording: true, sessionStartMs: 10_000 });
-    const { result } = renderHook(() => useCurrentLapMs());
-    act(() => {
+    const { result } = await renderHook(() => useCurrentLapMs());
+    await act(() => {
       jest.advanceTimersByTime(2_000);
     });
-    act(() => {
+    await act(() => {
       useTrackSessionStore.setState({ laps: [lap(1, 10_000, 11_500)] });
     });
-    act(() => {
+    await act(() => {
       jest.advanceTimersByTime(100);
     });
     expect(result.current).toBe(12_100 - 11_500);
   });
 
-  it("resets to 0 when recording stops", () => {
+  it("resets to 0 when recording stops", async () => {
     useTrackSessionStore.setState({ recording: true, sessionStartMs: 10_000 });
-    const { result } = renderHook(() => useCurrentLapMs());
-    act(() => {
+    const { result } = await renderHook(() => useCurrentLapMs());
+    await act(() => {
       jest.advanceTimersByTime(400);
     });
-    act(() => {
+    await act(() => {
       useTrackSessionStore.setState({ recording: false });
     });
     expect(result.current).toBe(0);

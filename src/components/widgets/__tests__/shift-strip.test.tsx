@@ -33,8 +33,8 @@ describe("shiftSegmentColor", () => {
 });
 
 describe("ShiftStrip", () => {
-  it("renders without a live signal", () => {
-    const { toJSON } = render(<ShiftStrip />);
+  it("renders without a live signal", async () => {
+    const { toJSON } = await render(<ShiftStrip />);
     expect(toJSON()).toBeTruthy();
   });
 });

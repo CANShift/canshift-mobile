@@ -3,8 +3,8 @@ import { render } from "@testing-library/react-native";
 import { Toaster, Toast } from "../toast";
 
 describe("Toaster", () => {
-  it("renders without crashing", () => {
-    const { toJSON } = render(<Toaster />);
+  it("renders without crashing", async () => {
+    const { toJSON } = await render(<Toaster />);
     expect(toJSON()).toBeTruthy();
   });
 

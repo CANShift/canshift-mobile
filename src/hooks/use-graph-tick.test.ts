@@ -18,55 +18,55 @@ afterEach(() => {
 });
 
 describe("useGraphTick — explicit paused flag", () => {
-  it("bumps the counter every 100 ms while running", () => {
-    const { result } = renderHook(
+  it("bumps the counter every 100 ms while running", async () => {
+    const { result } = await renderHook(
       ({ paused }: { paused: boolean }) => useGraphTick(paused),
       {
         initialProps: { paused: false },
       },
     );
     expect(result.current).toBe(0);
-    act(() => {
+    await act(() => {
       jest.advanceTimersByTime(300);
     });
     expect(result.current).toBe(3);
   });
 
-  it("freezes when paused flips to true", () => {
-    const { result, rerender } = renderHook(
+  it("freezes when paused flips to true", async () => {
+    const { result, rerender } = await renderHook(
       ({ paused }: { paused: boolean }) => useGraphTick(paused),
       {
         initialProps: { paused: false },
       },
     );
-    act(() => {
+    await act(() => {
       jest.advanceTimersByTime(200);
     });
     expect(result.current).toBe(2);
 
-    rerender({ paused: true });
-    act(() => {
+    await rerender({ paused: true });
+    await act(() => {
       jest.advanceTimersByTime(500);
     });
     expect(result.current).toBe(2);
   });
 
-  it("resumes from the current value when paused flips back to false", () => {
-    const { result, rerender } = renderHook(
+  it("resumes from the current value when paused flips back to false", async () => {
+    const { result, rerender } = await renderHook(
       ({ paused }: { paused: boolean }) => useGraphTick(paused),
       {
         initialProps: { paused: false },
       },
     );
-    act(() => {
+    await act(() => {
       jest.advanceTimersByTime(200);
     });
-    rerender({ paused: true });
-    act(() => {
+    await rerender({ paused: true });
+    await act(() => {
       jest.advanceTimersByTime(500);
     });
-    rerender({ paused: false });
-    act(() => {
+    await rerender({ paused: false });
+    await act(() => {
       jest.advanceTimersByTime(100);
     });
     expect(result.current).toBe(3);
@@ -74,64 +74,64 @@ describe("useGraphTick — explicit paused flag", () => {
 });
 
 describe("useGraphTick — screen focus (#1017 M-LO-6)", () => {
-  it("does not tick while the screen is not focused", () => {
+  it("does not tick while the screen is not focused", async () => {
     mockIsFocused.mockReturnValue(false);
-    const { result } = renderHook(
+    const { result } = await renderHook(
       ({ paused }: { paused: boolean }) => useGraphTick(paused),
       {
         initialProps: { paused: false },
       },
     );
-    act(() => {
+    await act(() => {
       jest.advanceTimersByTime(500);
     });
     expect(result.current).toBe(0);
   });
 
-  it("resumes when the screen regains focus", () => {
+  it("resumes when the screen regains focus", async () => {
     mockIsFocused.mockReturnValue(false);
-    const { result, rerender } = renderHook(
+    const { result, rerender } = await renderHook(
       ({ paused }: { paused: boolean }) => useGraphTick(paused),
       {
         initialProps: { paused: false },
       },
     );
-    act(() => {
+    await act(() => {
       jest.advanceTimersByTime(500);
     });
     expect(result.current).toBe(0);
 
     mockIsFocused.mockReturnValue(true);
-    rerender({ paused: false });
-    act(() => {
+    await rerender({ paused: false });
+    await act(() => {
       jest.advanceTimersByTime(200);
     });
     expect(result.current).toBe(2);
   });
 
-  it("stays paused if both sources are paused (paused=true AND blurred)", () => {
+  it("stays paused if both sources are paused (paused=true AND blurred)", async () => {
     mockIsFocused.mockReturnValue(false);
-    const { result } = renderHook(
+    const { result } = await renderHook(
       ({ paused }: { paused: boolean }) => useGraphTick(paused),
       {
         initialProps: { paused: true },
       },
     );
-    act(() => {
+    await act(() => {
       jest.advanceTimersByTime(500);
     });
     expect(result.current).toBe(0);
   });
 
-  it("stays paused if `paused=true` even when focused", () => {
+  it("stays paused if `paused=true` even when focused", async () => {
     mockIsFocused.mockReturnValue(true);
-    const { result } = renderHook(
+    const { result } = await renderHook(
       ({ paused }: { paused: boolean }) => useGraphTick(paused),
       {
         initialProps: { paused: true },
       },
     );
-    act(() => {
+    await act(() => {
       jest.advanceTimersByTime(500);
     });
     expect(result.current).toBe(0);

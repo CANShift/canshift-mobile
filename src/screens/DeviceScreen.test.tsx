@@ -23,15 +23,15 @@ const renderScreen = () =>
   );
 
 describe("DeviceScreen", () => {
-  it("renders the device and application facts", () => {
-    const { getByText } = renderScreen();
+  it("renders the device and application facts", async () => {
+    const { getByText } = await renderScreen();
     expect(getByText("DEVICE")).toBeTruthy();
     expect(getByText("Config schema")).toBeTruthy();
     expect(getByText("Firmware")).toBeTruthy();
   });
 
-  it("hides the disconnect action when not connected", () => {
-    const { queryByLabelText } = renderScreen();
+  it("hides the disconnect action when not connected", async () => {
+    const { queryByLabelText } = await renderScreen();
     expect(queryByLabelText("Disconnect")).toBeNull();
     expect(queryByLabelText("End demo")).toBeNull();
   });
