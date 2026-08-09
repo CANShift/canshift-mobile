@@ -64,7 +64,7 @@ export const handleAppStateTransition = async (
   if (deps.getIsReconnecting()) return;
   if (!isReconnectable(deps.getConnectionState())) return;
 
-  let started = false;
+  let started: boolean;
   try {
     started = await deps.tryReconnect();
   } catch (err) {
