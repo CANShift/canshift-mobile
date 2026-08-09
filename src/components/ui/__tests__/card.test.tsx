@@ -4,8 +4,8 @@ import { render } from "@testing-library/react-native";
 import { Card, CardHeader, CardTitle, CardContent } from "../card";
 
 describe("Card", () => {
-  it("renders children", () => {
-    const { getByText } = render(
+  it("renders children", async () => {
+    const { getByText } = await render(
       <Card>
         <Text>Hello</Text>
       </Card>,
@@ -13,8 +13,8 @@ describe("Card", () => {
     expect(getByText("Hello")).toBeTruthy();
   });
 
-  it("renders the accent variant", () => {
-    const { getByText } = render(
+  it("renders the accent variant", async () => {
+    const { getByText } = await render(
       <Card variant="accent">
         <Text>Accent</Text>
       </Card>,
@@ -22,8 +22,8 @@ describe("Card", () => {
     expect(getByText("Accent")).toBeTruthy();
   });
 
-  it("composes Header + Title + Content", () => {
-    const { getByText } = render(
+  it("composes Header + Title + Content", async () => {
+    const { getByText } = await render(
       <Card>
         <CardHeader>
           <CardTitle>Title</CardTitle>

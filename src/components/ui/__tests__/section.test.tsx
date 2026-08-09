@@ -4,8 +4,8 @@ import { render } from "@testing-library/react-native";
 import { Section } from "../section";
 
 describe("Section", () => {
-  it("renders the title when provided", () => {
-    const { getByText } = render(
+  it("renders the title when provided", async () => {
+    const { getByText } = await render(
       <Section title="BRIGHTNESS">
         <Text>child</Text>
       </Section>,
@@ -14,8 +14,8 @@ describe("Section", () => {
     expect(getByText("child")).toBeTruthy();
   });
 
-  it("omits the title when not provided", () => {
-    const { queryByText, getByText } = render(
+  it("omits the title when not provided", async () => {
+    const { queryByText, getByText } = await render(
       <Section>
         <Text>only-child</Text>
       </Section>,

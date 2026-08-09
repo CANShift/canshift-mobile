@@ -54,40 +54,40 @@ const Harness = ({
 };
 
 describe("AlertDialog", () => {
-  it("opens the content when the trigger is pressed", () => {
-    const { getByText, queryByText } = render(<Harness />);
+  it("opens the content when the trigger is pressed", async () => {
+    const { getByText, queryByText } = await render(<Harness />);
     expect(queryByText("Are you sure?")).toBeNull();
-    fireEvent.press(getByText("Open"));
+    await fireEvent.press(getByText("Open"));
     expect(getByText("Are you sure?")).toBeTruthy();
     expect(getByText("This action cannot be undone.")).toBeTruthy();
   });
 
-  it("calls the action handler and closes when action is pressed", () => {
+  it("calls the action handler and closes when action is pressed", async () => {
     const onAction = jest.fn();
-    const { getByText, queryByText } = render(
+    const { getByText, queryByText } = await render(
       <Harness defaultOpen onAction={onAction} />,
     );
-    fireEvent.press(getByText("Delete"));
+    await fireEvent.press(getByText("Delete"));
     expect(onAction).toHaveBeenCalledTimes(1);
     expect(queryByText("Are you sure?")).toBeNull();
   });
 
-  it("calls the cancel handler and closes when cancel is pressed", () => {
+  it("calls the cancel handler and closes when cancel is pressed", async () => {
     const onCancel = jest.fn();
-    const { getByText, queryByText } = render(
+    const { getByText, queryByText } = await render(
       <Harness defaultOpen onCancel={onCancel} />,
     );
-    fireEvent.press(getByText("Cancel"));
+    await fireEvent.press(getByText("Cancel"));
     expect(onCancel).toHaveBeenCalledTimes(1);
     expect(queryByText("Are you sure?")).toBeNull();
   });
 
-  it("reflects controlled state via onOpenChange", () => {
+  it("reflects controlled state via onOpenChange", async () => {
     const onOpenChange = jest.fn();
-    const { getByText } = render(
+    const { getByText } = await render(
       <Harness open={false} onOpenChange={onOpenChange} />,
     );
-    fireEvent.press(getByText("Open"));
+    await fireEvent.press(getByText("Open"));
     expect(onOpenChange).toHaveBeenCalledWith(true);
   });
 });

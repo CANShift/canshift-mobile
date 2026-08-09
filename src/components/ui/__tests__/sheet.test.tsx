@@ -41,31 +41,31 @@ const Harness = ({
 };
 
 describe("Sheet", () => {
-  it("renders the trigger and hides content initially", () => {
-    const { getByText, queryByText } = render(<Harness />);
+  it("renders the trigger and hides content initially", async () => {
+    const { getByText, queryByText } = await render(<Harness />);
     expect(getByText("Open")).toBeTruthy();
     expect(queryByText("Body content")).toBeNull();
   });
 
-  it("opens the content when the trigger is pressed", () => {
-    const { getByText } = render(<Harness />);
-    fireEvent.press(getByText("Open"));
+  it("opens the content when the trigger is pressed", async () => {
+    const { getByText } = await render(<Harness />);
+    await fireEvent.press(getByText("Open"));
     expect(getByText("Body content")).toBeTruthy();
   });
 
-  it("closes the content when the close button is pressed", () => {
-    const { getByText, queryByText } = render(<Harness defaultOpen />);
+  it("closes the content when the close button is pressed", async () => {
+    const { getByText, queryByText } = await render(<Harness defaultOpen />);
     expect(getByText("Body content")).toBeTruthy();
-    fireEvent.press(getByText("Close"));
+    await fireEvent.press(getByText("Close"));
     expect(queryByText("Body content")).toBeNull();
   });
 
-  it("calls onOpenChange when controlled", () => {
+  it("calls onOpenChange when controlled", async () => {
     const onOpenChange = jest.fn();
-    const { getByText } = render(
+    const { getByText } = await render(
       <Harness open={false} onOpenChange={onOpenChange} />,
     );
-    fireEvent.press(getByText("Open"));
+    await fireEvent.press(getByText("Open"));
     expect(onOpenChange).toHaveBeenCalledWith(true);
   });
 });
