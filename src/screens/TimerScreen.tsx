@@ -7,7 +7,12 @@ import TimerDisplay from "../components/timer/TimerDisplay";
 import TimerControls from "../components/timer/TimerControls";
 import LapList from "../components/timer/LapList";
 import { useTimerStore } from "../stores/timer.store";
-import { hydrateTimerSessions } from "../stores/timer-sessions.store";
+import {
+  acknowledgePersistFailure,
+  hydrateTimerSessions,
+  useTimerSessionsStore,
+} from "../stores/timer-sessions.store";
+import SessionPersistWarning from "../components/timer/SessionPersistWarning";
 import { timerControl } from "../services/timer-control";
 import { useTimerElapsed } from "../hooks/use-timer-elapsed";
 
@@ -16,6 +21,7 @@ export default function TimerScreen() {
   const laps = useTimerStore((s) => s.laps);
   const deviceSynced = useTimerStore((s) => s.deviceSynced);
   const elapsedMs = useTimerElapsed(status);
+  const persistFailed = useTimerSessionsStore((s) => s.persistFailed);
 
   useEffect(() => {
     void hydrateTimerSessions();
@@ -25,6 +31,9 @@ export default function TimerScreen() {
     <SafeAreaView style={styles.container}>
       <DashTopBar />
       <View style={styles.body}>
+        {persistFailed && (
+          <SessionPersistWarning onDismiss={acknowledgePersistFailure} />
+        )}
         <TimerDisplay
           elapsedMs={elapsedMs}
           status={status}

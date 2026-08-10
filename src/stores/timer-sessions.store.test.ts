@@ -1,5 +1,6 @@
 import {
   MAX_STORED_SESSIONS,
+  acknowledgePersistFailure,
   clearTimerSessions,
   hydrateTimerSessions,
   recordSessionLap,
@@ -17,7 +18,7 @@ const createMemoryStorage = (initial: StoredTimerSession[] = []) => {
     load: () => Promise.resolve(stored),
     save: (sessions) => {
       stored = [...sessions];
-      return Promise.resolve();
+      return Promise.resolve(true);
     },
   };
   return { storage, snapshot: () => stored };
@@ -131,5 +132,51 @@ describe("timer sessions store", () => {
 
     expect(useTimerSessionsStore.getState().sessions).toEqual([]);
     expect(snapshot()).toEqual([]);
+  });
+
+  it("surfaces a failed write instead of losing the session in silence", async () => {
+    setTimerSessionStorage({
+      load: () => Promise.resolve([]),
+      save: () => Promise.resolve(false),
+    });
+    await hydrateTimerSessions();
+
+    recordSessionLap(
+      { sessionId: 1, index: 1, lapMs: 900, totalMs: 900 },
+      1_000,
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(useTimerSessionsStore.getState().persistFailed).toBe(true);
+
+    acknowledgePersistFailure();
+    expect(useTimerSessionsStore.getState().persistFailed).toBe(false);
+  });
+
+  it("clears the warning once a write succeeds again", async () => {
+    let ok = false;
+    setTimerSessionStorage({
+      load: () => Promise.resolve([]),
+      save: () => Promise.resolve(ok),
+    });
+    await hydrateTimerSessions();
+
+    recordSessionLap(
+      { sessionId: 1, index: 1, lapMs: 900, totalMs: 900 },
+      1_000,
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(useTimerSessionsStore.getState().persistFailed).toBe(true);
+
+    ok = true;
+    recordSessionLap(
+      { sessionId: 1, index: 2, lapMs: 900, totalMs: 1_800 },
+      2_000,
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(useTimerSessionsStore.getState().persistFailed).toBe(false);
   });
 });

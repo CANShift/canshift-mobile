@@ -2,6 +2,7 @@ import { useDeviceStore } from "../stores/device.store";
 import { describeBleError, mapBleError } from "./ble.errors";
 import { useReconnectStore } from "../stores/reconnect.store";
 import { log } from "../stores/log.store";
+import { errText } from "../lib/error-text";
 
 const RECONNECT_INITIAL_DELAY_MS = 1_000;
 const RECONNECT_MAX_DELAY_MS = 30_000;
@@ -85,7 +86,7 @@ export class BleReconnector {
       return "connected";
     } catch (err) {
       if (isAborted(signal)) return "aborted";
-      const msg = err instanceof Error ? err.message : "unknown error";
+      const msg = errText(err);
       log(
         "warn",
         `Auto-reconnect: connect failed on attempt ${String(attempt)}: ${msg}`,

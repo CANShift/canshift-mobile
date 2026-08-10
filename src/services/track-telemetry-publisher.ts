@@ -2,6 +2,7 @@ import { TrackTelemetrySchema, type TrackTelemetry } from "@canshift/core";
 import { log } from "../stores/log.store";
 import { useTrackSessionStore } from "../stores/track-session.store";
 import { buildTrackTelemetry } from "./track-telemetry";
+import { errText } from "../lib/error-text";
 
 export type TrackTelemetryWriter = (payload: TrackTelemetry) => Promise<void>;
 
@@ -28,7 +29,7 @@ export const createTrackTelemetryPublisher = (
   const onError =
     deps.onError ??
     ((err) => {
-      const detail = err instanceof Error ? err.message : String(err);
+      const detail = errText(err);
       log("warn", `TrackTelemetry publish failed: ${detail}`);
     });
 

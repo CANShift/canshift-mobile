@@ -18,6 +18,7 @@ interface TimerSessionsState {
   sessions: StoredTimerSession[];
   activeKey: string | null;
   activeBucket: ActiveBucket | null;
+  persistFailed: boolean;
 }
 
 let s_storage: TimerSessionStorage = fileTimerSessionStorage;
@@ -31,7 +32,18 @@ export const useTimerSessionsStore = create<TimerSessionsState>()(() => ({
   sessions: [],
   activeKey: null,
   activeBucket: null,
+  persistFailed: false,
 }));
+
+const persistSessions = (sessions: readonly StoredTimerSession[]): void => {
+  void s_storage.save(sessions).then((persisted) => {
+    useTimerSessionsStore.setState({ persistFailed: !persisted });
+  });
+};
+
+export const acknowledgePersistFailure = (): void => {
+  useTimerSessionsStore.setState({ persistFailed: false });
+};
 
 export const hydrateTimerSessions = async (): Promise<void> => {
   if (useTimerSessionsStore.getState().hydrated) return;
@@ -45,7 +57,7 @@ export const hydrateTimerSessions = async (): Promise<void> => {
     ...recordedBeforeHydration,
   ].slice(-MAX_STORED_SESSIONS);
   useTimerSessionsStore.setState({ hydrated: true, sessions });
-  if (recordedBeforeHydration.length > 0) void s_storage.save(sessions);
+  if (recordedBeforeHydration.length > 0) persistSessions(sessions);
 };
 
 export const recordSessionLap = (
@@ -82,7 +94,7 @@ export const recordSessionLap = (
     activeKey,
     activeBucket: { sessionId: lap.sessionId, lastIndex },
   });
-  if (state.hydrated) void s_storage.save(sessions);
+  if (state.hydrated) persistSessions(sessions);
 };
 
 export const clearTimerSessions = (): void => {
@@ -92,5 +104,5 @@ export const clearTimerSessions = (): void => {
     activeKey: null,
     activeBucket: null,
   });
-  void s_storage.save([]);
+  persistSessions([]);
 };

@@ -17,10 +17,12 @@ import {
   useTrackSessionStore,
 } from "../stores/track-session.store";
 import { Colors, Spacing } from "../theme";
+import { errText } from "../lib/error-text";
 
 const START_FAILURE_MESSAGES = {
   permission_denied: "Location permission is required for lap timing",
   gps_unavailable: "GPS is unavailable on this device",
+  session_failed: "Track mode could not start — try again",
 } as const;
 
 const TrackScreen = () => {
@@ -50,11 +52,8 @@ const TrackScreen = () => {
         });
       }
     } catch (err) {
-      log(
-        "warn",
-        `Track mode toggle failed — ${err instanceof Error ? err.message : String(err)}`,
-      );
-      Toast.show({ type: "error", text1: "Track mode failed — try again" });
+      log("warn", `Track mode stop failed — ${errText(err)}`);
+      Toast.show({ type: "error", text1: "Could not stop track mode" });
     } finally {
       setBusy(false);
     }

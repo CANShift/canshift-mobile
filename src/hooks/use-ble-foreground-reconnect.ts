@@ -9,6 +9,7 @@ import { useReconnectStore } from "../stores/reconnect.store";
 import { tryReconnectLastDevice } from "../services/ble.service";
 import { Toast } from "../components/ui";
 import { log } from "../stores/log.store";
+import { errText } from "../lib/error-text";
 
 const isReconnectable = (state: ConnectionState): boolean => {
   return state === "idle" || state === "error";
@@ -68,7 +69,7 @@ export const handleAppStateTransition = async (
   try {
     started = await deps.tryReconnect();
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "unknown error";
+    const msg = errText(err);
     log("warn", `Foreground reconnect attempt failed: ${msg}`);
     return;
   }

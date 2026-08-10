@@ -17,12 +17,17 @@ import { sendCmd, type CmdPayload } from "./ble.service";
 import { useDeviceStore } from "../stores/device.store";
 import { startSession, stopSession } from "../stores/track-session.store";
 import { log } from "../stores/log.store";
+import { errText } from "../lib/error-text";
 
 export type TrackModeStartResult =
   | { started: true }
   | {
       started: false;
-      reason: "permission_denied" | "gps_unavailable" | "cancelled";
+      reason:
+        | "permission_denied"
+        | "gps_unavailable"
+        | "session_failed"
+        | "cancelled";
     };
 
 export interface TrackModeControllerDeps {
@@ -79,6 +84,11 @@ export const createTrackModeController = (
   let startPromise: Promise<TrackModeStartResult> | null = null;
   let generation = 0;
 
+  const rollbackStart = (started: GpsSubscription): void => {
+    started.stop();
+    stopSession();
+  };
+
   const doStart = async (gen: number): Promise<TrackModeStartResult> => {
     const permission = await requestPermission();
     if (gen !== generation) return { started: false, reason: "cancelled" };
@@ -88,7 +98,7 @@ export const createTrackModeController = (
     try {
       nextSubscription = await startGpsSubscription(watcher);
     } catch (err) {
-      const detail = err instanceof Error ? err.message : String(err);
+      const detail = errText(err);
       log("warn", `Track mode: GPS watcher failed to start — ${detail}`);
       return { started: false, reason: "gps_unavailable" };
     }
@@ -100,9 +110,9 @@ export const createTrackModeController = (
       startSession();
       publisher.start();
     } catch (err) {
-      nextSubscription.stop();
-      stopSession();
-      throw err;
+      rollbackStart(nextSubscription);
+      log("warn", `Track mode: session failed to start — ${errText(err)}`);
+      return { started: false, reason: "session_failed" };
     }
     subscription = nextSubscription;
     log("info", "Track mode started");

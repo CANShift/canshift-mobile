@@ -45,6 +45,7 @@ import { BlePermissionDeniedError } from "./ble.errors";
 import { withGattRetry } from "./ble.retry";
 import { BleReconnector } from "./ble-reconnect";
 import { Toast, type ToastShowParams } from "../components/ui/toast";
+import { errText } from "../lib/error-text";
 
 export interface ScanResult {
   id: string;
@@ -179,7 +180,7 @@ export class BleService {
       s_bleNativeAvailable = false;
       log(
         "warn",
-        `BLE native module unavailable (Expo Go?) — Bluetooth disabled: ${err instanceof Error ? err.message : String(err)}`,
+        `BLE native module unavailable (Expo Go?) — Bluetooth disabled: ${errText(err)}`,
       );
       return createInertBleManager();
     }
@@ -193,10 +194,7 @@ export class BleService {
       try {
         await this.connectedDevice.cancelConnection();
       } catch (err) {
-        log(
-          "warn",
-          `dispose: cancelConnection failed: ${err instanceof Error ? err.message : String(err)}`,
-        );
+        log("warn", `dispose: cancelConnection failed: ${errText(err)}`);
       }
       this.connectedDevice = null;
     }
@@ -323,10 +321,7 @@ export class BleService {
         await this.connectedDevice.cancelConnection();
         log("info", `Disconnected from ${id}`);
       } catch (err) {
-        log(
-          "warn",
-          `disconnect: cancelConnection failed: ${err instanceof Error ? err.message : String(err)}`,
-        );
+        log("warn", `disconnect: cancelConnection failed: ${errText(err)}`);
       }
       this.connectedDevice = null;
     }
@@ -487,7 +482,7 @@ export class BleService {
         ),
       );
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
+      const msg = errText(err);
       log("warn", `BLE: could not attach the ${spec.label} monitor — ${msg}`);
       spec.assign(null);
       this.reviveMonitor(spec, attempt);
@@ -549,7 +544,7 @@ export class BleService {
       if (!char.value) return;
       handle(char.value);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
+      const msg = errText(err);
       log("warn", `BLE: failed to seed ${label} — ${msg}`);
     }
   }
@@ -753,7 +748,7 @@ export class BleService {
     try {
       await device.discoverAllServicesAndCharacteristics();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
+      const msg = errText(err);
       log(
         "warn",
         `BLE restore: service discovery failed — falling back to reconnect: ${msg}`,

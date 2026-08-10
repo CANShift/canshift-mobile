@@ -3,6 +3,7 @@ import * as SecureStore from "expo-secure-store";
 import { z } from "zod";
 import { log } from "./log.store";
 import { setBufferCap } from "./telemetry.store";
+import { errText } from "../lib/error-text";
 
 export type AppTheme = "system" | "light" | "dark";
 export type Units = "metric" | "imperial";
@@ -35,9 +36,6 @@ const DEFAULT_SETTINGS: AppSettings = {
   showPreRelease: true,
   units: "metric",
 };
-
-const errText = (err: unknown): string =>
-  err instanceof Error ? err.message : String(err);
 
 const readPersisted = async (): Promise<AppSettings | null> => {
   try {

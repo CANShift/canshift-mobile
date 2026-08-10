@@ -1,32 +1,29 @@
 import * as SecureStore from "expo-secure-store";
-import { log } from "../stores/log.store";
+import { persist } from "../lib/persist";
 
 const LAST_DEVICE_ID_KEY = "canshift.lastBleDeviceId";
 
 export const rememberDevice = async (id: string): Promise<void> => {
-  try {
-    await SecureStore.setItemAsync(LAST_DEVICE_ID_KEY, id);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "unknown error";
-    log("warn", `Failed to persist last device id: ${msg}`);
-  }
+  await persist(
+    "Persisting the last device id",
+    () => SecureStore.setItemAsync(LAST_DEVICE_ID_KEY, id),
+    undefined,
+  );
 };
 
 export const forgetDevice = async (): Promise<void> => {
-  try {
-    await SecureStore.deleteItemAsync(LAST_DEVICE_ID_KEY);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "unknown error";
-    log("warn", `Failed to forget last device id: ${msg}`);
-  }
+  await persist(
+    "Forgetting the last device id",
+    () => SecureStore.deleteItemAsync(LAST_DEVICE_ID_KEY),
+    undefined,
+  );
 };
 
 export const getLastDevice = async (): Promise<string | null> => {
-  try {
-    return await SecureStore.getItemAsync(LAST_DEVICE_ID_KEY);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "unknown error";
-    log("warn", `Failed to read last device id: ${msg}`);
-    return null;
-  }
+  const { value } = await persist(
+    "Reading the last device id",
+    () => SecureStore.getItemAsync(LAST_DEVICE_ID_KEY),
+    null,
+  );
+  return value;
 };
