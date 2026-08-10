@@ -15,6 +15,7 @@ import {
   type ChartPanelProps,
 } from "../components/graph/ChartPanel";
 import type { SignalKey } from "../constants/ble";
+import { errText } from "../lib/error-text";
 
 const DEFAULT_SIGNALS: SignalKey[] = ["r", "lam"];
 
@@ -48,10 +49,7 @@ export default function GraphScreen() {
     try {
       await exportGraphCsv(samples, visibleSignals);
     } catch (err) {
-      Alert.alert(
-        "Export failed",
-        err instanceof Error ? err.message : String(err),
-      );
+      Alert.alert("Export failed", errText(err));
     }
   }, [visibleSignals]);
 

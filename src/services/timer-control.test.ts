@@ -17,7 +17,7 @@ jest.mock("./ble.service", () => ({
 
 const memoryStorage: TimerSessionStorage = {
   load: () => Promise.resolve([]),
-  save: () => Promise.resolve(),
+  save: () => Promise.resolve(true),
 };
 
 const initialTimerState = useTimerStore.getState();

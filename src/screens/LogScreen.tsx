@@ -30,6 +30,7 @@ import {
 } from "../stores/log.store";
 import { useDeviceStore } from "../stores/device.store";
 import { sendCmd } from "../services/ble.service";
+import { errText } from "../lib/error-text";
 
 type ConsoleTab = "can" | "log" | "send";
 
@@ -177,10 +178,7 @@ const SendTab = () => {
       log("info", `Console → sent "${trimmed}"`);
       setCommand("");
     } catch (err) {
-      Alert.alert(
-        "Send failed",
-        err instanceof Error ? err.message : String(err),
-      );
+      Alert.alert("Send failed", errText(err));
     } finally {
       setSending(false);
     }

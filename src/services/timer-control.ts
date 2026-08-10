@@ -4,6 +4,7 @@ import { log } from "../stores/log.store";
 import { useDeviceStore } from "../stores/device.store";
 import { useTimerStore } from "../stores/timer.store";
 import { recordSessionLap } from "../stores/timer-sessions.store";
+import { errText } from "../lib/error-text";
 
 const isDeviceDriven = (): boolean => {
   const { connectionState, mode } = useDeviceStore.getState();
@@ -12,7 +13,7 @@ const isDeviceDriven = (): boolean => {
 
 const sendToDevice = (command: TimerCommand): void => {
   void bleService.sendTimerCommand(command).catch((err: unknown) => {
-    const msg = err instanceof Error ? err.message : String(err);
+    const msg = errText(err);
     log("warn", `Timer '${command}' failed over BLE: ${msg}`);
   });
 };
