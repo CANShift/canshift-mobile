@@ -41,7 +41,7 @@ import {
   requestAndroidBlePermissions,
   type AndroidBlePermissionResult,
 } from "./ble-permissions";
-import { mapBleError, describeBleError } from "./ble.errors";
+import { BlePermissionDeniedError } from "./ble.errors";
 import { withGattRetry } from "./ble.retry";
 import { BleReconnector } from "./ble-reconnect";
 import { Toast, type ToastShowParams } from "../components/ui/toast";
@@ -234,7 +234,7 @@ export class BleService {
             if (timer !== null) clearTimeout(timer);
             this.activeScanStop = null;
             void this.manager.stopDeviceScan();
-            reject(new Error(error.message));
+            reject(error);
             return;
           }
           if (
@@ -269,7 +269,7 @@ export class BleService {
   }
 
   private async connectInternal(deviceId: string): Promise<void> {
-    const { setConnectionState, setDevice, setFirmwareStatus, setError } =
+    const { setConnectionState, setDevice, setFirmwareStatus } =
       useDeviceStore.getState();
 
     await this.ensureAndroidBlePermissions();
@@ -307,9 +307,7 @@ export class BleService {
     } catch (err) {
       this.removeSubscriptions();
       this.connectedDevice = null;
-      const mapped = mapBleError(err);
-      setError(mapped);
-      log("error", `Connection failed: ${describeBleError(mapped)}`);
+      setConnectionState("idle");
       throw err;
     }
   }
@@ -870,11 +868,7 @@ export class BleService {
         return;
       case "denied":
       case "never_ask_again": {
-        const err = new Error("android_ble_permission_denied") as Error & {
-          code?: string;
-        };
-        err.code = "android_ble_permission_denied";
-        throw err;
+        throw new BlePermissionDeniedError();
       }
       default: {
         const _exhaustive: never = result;
