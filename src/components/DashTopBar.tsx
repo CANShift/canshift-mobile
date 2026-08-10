@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Menu, Power, Circle, CircleDot } from "lucide-react-native";
+import { Menu, Power } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useShallow } from "zustand/react/shallow";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -72,11 +72,6 @@ export default function DashTopBar() {
             >
               CAN
             </Text>
-            {canHealthy ? (
-              <CircleDot size={12} color={Colors.success} />
-            ) : (
-              <Circle size={12} color={Colors.textMuted} />
-            )}
           </View>
         </View>
         <View style={styles.topBarRight}>
@@ -169,6 +164,11 @@ export default function DashTopBar() {
   );
 }
 
+const HEADER_RULE = 2;
+const HEADER_TITLE_SIZE = Typography.xl;
+const HEADER_TITLE_TRACKING = HEADER_TITLE_SIZE * -0.02;
+const HEADER_META_SIZE = 12;
+
 const styles = StyleSheet.create({
   topBar: {
     flexDirection: "row",
@@ -176,19 +176,19 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
+    borderBottomWidth: HEADER_RULE,
     borderBottomColor: Colors.border,
   },
   deviceName: {
     fontFamily: Fonts.uiExtraBold,
-    fontSize: Typography.md,
+    fontSize: HEADER_TITLE_SIZE,
+    letterSpacing: HEADER_TITLE_TRACKING,
     color: Colors.text,
   },
   version: {
-    fontFamily: Fonts.ui,
-    fontSize: Typography.xs,
+    fontFamily: Fonts.mono,
+    fontSize: HEADER_META_SIZE,
     color: Colors.textMuted,
-    letterSpacing: 0.5,
   },
   versionRow: {
     flexDirection: "row",

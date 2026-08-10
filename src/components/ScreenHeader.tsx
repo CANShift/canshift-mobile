@@ -7,9 +7,13 @@ interface ScreenHeaderProps {
   onBack?: () => void;
 }
 
+const HEADER_RULE = 2;
+const TITLE_SIZE = Typography.xl;
+const TITLE_TRACKING = TITLE_SIZE * -0.02;
+
 export const ScreenHeader = ({ title, onBack }: ScreenHeaderProps) => (
   <View style={styles.header}>
-    {onBack ? (
+    {onBack && (
       <TouchableOpacity
         onPress={onBack}
         hitSlop={HitSlop.default}
@@ -20,11 +24,8 @@ export const ScreenHeader = ({ title, onBack }: ScreenHeaderProps) => (
         <ChevronLeft size={18} color={Colors.accent} />
         <Text style={styles.back}>Back</Text>
       </TouchableOpacity>
-    ) : (
-      <View style={styles.spacer} />
     )}
     <Text style={styles.title}>{title}</Text>
-    <View style={styles.spacer} />
   </View>
 );
 
@@ -32,10 +33,10 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: Spacing.md,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
+    borderBottomWidth: HEADER_RULE,
     borderBottomColor: Colors.border,
   },
   backBtn: {
@@ -47,9 +48,8 @@ const styles = StyleSheet.create({
   back: { fontSize: Typography.md, color: Colors.accent },
   title: {
     fontFamily: Fonts.uiExtraBold,
-    fontSize: Typography.sm,
-    color: Colors.textDim,
-    letterSpacing: 1,
+    fontSize: TITLE_SIZE,
+    letterSpacing: TITLE_TRACKING,
+    color: Colors.text,
   },
-  spacer: { width: 48 },
 });
