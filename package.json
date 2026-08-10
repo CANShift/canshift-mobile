@@ -21,6 +21,7 @@
   "dependencies": {
     "@canshift/core": "^3.0.0",
     "@expo-google-fonts/archivo": "0.4.2",
+    "@expo-google-fonts/jetbrains-mono": "^0.4.1",
     "@react-native-community/slider": "5.2.0",
     "@react-navigation/bottom-tabs": "^7.18.15",
     "@react-navigation/native": "^7.3.15",

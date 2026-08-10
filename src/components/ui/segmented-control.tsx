@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   },
   segmentActive: { backgroundColor: Colors.accent },
   label: {
-    fontFamily: Fonts.uiSemiBold,
+    fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.sm,
     letterSpacing: 1,
     textTransform: "uppercase",

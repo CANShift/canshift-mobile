@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
-import { Colors, Typography, Spacing } from "../theme";
+import { Colors, Fonts, Typography, Spacing } from "../theme";
 
 export interface InfoRowProps {
   label: string;
@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   label: {
+    fontFamily: Fonts.ui,
     fontSize: Typography.sm,
     color: Colors.textMuted,
   },
@@ -31,11 +32,12 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     textAlign: "right",
     fontSize: Typography.sm,
-    fontWeight: "600",
+    fontFamily: Fonts.monoBold,
+    fontVariant: ["tabular-nums"],
     color: Colors.text,
   },
   valueMuted: {
     color: Colors.textDim,
-    fontWeight: "400",
+    fontFamily: Fonts.mono,
   },
 });

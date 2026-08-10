@@ -8,6 +8,11 @@ import {
   Archivo_800ExtraBold,
   useFonts,
 } from "@expo-google-fonts/archivo";
+import {
+  JetBrainsMono_400Regular,
+  JetBrainsMono_700Bold,
+  JetBrainsMono_800ExtraBold,
+} from "@expo-google-fonts/jetbrains-mono";
 import Navigation from "./navigation";
 import { Toaster } from "@/components/ui";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -22,6 +27,9 @@ export default function App() {
     Archivo_400Regular,
     Archivo_600SemiBold,
     Archivo_800ExtraBold,
+    JetBrainsMono_400Regular,
+    JetBrainsMono_700Bold,
+    JetBrainsMono_800ExtraBold,
   });
   useBleForegroundReconnect();
   useEffect(() => {

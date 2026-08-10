@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { View, Text, StyleSheet, LayoutChangeEvent } from "react-native";
 import Svg, { Polyline, Line, Text as SvgText } from "react-native-svg";
-import { Colors, TabularNums, Typography, Spacing } from "../../theme";
+import { Colors, Fonts, TabularNums, Typography, Spacing } from "../../theme";
 import { getSignalColor } from "../../theme/signal-colors";
 import { SIGNAL_META, type SignalKey } from "../../constants/ble";
 import {
@@ -200,6 +200,7 @@ const styles = StyleSheet.create({
   timeLabel: {
     fontSize: Typography.xxs,
     color: Colors.textMuted,
+    fontFamily: Fonts.mono,
     fontVariant: TabularNums,
   },
 
@@ -214,5 +215,9 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   valueKey: { fontSize: 10, fontWeight: "600", letterSpacing: 0.3 },
-  valueNum: { fontSize: 15, fontWeight: "700", fontVariant: TabularNums },
+  valueNum: {
+    fontSize: 15,
+    fontFamily: Fonts.monoBold,
+    fontVariant: TabularNums,
+  },
 });

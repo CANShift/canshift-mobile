@@ -10,7 +10,14 @@ import {
   widgetStaleTextColor,
   widgetTextColor,
 } from "@canshift/core";
-import { Colors, Radius, Spacing, TabularNums, Typography } from "../../theme";
+import {
+  Colors,
+  Fonts,
+  Radius,
+  Spacing,
+  TabularNums,
+  Typography,
+} from "../../theme";
 import { SIGNAL_META, type SignalKey } from "../../constants/ble";
 import { signalRampColor } from "../../theme/signal-colors";
 import { formatWidgetValue, splitWidgetValue } from "./widget-value";
@@ -59,7 +66,7 @@ const LabelWidget = ({
         <Text
           style={{
             fontSize: intFontSize,
-            fontWeight: "700",
+            fontFamily: Fonts.monoBold,
             color: tint,
             fontVariant: TabularNums,
           }}
@@ -71,7 +78,7 @@ const LabelWidget = ({
           <Text
             style={{
               fontSize: fracFontSize,
-              fontWeight: "700",
+              fontFamily: Fonts.monoBold,
               color: tint,
               fontVariant: TabularNums,
             }}
@@ -84,7 +91,11 @@ const LabelWidget = ({
           <Text
             style={[
               styles.unit,
-              { fontSize: VALUE_UNIT_FONT_SIZE, color: unitColor },
+              {
+                fontSize: VALUE_UNIT_FONT_SIZE,
+                fontFamily: Fonts.mono,
+                color: unitColor,
+              },
             ]}
           >
             {meta.unit}

@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accentDim,
   },
   pauseText: {
-    fontFamily: Fonts.uiSemiBold,
+    fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.xs,
     letterSpacing: 0.8,
     textTransform: "uppercase",
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
   },
   clearText: {
-    fontFamily: Fonts.uiSemiBold,
+    fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.xs,
     letterSpacing: 0.8,
     textTransform: "uppercase",
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
   },
   emptyTitle: {
-    fontFamily: Fonts.uiSemiBold,
+    fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.md,
     color: Colors.text,
   },
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   timestamp: {
-    fontFamily: Fonts.ui,
+    fontFamily: Fonts.mono,
     fontSize: Typography.xs,
     color: Colors.textMuted,
     minWidth: 66,
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
   },
   message: {
     flex: 1,
-    fontFamily: Fonts.ui,
+    fontFamily: Fonts.mono,
     fontSize: Typography.xs,
     color: Colors.text,
     lineHeight: 17,
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
 
   sendBody: { padding: Spacing.lg, gap: Spacing.sm },
   sendLabel: {
-    fontFamily: Fonts.uiSemiBold,
+    fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.xs,
     letterSpacing: 1,
     textTransform: "uppercase",
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     paddingHorizontal: Spacing.md,
     color: Colors.text,
-    fontFamily: Fonts.ui,
+    fontFamily: Fonts.mono,
     fontSize: Typography.md,
   },
   sendBtn: {

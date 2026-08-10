@@ -19,11 +19,27 @@ export const Fonts = {
   ui: "Archivo_400Regular",
   uiSemiBold: "Archivo_600SemiBold",
   uiExtraBold: "Archivo_800ExtraBold",
+  mono: "JetBrainsMono_400Regular",
+  monoBold: "JetBrainsMono_700Bold",
+  monoExtraBold: "JetBrainsMono_800ExtraBold",
 } as const;
 
 export const TabularNums: NonNullable<TextStyle["fontVariant"]> = [
   "tabular-nums",
 ];
+
+export const UI_LABEL_TRACKING = 1.4;
+
+export const labelStyle: TextStyle = {
+  fontFamily: Fonts.uiExtraBold,
+  letterSpacing: UI_LABEL_TRACKING,
+  textTransform: "uppercase",
+};
+
+export const valueStyle: TextStyle = {
+  fontFamily: Fonts.mono,
+  fontVariant: TabularNums,
+};
 
 export type { DesignTokens } from "@canshift/core";
 

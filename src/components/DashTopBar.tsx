@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.border,
   },
   deviceName: {
-    fontFamily: Fonts.uiSemiBold,
+    fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.md,
     color: Colors.text,
   },
