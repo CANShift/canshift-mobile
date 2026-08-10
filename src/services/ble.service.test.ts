@@ -45,6 +45,13 @@ import { BleService, isBleAvailable } from "./ble.service";
 import { mapBleError } from "./ble.errors";
 import { forgetDevice } from "./last-device";
 import { useDeviceStore } from "../stores/device.store";
+import { useReconnectStore } from "../stores/reconnect.store";
+import {
+  BLE_CHAR_TELE,
+  BLE_CHAR_STATUS,
+  BLE_CHAR_TIMER_STATE,
+  BLE_CHAR_TIMER_LAP,
+} from "../constants/ble";
 
 interface PendingOp {
   resolve: (value: unknown) => void;
@@ -230,6 +237,151 @@ describe("BleService connect", () => {
     await expect(service.connect("dev-1")).rejects.toThrow("unreachable");
 
     expect(cancelSpy).toHaveBeenCalled();
+  });
+});
+
+describe("BleService monitor death", () => {
+  interface MonitorEntry {
+    characteristic: string;
+    fire: (error: Error | null, value: string | null) => void;
+  }
+
+  const makeMonitoredService = () => {
+    const monitors: MonitorEntry[] = [];
+    const showToast = jest.fn();
+    const device = {
+      id: "test-device",
+      name: "CANShift-test",
+      discoverAllServicesAndCharacteristics: jest.fn(() =>
+        Promise.resolve(undefined),
+      ),
+      readCharacteristicForService: jest.fn(() =>
+        Promise.resolve({ value: null }),
+      ),
+      monitorCharacteristicForService: jest.fn(
+        (
+          _service: string,
+          characteristic: string,
+          cb: (error: Error | null, char: { value: string } | null) => void,
+        ) => {
+          monitors.push({
+            characteristic,
+            fire: (error, value) => {
+              cb(error, value === null ? null : { value });
+            },
+          });
+          return { remove: jest.fn() };
+        },
+      ),
+      onDisconnected: jest.fn(() => ({ remove: jest.fn() })),
+      cancelConnection: jest.fn(() => Promise.resolve()),
+    };
+    const managerStub = {
+      destroy: jest.fn(),
+      stopDeviceScan: jest.fn(),
+      startDeviceScan: jest.fn(),
+      connectToDevice: jest.fn(() => Promise.resolve(device)),
+    } as unknown as BleManager;
+    const service = new BleService({
+      managerFactory: () => managerStub,
+      requestAndroidPermissions: () =>
+        Promise.resolve({ kind: "not_applicable" }),
+      showToast,
+    });
+    return { service, monitors, showToast };
+  };
+
+  const attachedTo = (monitors: MonitorEntry[], characteristic: string) =>
+    monitors.filter((m) => m.characteristic === characteristic);
+
+  const killUntilLost = async (
+    monitors: MonitorEntry[],
+    characteristic: string,
+  ): Promise<void> => {
+    for (let round = 0; round < MONITOR_ATTACH_ATTEMPTS; round++) {
+      const attached = attachedTo(monitors, characteristic);
+      attached[attached.length - 1]?.fire(new Error("GATT went away"), null);
+      jest.advanceTimersByTime(MONITOR_REVIVE_MAX_DELAY_MS);
+      await flush();
+    }
+  };
+
+  const MONITOR_ATTACH_ATTEMPTS = 3;
+  const MONITOR_REVIVE_MAX_DELAY_MS = 1_000;
+
+  beforeEach(() => {
+    jest.useFakeTimers({ doNotFake: ["setImmediate"] });
+    useDeviceStore.getState().disconnect();
+    useReconnectStore.getState().stop();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it("re-subscribes a dead telemetry monitor instead of leaving it gone", async () => {
+    const { service, monitors } = makeMonitoredService();
+    await service.connect("test-device");
+
+    expect(attachedTo(monitors, BLE_CHAR_TELE)).toHaveLength(1);
+
+    attachedTo(monitors, BLE_CHAR_TELE)[0]?.fire(new Error("GATT"), null);
+    jest.advanceTimersByTime(MONITOR_REVIVE_MAX_DELAY_MS);
+    await flush();
+
+    expect(attachedTo(monitors, BLE_CHAR_TELE)).toHaveLength(2);
+    service.cancelReconnect();
+  });
+
+  it("treats a telemetry monitor that never comes back as a lost link", async () => {
+    const { service, monitors } = makeMonitoredService();
+    await service.connect("test-device");
+
+    await killUntilLost(monitors, BLE_CHAR_TELE);
+
+    expect(attachedTo(monitors, BLE_CHAR_TELE)).toHaveLength(
+      MONITOR_ATTACH_ATTEMPTS,
+    );
+    expect(useDeviceStore.getState().error).toEqual({ kind: "disconnected" });
+    expect(useReconnectStore.getState().isReconnecting).toBe(true);
+    expect(useReconnectStore.getState().deviceId).toBe("test-device");
+    service.cancelReconnect();
+  });
+
+  it("treats a status monitor that never comes back as a lost link", async () => {
+    const { service, monitors } = makeMonitoredService();
+    await service.connect("test-device");
+
+    await killUntilLost(monitors, BLE_CHAR_STATUS);
+
+    expect(useReconnectStore.getState().isReconnecting).toBe(true);
+    service.cancelReconnect();
+  });
+
+  it("surfaces a toast when the lap monitor never comes back, without dropping the link", async () => {
+    const { service, monitors, showToast } = makeMonitoredService();
+    await service.connect("test-device");
+
+    await killUntilLost(monitors, BLE_CHAR_TIMER_LAP);
+
+    expect(showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "error", text1: "Lap stream lost" }),
+    );
+    expect(useReconnectStore.getState().isReconnecting).toBe(false);
+    expect(useDeviceStore.getState().error).toBeNull();
+    service.cancelReconnect();
+  });
+
+  it("surfaces a toast when the timer-state monitor never comes back", async () => {
+    const { service, monitors, showToast } = makeMonitoredService();
+    await service.connect("test-device");
+
+    await killUntilLost(monitors, BLE_CHAR_TIMER_STATE);
+
+    expect(showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "error", text1: "Timer sync lost" }),
+    );
+    service.cancelReconnect();
   });
 });
 
