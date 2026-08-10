@@ -1,7 +1,14 @@
 import React from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { TIMER_BORDER_COLORS } from "@canshift/core";
-import { Colors, Radius, Spacing, TabularNums, Typography } from "../../theme";
+import {
+  Colors,
+  Fonts,
+  Radius,
+  Spacing,
+  TabularNums,
+  Typography,
+} from "../../theme";
 import type { SessionLap } from "../../lib/timer-laps";
 import { formatTimerElapsed } from "../widgets/widget-value";
 
@@ -76,6 +83,7 @@ const styles = StyleSheet.create({
   lapTime: {
     color: Colors.text,
     fontSize: Typography.md,
+    fontFamily: Fonts.mono,
     fontVariant: TabularNums,
     fontWeight: "600",
   },
@@ -83,6 +91,7 @@ const styles = StyleSheet.create({
   total: {
     color: Colors.textMuted,
     fontSize: Typography.sm,
+    fontFamily: Fonts.mono,
     fontVariant: TabularNums,
   },
   empty: {

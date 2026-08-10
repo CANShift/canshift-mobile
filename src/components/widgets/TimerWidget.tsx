@@ -8,7 +8,7 @@ import {
   timerFontSize,
   widgetTextColor,
 } from "@canshift/core";
-import { Colors, Radius, Spacing, TabularNums } from "../../theme";
+import { Colors, Fonts, Radius, Spacing, TabularNums } from "../../theme";
 import { useTimerStore, type TimerStatus } from "../../stores/timer.store";
 import { useTimerElapsed } from "../../hooks/use-timer-elapsed";
 import { timerControl } from "../../services/timer-control";
@@ -99,7 +99,7 @@ const TimerWidget = ({ width, height, dayMode = false }: TimerWidgetProps) => {
       <Text
         style={{
           fontSize,
-          fontWeight: "700",
+          fontFamily: Fonts.monoBold,
           color,
           opacity: status === "idle" ? IDLE_TEXT_OPACITY : 1,
           fontVariant: TabularNums,

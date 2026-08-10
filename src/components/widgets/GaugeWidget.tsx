@@ -17,7 +17,7 @@ import {
   widgetStaleTextColor,
   widgetTextColor,
 } from "@canshift/core";
-import { TabularNums } from "../../theme";
+import { Fonts, TabularNums } from "../../theme";
 import { SIGNAL_META, type SignalKey } from "../../constants/ble";
 import { signalKeyToSensorKind } from "../../theme/signal-colors";
 import {
@@ -198,7 +198,7 @@ const ValueCluster = ({
       <Text
         style={{
           fontSize: intFontSize,
-          fontWeight: "700",
+          fontFamily: Fonts.monoBold,
           color,
           fontVariant: TabularNums,
         }}
@@ -209,7 +209,7 @@ const ValueCluster = ({
         <Text
           style={{
             fontSize: fracFontSize,
-            fontWeight: "700",
+            fontFamily: Fonts.monoBold,
             color,
             fontVariant: TabularNums,
           }}
@@ -219,7 +219,13 @@ const ValueCluster = ({
       ) : null}
     </View>
     {unit ? (
-      <Text style={{ fontSize: VALUE_UNIT_FONT_SIZE, color: unitColor }}>
+      <Text
+        style={{
+          fontSize: VALUE_UNIT_FONT_SIZE,
+          fontFamily: Fonts.mono,
+          color: unitColor,
+        }}
+      >
         {unit}
       </Text>
     ) : null}

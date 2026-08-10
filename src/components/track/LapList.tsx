@@ -23,7 +23,7 @@ export const LapList = ({ laps, bestLapMs }: LapListProps) => (
           >
             <Text className="text-sm text-text-dim">Lap {lap.number}</Text>
             <Text
-              className={`text-base font-medium tabular-nums ${isBest ? "text-success" : "text-text"}`}
+              className={`font-mono text-base tabular-nums ${isBest ? "text-success" : "text-text"}`}
             >
               {formatLapMs(lap.durationMs)}
             </Text>

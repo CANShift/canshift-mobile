@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   cardTitle: {
-    fontFamily: Fonts.uiSemiBold,
+    fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.xs,
     color: Colors.textDim,
     letterSpacing: 0.8,

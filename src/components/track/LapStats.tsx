@@ -14,13 +14,13 @@ export const LapStats = ({ lastLapMs, bestLapMs }: LapStatsProps) => (
   <View className="flex-row gap-2">
     <Card className="flex-1 items-center gap-1">
       <SectionLabel>Last</SectionLabel>
-      <Text className="text-xl font-semibold tabular-nums text-text">
+      <Text className="font-mono text-xl tabular-nums text-text">
         {statText(lastLapMs)}
       </Text>
     </Card>
     <Card className="flex-1 items-center gap-1">
       <SectionLabel>Best</SectionLabel>
-      <Text className="text-xl font-semibold tabular-nums text-success">
+      <Text className="font-mono text-xl tabular-nums text-success">
         {statText(bestLapMs)}
       </Text>
     </Card>

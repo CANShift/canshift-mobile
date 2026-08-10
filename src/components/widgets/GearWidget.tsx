@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { gearFontSize } from "@canshift/core";
 import { SIGNAL_META, type SignalKey } from "../../constants/ble";
 import { gearColor, gearGlyphFor } from "./widget-value";
+import { Fonts } from "../../theme";
 
 interface GearWidgetProps {
   signalKey: SignalKey;
@@ -27,7 +28,9 @@ const GearWidget = ({
       style={[styles.container, { width: size, height: size }]}
       accessibilityLabel={`${meta.label} ${glyph}`}
     >
-      <Text style={{ fontSize, fontWeight: "700", color }}>{glyph}</Text>
+      <Text style={{ fontSize, fontFamily: Fonts.monoBold, color }}>
+        {glyph}
+      </Text>
     </View>
   );
 };

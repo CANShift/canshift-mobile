@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   reconnectCancel: {
-    fontFamily: Fonts.uiSemiBold,
+    fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.sm,
     color: Colors.accent,
   },
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
   },
   emptyTitle: {
-    fontFamily: Fonts.uiSemiBold,
+    fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.md,
     color: Colors.text,
   },
@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   deviceName: {
-    fontFamily: Fonts.uiSemiBold,
+    fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.md,
     color: Colors.text,
     flexShrink: 1,
@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   demoLabel: {
-    fontFamily: Fonts.uiSemiBold,
+    fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.sm,
     color: Colors.textDim,
     letterSpacing: 1,

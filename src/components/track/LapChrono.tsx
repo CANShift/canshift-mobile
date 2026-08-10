@@ -11,7 +11,7 @@ export const LapChrono = ({ elapsedMs, running }: LapChronoProps) => (
   <Card className="items-center gap-1">
     <SectionLabel>Current lap</SectionLabel>
     <Text
-      className={`text-5xl font-bold tabular-nums ${running ? "text-text" : "text-text-muted"}`}
+      className={`font-mono-extrabold text-5xl tabular-nums ${running ? "text-text" : "text-text-muted"}`}
       accessibilityLabel="Current lap time"
     >
       {running ? formatLapMs(elapsedMs) : LAP_TIME_PLACEHOLDER}
