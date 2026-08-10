@@ -17,8 +17,20 @@ updates:
       - dependency-name: "react-native"
       - dependency-name: "react-native-*"
       - dependency-name: "@types/react"
+      # jest-expo is SDK-aligned too and matches neither "expo" nor "expo-*";
+      # 57.x targets SDK 57 while this app is on SDK 54.
+      - dependency-name: "jest-expo"
       # Pinned to @canshift/core's major so schemas stay compatible.
       - dependency-name: "zod"
+        update-types: ["version-update:semver-major"]
+      # tailwind-merge majors track Tailwind majors — its class map is rebuilt
+      # per Tailwind scale, and under NativeWind conflicts resolve by order, so
+      # a lone bump mis-styles with no type error and no failing test.
+      - dependency-name: "tailwind-merge"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "tailwindcss"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "nativewind"
         update-types: ["version-update:semver-major"]
       # Toolchain majors need a coordinated migration.
       - dependency-name: "@babel/*"
