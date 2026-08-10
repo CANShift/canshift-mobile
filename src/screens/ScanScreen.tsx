@@ -184,14 +184,14 @@ export default function ScanScreen({ navigation }: Props) {
   );
 
   const startScan = useCallback(async () => {
-    const state = await BleService.getBlePermissionState();
-    if (state.kind !== "ok") {
-      promptForBleState(state);
-      return;
-    }
     setDevices([]);
     setScanning(true);
     try {
+      const state = await BleService.getBlePermissionState();
+      if (state.kind !== "ok") {
+        promptForBleState(state);
+        return;
+      }
       await BleService.scan((device) => {
         setDevices((prev) =>
           prev.find((d) => d.id === device.id) ? prev : [...prev, device],
@@ -335,7 +335,13 @@ export default function ScanScreen({ navigation }: Props) {
       <View style={styles.footer}>
         <TouchableOpacity
           style={[styles.scanBar, primaryDisabled && styles.scanBarDisabled]}
-          onPress={scanning ? stopScan : startScan}
+          onPress={() => {
+            if (scanning) {
+              stopScan();
+              return;
+            }
+            void startScan();
+          }}
           disabled={primaryDisabled}
           accessibilityRole="button"
           accessibilityLabel={

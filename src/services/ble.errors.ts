@@ -12,6 +12,13 @@ export type BleConnectionError =
   | { kind: "write-failed"; reason?: string }
   | { kind: "unknown"; message: string };
 
+export class BlePermissionDeniedError extends Error {
+  constructor() {
+    super("android_ble_permission_denied");
+    this.name = "BlePermissionDeniedError";
+  }
+}
+
 const hasErrorCode = (err: unknown): err is { errorCode: BleErrorCode } => {
   if (err === null || typeof err !== "object") return false;
   const code = (err as { errorCode?: unknown }).errorCode;
@@ -38,14 +45,8 @@ const writeFailureReason = (err: unknown): string | undefined => {
 };
 
 export const mapBleError = (err: unknown): BleConnectionError => {
-  if (err instanceof Error) {
-    const code = (err as Error & { code?: string }).code;
-    if (
-      code === "android_ble_permission_denied" ||
-      err.message === "android_ble_permission_denied"
-    ) {
-      return { kind: "permission-denied", platform: "android" };
-    }
+  if (err instanceof BlePermissionDeniedError) {
+    return { kind: "permission-denied", platform: "android" };
   }
 
   if (!hasErrorCode(err)) {

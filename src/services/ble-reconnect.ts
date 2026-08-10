@@ -1,4 +1,5 @@
 import { useDeviceStore } from "../stores/device.store";
+import { describeBleError, mapBleError } from "./ble.errors";
 import { useReconnectStore } from "../stores/reconnect.store";
 import { log } from "../stores/log.store";
 
@@ -42,6 +43,13 @@ export const sleepWithAbort = (
     signal.addEventListener("abort", onAbort);
   });
 };
+
+type AttemptStep = "retry" | "stop";
+
+interface ScanOutcome {
+  found: boolean;
+  error?: unknown;
+}
 
 export interface BleReconnectDeps {
   connect: (deviceId: string) => Promise<void>;
@@ -106,28 +114,8 @@ export class BleReconnector {
     try {
       for (let attempt = 1; attempt <= RECONNECT_MAX_ATTEMPTS; attempt++) {
         if (isAborted(signal)) return;
-
-        const delay = computeBackoffDelay(attempt - 1);
-        useReconnectStore.getState().setAttempt(attempt);
-        log(
-          "info",
-          `Auto-reconnect: attempt ${String(attempt)}/${String(RECONNECT_MAX_ATTEMPTS)} in ${String(delay)}ms`,
-        );
-        await sleepWithAbort(delay, signal);
-        if (isAborted(signal)) return;
-
-        const found = await this.scanForDevice(deviceId, signal);
-        if (isAborted(signal)) return;
-        if (!found) {
-          log(
-            "warn",
-            `Auto-reconnect: device ${deviceId} not seen on attempt ${String(attempt)}`,
-          );
-          continue;
-        }
-
-        const outcome = await this.tryConnectAttempt(deviceId, attempt, signal);
-        if (outcome === "aborted" || outcome === "connected") return;
+        const step = await this.runAttempt(deviceId, attempt, signal);
+        if (step !== "retry") return;
       }
 
       if (!isAborted(signal)) {
@@ -142,41 +130,89 @@ export class BleReconnector {
     }
   }
 
+  private async runAttempt(
+    deviceId: string,
+    attempt: number,
+    signal: AbortSignal,
+  ): Promise<AttemptStep> {
+    const delay = computeBackoffDelay(attempt - 1);
+    useReconnectStore.getState().setAttempt(attempt);
+    log(
+      "info",
+      `Auto-reconnect: attempt ${String(attempt)}/${String(RECONNECT_MAX_ATTEMPTS)} in ${String(delay)}ms`,
+    );
+    await sleepWithAbort(delay, signal);
+    if (isAborted(signal)) return "stop";
+
+    const scan = await this.scanForDevice(deviceId, signal);
+    if (isAborted(signal)) return "stop";
+    if (scan.error !== undefined) {
+      return this.reportScanFailure(attempt, scan.error);
+    }
+    if (!scan.found) {
+      log(
+        "warn",
+        `Auto-reconnect: device ${deviceId} not seen on attempt ${String(attempt)}`,
+      );
+      return "retry";
+    }
+
+    const outcome = await this.tryConnectAttempt(deviceId, attempt, signal);
+    return outcome === "failed" ? "retry" : "stop";
+  }
+
+  private reportScanFailure(attempt: number, error: unknown): AttemptStep {
+    const mapped = mapBleError(error);
+    if (
+      mapped.kind === "bluetooth-off" ||
+      mapped.kind === "permission-denied"
+    ) {
+      log("error", `Auto-reconnect: giving up — ${describeBleError(mapped)}`);
+      useDeviceStore.getState().setError(mapped);
+      return "stop";
+    }
+    log(
+      "warn",
+      `Auto-reconnect: scan failed on attempt ${String(attempt)} — ${describeBleError(mapped)}`,
+    );
+    return "retry";
+  }
+
   private scanForDevice(
     deviceId: string,
     signal: AbortSignal,
-  ): Promise<boolean> {
+  ): Promise<ScanOutcome> {
     return new Promise((resolve) => {
       if (signal.aborted) {
-        resolve(false);
+        resolve({ found: false });
         return;
       }
 
       let settled = false;
-      const finish = (found: boolean) => {
+      const finish = (outcome: ScanOutcome) => {
         if (settled) return;
         settled = true;
         this.deps.stopScan();
         signal.removeEventListener("abort", onAbort);
         clearTimeout(timer);
-        resolve(found);
+        resolve(outcome);
       };
       const onAbort = () => {
-        finish(false);
+        finish({ found: false });
       };
       signal.addEventListener("abort", onAbort);
 
       const timer = setTimeout(() => {
-        finish(false);
+        finish({ found: false });
       }, RECONNECT_SCAN_TIMEOUT_MS);
 
       this.deps.startScan((error, foundDeviceId) => {
         if (error) {
-          finish(false);
+          finish({ found: false, error });
           return;
         }
         if (foundDeviceId === deviceId) {
-          finish(true);
+          finish({ found: true });
         }
       });
     });

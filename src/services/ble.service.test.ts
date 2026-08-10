@@ -42,7 +42,7 @@ import {
 } from "react-native-ble-plx";
 import type { BleManager, Device } from "react-native-ble-plx";
 import { BleService, isBleAvailable } from "./ble.service";
-import { mapBleError } from "./ble.errors";
+import { BlePermissionDeniedError, mapBleError } from "./ble.errors";
 import { forgetDevice } from "./last-device";
 import { useDeviceStore } from "../stores/device.store";
 import { useReconnectStore } from "../stores/reconnect.store";
@@ -240,6 +240,40 @@ describe("BleService connect", () => {
   });
 });
 
+describe("BleService scan errors", () => {
+  it("propagates the BleError verbatim so it can be classified, not a bare Error", async () => {
+    const scan = {
+      callback: null as ((error: unknown, device: unknown) => void) | null,
+    };
+    const managerStub = {
+      destroy: jest.fn(),
+      stopDeviceScan: jest.fn(),
+      startDeviceScan: jest.fn((_uuids, _opts, cb) => {
+        scan.callback = cb as (error: unknown, device: unknown) => void;
+      }),
+    } as unknown as BleManager;
+    const service = new BleService({
+      managerFactory: () => managerStub,
+      requestAndroidPermissions: () =>
+        Promise.resolve({ kind: "not_applicable" }),
+    });
+
+    const scanning = service.scan(() => undefined, 10_000);
+    await flush();
+    expect(scan.callback).not.toBeNull();
+    scan.callback?.(
+      { errorCode: BleErrorCode.BluetoothPoweredOff, message: "Powered off" },
+      null,
+    );
+
+    const err = await scanning.then(
+      () => null,
+      (e: unknown) => e,
+    );
+    expect(mapBleError(err)).toEqual({ kind: "bluetooth-off" });
+  });
+});
+
 describe("BleService monitor death", () => {
   interface MonitorEntry {
     characteristic: string;
@@ -412,15 +446,24 @@ describe("EXPO_PUBLIC_DISABLE_BLE", () => {
 });
 
 describe("mapBleError", () => {
-  it("maps the android permission-denied sentinel (Error with .code) to permission-denied/android", () => {
-    const err = new Error("android_ble_permission_denied") as Error & {
-      code?: string;
-    };
-    err.code = "android_ble_permission_denied";
-    expect(mapBleError(err)).toEqual({
+  it("maps BlePermissionDeniedError to permission-denied/android", () => {
+    expect(mapBleError(new BlePermissionDeniedError())).toEqual({
       kind: "permission-denied",
       platform: "android",
     });
+  });
+
+  it("no longer classifies on the message alone, so a look-alike stays unknown", () => {
+    expect(mapBleError(new Error("android_ble_permission_denied"))).toEqual({
+      kind: "unknown",
+      message: "android_ble_permission_denied",
+    });
+  });
+
+  it("classifies a scan error propagated verbatim, so the permission dialog is reachable", () => {
+    expect(
+      mapBleError({ errorCode: BleErrorCode.BluetoothPoweredOff }),
+    ).toEqual({ kind: "bluetooth-off" });
   });
 
   it("maps BleErrorCode.BluetoothUnauthorized to permission-denied with current platform", () => {
