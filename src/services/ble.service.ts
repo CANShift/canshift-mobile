@@ -44,6 +44,7 @@ import {
 import { mapBleError, describeBleError } from "./ble.errors";
 import { withGattRetry } from "./ble.retry";
 import { BleReconnector } from "./ble-reconnect";
+import { Toast, type ToastShowParams } from "../components/ui/toast";
 
 export interface ScanResult {
   id: string;
@@ -87,14 +88,28 @@ const BLE_RESTORE_STATE_IDENTIFIER = "canshift.ble.central";
 const STALENESS_CHECK_INTERVAL_MS = 500;
 const STALENESS_THRESHOLD_MS = 2_000;
 
+const MONITOR_REVIVE_ATTEMPTS = 2;
+const MONITOR_REVIVE_DELAY_MS = 400;
+
+interface MonitorSpec {
+  device: Device;
+  characteristic: string;
+  label: string;
+  handle: (value: string) => void;
+  assign: (sub: Subscription | null) => void;
+  onLost: () => void;
+}
+
 export interface BleServiceDeps {
   managerFactory?: () => BleManager;
   requestAndroidPermissions?: () => Promise<AndroidBlePermissionResult>;
+  showToast?: (params: ToastShowParams) => void;
 }
 
 export class BleService {
   private readonly manager: BleManager;
   private readonly requestAndroidPermissions: () => Promise<AndroidBlePermissionResult>;
+  private readonly showToast: (params: ToastShowParams) => void;
 
   private connectedDevice: Device | null = null;
   private stalenessTimer: ReturnType<typeof setInterval> | null = null;
@@ -122,6 +137,11 @@ export class BleService {
     this.manager = factory();
     this.requestAndroidPermissions =
       deps.requestAndroidPermissions ?? requestAndroidBlePermissions;
+    this.showToast =
+      deps.showToast ??
+      ((params) => {
+        Toast.show(params);
+      });
     this.reconnector = new BleReconnector({
       connect: (deviceId) => this.connectInternal(deviceId),
       startScan: (onResult) => {
@@ -436,6 +456,7 @@ export class BleService {
     characteristic: string,
     label: string,
     handle: (value: string) => void,
+    onDead: () => void,
   ): Subscription {
     return device.monitorCharacteristicForService(
       BLE_SERVICE_UUID,
@@ -443,6 +464,7 @@ export class BleService {
       (error: Error | null, char: Characteristic | null) => {
         if (error) {
           log("warn", `BLE: ${label} monitor error — ${error.message}`);
+          onDead();
           return;
         }
         if (!char?.value) return;
@@ -450,6 +472,70 @@ export class BleService {
         handle(char.value);
       },
     );
+  }
+
+  private attachMonitor(spec: MonitorSpec, attempt: number): void {
+    try {
+      spec.assign(
+        this.monitorCharacteristic(
+          spec.device,
+          spec.characteristic,
+          spec.label,
+          spec.handle,
+          () => {
+            spec.assign(null);
+            this.reviveMonitor(spec, attempt);
+          },
+        ),
+      );
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      log("warn", `BLE: could not attach the ${spec.label} monitor — ${msg}`);
+      spec.assign(null);
+      this.reviveMonitor(spec, attempt);
+    }
+  }
+
+  private reviveMonitor(spec: MonitorSpec, attempt: number): void {
+    if (this.connectedDevice !== spec.device) return;
+    if (attempt >= MONITOR_REVIVE_ATTEMPTS) {
+      spec.onLost();
+      return;
+    }
+    const next = attempt + 1;
+    log(
+      "info",
+      `BLE: re-subscribing to ${spec.label} (attempt ${String(next)} of ${String(MONITOR_REVIVE_ATTEMPTS)})`,
+    );
+    setTimeout(() => {
+      if (this.connectedDevice !== spec.device) return;
+      void this.runGatt(() => {
+        this.attachMonitor(spec, next);
+        return Promise.resolve();
+      });
+    }, MONITOR_REVIVE_DELAY_MS * next);
+  }
+
+  private handleMonitorLinkLost(device: Device, label: string): void {
+    if (this.connectedDevice !== device) return;
+    log(
+      "error",
+      `BLE: the ${label} monitor did not come back — treating the link as lost`,
+    );
+    this.teardownLink();
+    useDeviceStore.getState().setError({ kind: "disconnected" });
+    this.reconnectAfterLoss(device.id);
+  }
+
+  private handleTimerMonitorLost(
+    device: Device,
+    label: string,
+    text1: string,
+    text2: string,
+  ): void {
+    if (this.connectedDevice !== device) return;
+    log("error", `BLE: the ${label} monitor did not come back — ${text2}`);
+    this.showToast({ type: "error", text1, text2 });
   }
 
   private async seedCharacteristic(
@@ -472,99 +558,168 @@ export class BleService {
 
   private bindDeviceSubscriptions(device: Device): void {
     this.connectedDevice = device;
+    this.bindTelemetryMonitor(device);
+    this.bindStatusMonitor(device);
+    this.bindTimerStateMonitor(device);
+    this.bindTimerLapMonitor(device);
+    this.bindDisconnectHandler(device);
+  }
 
-    this.teleSub = this.monitorCharacteristic(
-      device,
-      BLE_CHAR_TELE,
-      "telemetry",
-      (value) => {
-        const payload = parseTelemetry(decodeBase64ToBytes(value));
-        if (!payload) {
-          log("warn", "BLE: rejected malformed telemetry payload");
-          return;
-        }
-        useSignalsStore.getState().update(payload);
+  private bindTelemetryMonitor(device: Device): void {
+    this.attachMonitor(
+      {
+        device,
+        characteristic: BLE_CHAR_TELE,
+        label: "telemetry",
+        handle: (value) => {
+          const payload = parseTelemetry(decodeBase64ToBytes(value));
+          if (!payload) {
+            log("warn", "BLE: rejected malformed telemetry payload");
+            return;
+          }
+          useSignalsStore.getState().update(payload);
+        },
+        assign: (sub) => {
+          this.teleSub = sub;
+        },
+        onLost: () => {
+          this.handleMonitorLinkLost(device, "telemetry");
+        },
       },
+      0,
     );
+  }
 
-    this.statusSub = this.monitorCharacteristic(
-      device,
-      BLE_CHAR_STATUS,
-      "status",
-      (value) => {
-        const result = parseBleStatus(decodeBase64(value));
-        if (result.kind !== "ok") {
-          log(
-            "warn",
-            `BLE: rejected malformed status payload (${result.kind})`,
+  private bindStatusMonitor(device: Device): void {
+    this.attachMonitor(
+      {
+        device,
+        characteristic: BLE_CHAR_STATUS,
+        label: "status",
+        handle: (value) => {
+          const result = parseBleStatus(decodeBase64(value));
+          if (result.kind !== "ok") {
+            log(
+              "warn",
+              `BLE: rejected malformed status payload (${result.kind})`,
+            );
+            return;
+          }
+          const s = result.status;
+          const store = useDeviceStore.getState();
+          store.setFirmwareStatus(
+            s.firmwareVersion ?? "?",
+            s.canHealthy ?? false,
           );
-          return;
-        }
-        const s = result.status;
-        const store = useDeviceStore.getState();
-        store.setFirmwareStatus(
-          s.firmwareVersion ?? "?",
-          s.canHealthy ?? false,
-        );
-        if (s.isDay !== undefined) store.setIsDayMode(s.isDay);
+          if (s.isDay !== undefined) store.setIsDayMode(s.isDay);
+        },
+        assign: (sub) => {
+          this.statusSub = sub;
+        },
+        onLost: () => {
+          this.handleMonitorLinkLost(device, "status");
+        },
       },
+      0,
     );
+  }
 
-    this.timerStateSub = this.monitorCharacteristic(
-      device,
-      BLE_CHAR_TIMER_STATE,
-      "timer state",
-      (value) => {
-        const result = parseTimerState(decodeBase64(value));
-        if (result.kind !== "ok") {
-          log(
-            "warn",
-            `BLE: rejected malformed timer state payload (${result.kind})`,
+  private bindTimerStateMonitor(device: Device): void {
+    this.attachMonitor(
+      {
+        device,
+        characteristic: BLE_CHAR_TIMER_STATE,
+        label: "timer state",
+        handle: (value) => {
+          const result = parseTimerState(decodeBase64(value));
+          if (result.kind !== "ok") {
+            log(
+              "warn",
+              `BLE: rejected malformed timer state payload (${result.kind})`,
+            );
+            return;
+          }
+          useTimerStore.getState().applyDeviceState(result.state);
+        },
+        assign: (sub) => {
+          this.timerStateSub = sub;
+        },
+        onLost: () => {
+          this.handleTimerMonitorLost(
+            device,
+            "timer state",
+            "Timer sync lost",
+            "Reconnect the device — the timer no longer follows the dash.",
           );
-          return;
-        }
-        useTimerStore.getState().applyDeviceState(result.state);
+        },
       },
+      0,
     );
+  }
 
-    this.timerLapSub = this.monitorCharacteristic(
-      device,
-      BLE_CHAR_TIMER_LAP,
-      "timer lap",
-      (value) => {
-        const result = parseTimerLap(decodeBase64(value));
-        if (result.kind !== "ok") {
-          log(
-            "warn",
-            `BLE: rejected malformed timer lap payload (${result.kind})`,
+  private bindTimerLapMonitor(device: Device): void {
+    this.attachMonitor(
+      {
+        device,
+        characteristic: BLE_CHAR_TIMER_LAP,
+        label: "timer lap",
+        handle: (value) => {
+          const result = parseTimerLap(decodeBase64(value));
+          if (result.kind !== "ok") {
+            log(
+              "warn",
+              `BLE: rejected malformed timer lap payload (${result.kind})`,
+            );
+            return;
+          }
+          useTimerStore.getState().applyDeviceLap(result.lap);
+          recordSessionLap(result.lap);
+        },
+        assign: (sub) => {
+          this.timerLapSub = sub;
+        },
+        onLost: () => {
+          this.handleTimerMonitorLost(
+            device,
+            "timer lap",
+            "Lap stream lost",
+            "Reconnect the device — this session is no longer recording laps.",
           );
-          return;
-        }
-        useTimerStore.getState().applyDeviceLap(result.lap);
-        recordSessionLap(result.lap);
+        },
       },
+      0,
     );
+  }
 
+  private bindDisconnectHandler(device: Device): void {
     this.disconnectSub = device.onDisconnected(() => {
-      this.connectedDevice = null;
-      this.removeSubscriptions();
-      this.stopStalenessTimer();
-      useDeviceStore.getState().disconnect();
-      useTimerStore.getState().clearDeviceSync();
+      this.teardownLink();
       if (this.userInitiatedDisconnect) {
         log("info", `Disconnected from ${device.id} (user-initiated)`);
         return;
       }
       log("warn", `Device ${device.id} disconnected unexpectedly`);
-      if (useAppSettingsStore.getState().reconnectBehavior === "off") {
-        log(
-          "info",
-          `Auto-reconnect disabled in settings — not reconnecting ${device.id}`,
-        );
-        return;
-      }
-      void this.reconnector.run(device.id);
+      this.reconnectAfterLoss(device.id);
     });
+  }
+
+  private teardownLink(): void {
+    this.connectedDevice = null;
+    this.removeSubscriptions();
+    this.stopStalenessTimer();
+    useDeviceStore.getState().disconnect();
+    useTimerStore.getState().clearDeviceSync();
+  }
+
+  private reconnectAfterLoss(deviceId: string): void {
+    if (useAppSettingsStore.getState().reconnectBehavior === "off") {
+      log(
+        "info",
+        `Auto-reconnect disabled in settings — not reconnecting ${deviceId}`,
+      );
+      return;
+    }
+    void this.reconnector.run(deviceId);
   }
 
   private handleRestoredState(restoredState: BleRestoredState | null): void {
