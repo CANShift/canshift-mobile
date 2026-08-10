@@ -10,12 +10,16 @@ import {
   LOCKUP_DIVIDER,
   LOCKUP_MONOGRAM_TRANSFORM,
   LOCKUP_WORDMARK_TRANSFORM,
-  MONOGRAM_C_PATH,
-  MONOGRAM_S_PATH,
-  MONOGRAM_STROKE_WIDTH,
   WORDMARK_CAN_PATH,
   WORDMARK_SHIFT_PATH,
 } from "@canshift/core";
+import { Colors } from "../../theme";
+
+const MOBILE_MARK_BARS = ["M26 78 V64", "M48 78 V52", "M70 78 V38"];
+const MOBILE_MARK_ACCENT_BAR = "M92 78 V24";
+const MOBILE_MARK_BASELINE = "M18 90 H100";
+const MOBILE_MARK_BAR_STROKE = 13;
+const MOBILE_MARK_BASELINE_STROKE = 7;
 
 export interface BrandLockupProps {
   width: number;
@@ -39,15 +43,23 @@ export const BrandLockup = ({ width, maxHeight }: BrandLockupProps) => (
     accessibilityLabel="CANShift — dash CANbus firmware"
   >
     <G transform={LOCKUP_MONOGRAM_TRANSFORM} fill="none" strokeLinecap="butt">
+      {MOBILE_MARK_BARS.map((d) => (
+        <Path
+          key={d}
+          d={d}
+          stroke={BRAND_PAPER}
+          strokeWidth={MOBILE_MARK_BAR_STROKE}
+        />
+      ))}
       <Path
-        d={MONOGRAM_C_PATH}
-        stroke={BRAND_PAPER}
-        strokeWidth={MONOGRAM_STROKE_WIDTH}
+        d={MOBILE_MARK_ACCENT_BAR}
+        stroke={Colors.accent}
+        strokeWidth={MOBILE_MARK_BAR_STROKE}
       />
       <Path
-        d={MONOGRAM_S_PATH}
-        stroke={BRAND_ACCENT}
-        strokeWidth={MONOGRAM_STROKE_WIDTH}
+        d={MOBILE_MARK_BASELINE}
+        stroke={BRAND_PAPER}
+        strokeWidth={MOBILE_MARK_BASELINE_STROKE}
       />
     </G>
     <Path
