@@ -22,7 +22,7 @@
     "@canshift/core": "^3.0.0",
     "@expo-google-fonts/archivo": "0.4.2",
     "@react-native-community/slider": "5.2.0",
-    "@react-navigation/bottom-tabs": "^7.15.11",
+    "@react-navigation/bottom-tabs": "^7.18.15",
     "@react-navigation/native": "^7.3.15",
     "@react-navigation/native-stack": "^7.18.7",
     "buffer": "^6.0.3",
