@@ -23,7 +23,6 @@ const SessionPersistWarning = ({ onDismiss }: SessionPersistWarningProps) => (
 
 const styles = StyleSheet.create({
   banner: {
-    backgroundColor: Colors.surface,
     borderLeftWidth: 2,
     borderLeftColor: Colors.danger,
     padding: Spacing.md,
