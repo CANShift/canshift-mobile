@@ -25,7 +25,7 @@ const renderScreen = () =>
 describe("DeviceScreen", () => {
   it("renders the device and application facts", async () => {
     const { getByText } = await renderScreen();
-    expect(getByText("DEVICE")).toBeTruthy();
+    expect(getByText("Device")).toBeTruthy();
     expect(getByText("Config schema")).toBeTruthy();
     expect(getByText("Firmware")).toBeTruthy();
   });

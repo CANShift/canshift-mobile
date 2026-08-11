@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useShallow } from "zustand/react/shallow";
@@ -8,7 +8,7 @@ import { readAppVersion } from "../lib/expo-version";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { InfoRow } from "../components/InfoRow";
 import { SegmentedControl } from "../components/SegmentedControl";
-import { Section } from "@/components/ui";
+import { Button, Section, SectionLabel } from "@/components/ui";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,7 +28,7 @@ import {
 import { useDeviceStore, type ConnectionState } from "../stores/device.store";
 import * as BleService from "../services/ble.service";
 import * as SimService from "../services/sim.service";
-import { Colors, Radius, Spacing, Typography, Fonts } from "../theme";
+import { Colors, Spacing, SCREEN_PADDING } from "../theme";
 import type { RootStackParamList } from "../navigation";
 
 interface Props {
@@ -102,15 +102,15 @@ export default function DeviceScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.container}>
       <ScreenHeader
-        title="DEVICE"
+        title="Device"
         onBack={() => {
           navigation.goBack();
         }}
       />
 
       <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Dashboard</Text>
+        <View style={styles.section}>
+          <SectionLabel>Dashboard</SectionLabel>
           <InfoRow
             label="Connection"
             value={CONNECTION_LABEL[connectionState]}
@@ -133,7 +133,7 @@ export default function DeviceScreen({ navigation }: Props) {
           />
         </View>
 
-        <Section title="TELEMETRY BUFFER">
+        <Section title="TELEMETRY BUFFER" style={styles.section}>
           <SegmentedControl
             options={BUFFER_OPTIONS}
             value={telemetryBufferSize}
@@ -141,7 +141,7 @@ export default function DeviceScreen({ navigation }: Props) {
           />
         </Section>
 
-        <Section title="RECONNECT">
+        <Section title="RECONNECT" style={styles.section}>
           <SegmentedControl
             options={RECONNECT_OPTIONS}
             value={reconnectBehavior}
@@ -149,8 +149,8 @@ export default function DeviceScreen({ navigation }: Props) {
           />
         </Section>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Application</Text>
+        <View style={styles.section}>
+          <SectionLabel>Application</SectionLabel>
           <InfoRow
             label="Mobile app"
             value={appVersion !== null ? `v${appVersion}` : EM_DASH}
@@ -160,18 +160,17 @@ export default function DeviceScreen({ navigation }: Props) {
         </View>
 
         {(connected || isSim) && (
-          <Pressable
-            style={styles.disconnectBtn}
-            onPress={() => {
-              setDisconnectVisible(true);
-            }}
-            accessibilityRole="button"
-            accessibilityLabel={isSim ? "End demo" : "Disconnect"}
-          >
-            <Text style={styles.disconnectText}>
+          <View style={styles.disconnectWrap}>
+            <Button
+              variant="destructive"
+              onPress={() => {
+                setDisconnectVisible(true);
+              }}
+              accessibilityLabel={isSim ? "End demo" : "Disconnect"}
+            >
               {isSim ? "End demo" : "Disconnect"}
-            </Text>
-          </Pressable>
+            </Button>
+          </View>
         )}
       </ScrollView>
 
@@ -201,36 +200,17 @@ export default function DeviceScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
-  scroll: { padding: Spacing.lg, gap: Spacing.xl },
-  card: {
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.md,
-    padding: Spacing.lg,
+  scroll: { flexGrow: 1 },
+  section: {
+    paddingHorizontal: SCREEN_PADDING,
+    paddingVertical: 18,
     gap: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.ruleHair,
   },
-  cardTitle: {
-    fontFamily: Fonts.uiExtraBold,
-    fontSize: Typography.xs,
-    color: Colors.textDim,
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
-  },
-  disconnectBtn: {
-    minHeight: 56,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Colors.accent,
-    backgroundColor: Colors.accentDim,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  disconnectText: {
-    fontFamily: Fonts.uiExtraBold,
-    fontSize: Typography.md,
-    letterSpacing: 1.5,
-    textTransform: "uppercase",
-    color: Colors.accent,
+  disconnectWrap: {
+    marginTop: "auto",
+    paddingHorizontal: SCREEN_PADDING,
+    paddingVertical: Spacing.lg,
   },
 });
