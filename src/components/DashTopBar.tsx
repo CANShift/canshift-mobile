@@ -38,24 +38,44 @@ export default function DashTopBar() {
       </View>
       <View style={styles.topBarRight}>
         {activeMapIndex !== undefined && (
-          <View style={styles.mapBadge}>
-            <Text style={styles.mapText}>MAP {activeMapIndex}</Text>
-          </View>
+          <TopBarBadge
+            label={`MAP ${String(activeMapIndex)}`}
+            color={Colors.success}
+            borderColor={Colors.successBorder}
+          />
         )}
         {isSim && (
-          <View style={styles.simBadge}>
-            <Text style={styles.simText}>SIM</Text>
-          </View>
+          <TopBarBadge
+            label="SIM"
+            color={Colors.accent}
+            borderColor={Colors.accent}
+          />
         )}
         {!isLive && !isSim && (
-          <View style={styles.staleBadge}>
-            <Text style={styles.staleText}>NO DATA</Text>
-          </View>
+          <TopBarBadge
+            label="NO DATA"
+            color={Colors.accent}
+            borderColor={Colors.accent}
+          />
         )}
       </View>
     </View>
   );
 }
+
+const TopBarBadge = ({
+  label,
+  color,
+  borderColor,
+}: {
+  label: string;
+  color: string;
+  borderColor: string;
+}) => (
+  <View style={[styles.badge, { borderColor }]}>
+    <Text style={[styles.badgeText, { color }]}>{label}</Text>
+  </View>
+);
 
 const HEADER_RULE = 2;
 const HEADER_TITLE_SIZE = Typography.xl;
@@ -90,40 +110,14 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   topBarRight: { flexDirection: "row", alignItems: "center", gap: Spacing.sm },
-  mapBadge: {
+  badge: {
     borderWidth: 1,
-    borderColor: Colors.successBorder,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
   },
-  mapText: {
+  badgeText: {
     fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.xs,
-    color: Colors.success,
-    letterSpacing: 0.8,
-  },
-  simBadge: {
-    borderWidth: 1,
-    borderColor: Colors.accent,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 2,
-  },
-  simText: {
-    fontFamily: Fonts.uiExtraBold,
-    fontSize: Typography.xs,
-    color: Colors.accent,
-    letterSpacing: 0.8,
-  },
-  staleBadge: {
-    borderWidth: 1,
-    borderColor: Colors.accent,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 2,
-  },
-  staleText: {
-    fontFamily: Fonts.uiExtraBold,
-    fontSize: Typography.xs,
-    color: Colors.accent,
     letterSpacing: 0.8,
   },
 });

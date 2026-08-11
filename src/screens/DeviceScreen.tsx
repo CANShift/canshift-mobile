@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useShallow } from "zustand/react/shallow";
 import { CURRENT_SCHEMA_VERSION } from "@canshift/core";
 import { readAppVersion } from "../lib/expo-version";
+import { firmwareLabel } from "../lib/device-labels";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { InfoRow } from "../components/InfoRow";
 import { NavRow } from "../components/NavRow";
@@ -87,14 +88,7 @@ export default function DeviceScreen({ navigation, showBack = false }: Props) {
 
   const appVersion = readAppVersion();
   const connected = connectionState === "connected";
-  const firmwareValue =
-    isSim || !connected
-      ? isSim
-        ? "Simulator"
-        : NOT_CONNECTED
-      : firmwareVersion !== null
-        ? `v${firmwareVersion}`
-        : EM_DASH;
+  const firmwareValue = firmwareLabel(isSim, connected, firmwareVersion);
 
   const confirmDisconnect = useCallback(async () => {
     if (SimService.isRunning()) {
