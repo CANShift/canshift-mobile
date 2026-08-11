@@ -25,9 +25,9 @@ describe("shiftLitCount", () => {
 });
 
 describe("shiftSegmentColor", () => {
-  it("runs green → amber → red across the strip", () => {
-    expect(shiftSegmentColor(0)).toBe(Colors.success);
-    expect(shiftSegmentColor(11)).toBe(Colors.warning);
+  it("runs white through the ramp, red at the top end", () => {
+    expect(shiftSegmentColor(0)).toBe(Colors.text);
+    expect(shiftSegmentColor(11)).toBe(Colors.text);
     expect(shiftSegmentColor(SHIFT_SEGMENTS - 1)).toBe(Colors.danger);
   });
 });

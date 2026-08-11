@@ -1,11 +1,10 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { Colors, Radius } from "../../theme";
+import { Colors } from "../../theme";
 import { useSignalValue, useSignalsIsLive } from "../../stores/signals.store";
 
 export const SHIFT_SEGMENTS = 16;
 export const SHIFT_RPM_MAX = 8000;
-const AMBER_FROM = 0.6;
 const RED_FROM = 0.85;
 
 export const shiftLitCount = (rpm: number): number => {
@@ -13,12 +12,8 @@ export const shiftLitCount = (rpm: number): number => {
   return Math.max(0, Math.min(SHIFT_SEGMENTS, lit));
 };
 
-export const shiftSegmentColor = (index: number): string => {
-  const frac = index / SHIFT_SEGMENTS;
-  if (frac >= RED_FROM) return Colors.danger;
-  if (frac >= AMBER_FROM) return Colors.warning;
-  return Colors.success;
-};
+export const shiftSegmentColor = (index: number): string =>
+  index / SHIFT_SEGMENTS >= RED_FROM ? Colors.danger : Colors.text;
 
 const SEGMENT_INDEXES = Array.from({ length: SHIFT_SEGMENTS }, (_, i) => i);
 
@@ -40,7 +35,7 @@ const ShiftStrip = () => {
           style={[
             styles.segment,
             {
-              backgroundColor: i < lit ? shiftSegmentColor(i) : Colors.surface2,
+              backgroundColor: i < lit ? shiftSegmentColor(i) : Colors.track,
             },
           ]}
         />
@@ -53,5 +48,5 @@ export default React.memo(ShiftStrip);
 
 const styles = StyleSheet.create({
   strip: { flexDirection: "row", gap: 3, height: 14 },
-  segment: { flex: 1, borderRadius: Radius.sm },
+  segment: { flex: 1 },
 });
