@@ -1,142 +1,19 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  useWindowDimensions,
-} from "react-native";
+import { StyleSheet, View, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Colors, Fonts, Spacing } from "../theme";
-import { useSignalValue, useSignalsIsLive } from "../stores/signals.store";
+import { Colors, Spacing } from "../theme";
 import { useDeviceStore } from "../stores/device.store";
-import { SIGNAL_META, type SignalMeta, type SignalKey } from "../constants/ble";
-import {
-  GaugeWidget,
-  GearWidget,
-  LabelWidget,
-  ShiftStrip,
-  TimerWidget,
-  WarningWidget,
-} from "../components/widgets";
+import { PORTRAIT_GRID_COLUMNS } from "../constants/dash-layout";
+import { ShiftStrip } from "../components/widgets";
+import { DashPortraitLayout } from "../components/dash/DashPortraitLayout";
+import { DashLandscapeLayout } from "../components/dash/DashLandscapeLayout";
 import DashTopBar from "../components/DashTopBar";
 import type { RootStackParamList } from "../navigation";
 
 interface Props {
   navigation: NativeStackNavigationProp<RootStackParamList, "Connected">;
 }
-
-const PRIMARY_SIGNALS: SignalKey[] = ["r", "s", "g"];
-const GRID_SIGNALS: SignalKey[] = [
-  "ct",
-  "ot",
-  "op",
-  "tps",
-  "lam",
-  "bat",
-  "bst",
-  "iat",
-];
-const SAFETY_SIGNALS: SignalKey[] = ["op", "ct"];
-
-const KICKER_SIZE = 10;
-const GAUGE_SIZE_PORTRAIT = 132;
-const GAUGE_SIZE_LANDSCAPE = 116;
-const GRID_CELL_HEIGHT = 88;
-const GRID_CELL_HEIGHT_LANDSCAPE = 82;
-const GRID_CELL_WIDTH_LANDSCAPE = 150;
-const PORTRAIT_GRID_COLUMNS = 2;
-const WARNING_CELL_SIZE = 48;
-const TIMER_WIDTH = 132;
-const TIMER_HEIGHT = 56;
-
-const PrimaryGauge = ({
-  signalKey,
-  meta,
-  size,
-  dayMode,
-}: {
-  signalKey: SignalKey;
-  meta: SignalMeta;
-  size: number;
-  dayMode: boolean;
-}) => {
-  const value = useSignalValue(signalKey);
-  const isLive = useSignalsIsLive();
-  const liveValue = isLive ? value : undefined;
-  return (
-    <View style={styles.primaryCard}>
-      <Text style={styles.primaryLabel}>{meta.label.toUpperCase()}</Text>
-      {signalKey === "g" ? (
-        <GearWidget
-          signalKey={signalKey}
-          value={liveValue}
-          size={size}
-          dayMode={dayMode}
-        />
-      ) : (
-        <GaugeWidget
-          signalKey={signalKey}
-          value={liveValue}
-          size={size}
-          dayMode={dayMode}
-        />
-      )}
-    </View>
-  );
-};
-
-const WarningCell = ({
-  signalKey,
-  dayMode,
-}: {
-  signalKey: SignalKey;
-  dayMode: boolean;
-}) => {
-  const value = useSignalValue(signalKey);
-  const isLive = useSignalsIsLive();
-  return (
-    <WarningWidget
-      signalKey={signalKey}
-      value={isLive ? value : undefined}
-      size={WARNING_CELL_SIZE}
-      dayMode={dayMode}
-    />
-  );
-};
-
-const WarningStrip = ({ dayMode }: { dayMode: boolean }) => (
-  <View style={styles.warningStrip}>
-    {SAFETY_SIGNALS.map((key) => (
-      <WarningCell key={key} signalKey={key} dayMode={dayMode} />
-    ))}
-  </View>
-);
-
-const GridLabel = ({
-  signalKey,
-  width,
-  height,
-  dayMode,
-}: {
-  signalKey: SignalKey;
-  width: number;
-  height: number;
-  dayMode: boolean;
-}) => {
-  const value = useSignalValue(signalKey);
-  const isLive = useSignalsIsLive();
-  return (
-    <LabelWidget
-      signalKey={signalKey}
-      value={isLive ? value : undefined}
-      width={width}
-      height={height}
-      dayMode={dayMode}
-    />
-  );
-};
 
 export default function DashScreen(_: Props) {
   const { width, height } = useWindowDimensions();
@@ -157,75 +34,9 @@ export default function DashScreen(_: Props) {
       </View>
 
       {isLandscape ? (
-        <View style={styles.landscapeBody}>
-          <View style={styles.landscapePrimaryRow}>
-            {PRIMARY_SIGNALS.map((key) => (
-              <PrimaryGauge
-                key={key}
-                signalKey={key}
-                meta={SIGNAL_META[key]}
-                size={GAUGE_SIZE_LANDSCAPE}
-                dayMode={dayMode}
-              />
-            ))}
-            <TimerWidget
-              width={TIMER_WIDTH}
-              height={TIMER_HEIGHT}
-              dayMode={dayMode}
-            />
-          </View>
-          <ScrollView
-            style={styles.landscapeRight}
-            contentContainerStyle={styles.landscapeGrid}
-            showsVerticalScrollIndicator={false}
-          >
-            {GRID_SIGNALS.map((key) => (
-              <GridLabel
-                key={key}
-                signalKey={key}
-                width={GRID_CELL_WIDTH_LANDSCAPE}
-                height={GRID_CELL_HEIGHT_LANDSCAPE}
-                dayMode={dayMode}
-              />
-            ))}
-          </ScrollView>
-        </View>
+        <DashLandscapeLayout dayMode={dayMode} />
       ) : (
-        <ScrollView
-          contentContainerStyle={styles.scroll}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.primaryRow}>
-            {PRIMARY_SIGNALS.map((key) => (
-              <PrimaryGauge
-                key={key}
-                signalKey={key}
-                meta={SIGNAL_META[key]}
-                size={GAUGE_SIZE_PORTRAIT}
-                dayMode={dayMode}
-              />
-            ))}
-          </View>
-          <View style={styles.grid}>
-            {GRID_SIGNALS.map((key) => (
-              <GridLabel
-                key={key}
-                signalKey={key}
-                width={portraitCellWidth}
-                height={GRID_CELL_HEIGHT}
-                dayMode={dayMode}
-              />
-            ))}
-          </View>
-          <View style={styles.footerRow}>
-            <TimerWidget
-              width={TIMER_WIDTH}
-              height={TIMER_HEIGHT}
-              dayMode={dayMode}
-            />
-            <WarningStrip dayMode={dayMode} />
-          </View>
-        </ScrollView>
+        <DashPortraitLayout dayMode={dayMode} cellWidth={portraitCellWidth} />
       )}
     </SafeAreaView>
   );
@@ -236,56 +47,5 @@ const styles = StyleSheet.create({
   shiftStripWrap: {
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
-  },
-  scroll: { padding: Spacing.lg, gap: Spacing.lg },
-
-  primaryRow: {
-    flexDirection: "row",
-    gap: Spacing.md,
-    justifyContent: "space-between",
-  },
-  primaryCard: {
-    flex: 1,
-    alignItems: "flex-start",
-    borderTopWidth: 2,
-    borderTopColor: Colors.text,
-    paddingTop: Spacing.xs,
-  },
-  primaryLabel: {
-    fontFamily: Fonts.uiExtraBold,
-    fontSize: KICKER_SIZE,
-    letterSpacing: KICKER_SIZE * 0.18,
-    color: Colors.textDim,
-    marginBottom: Spacing.xs,
-  },
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: Spacing.sm },
-  warningStrip: {
-    flexDirection: "row",
-    gap: Spacing.sm,
-    justifyContent: "flex-end",
-  },
-  footerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-
-  landscapeBody: { flex: 1, flexDirection: "column" },
-  landscapePrimaryRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-evenly",
-    gap: Spacing.md,
-    paddingHorizontal: Spacing.md,
-    paddingTop: Spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  landscapeRight: { flex: 1 },
-  landscapeGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    padding: Spacing.md,
-    gap: Spacing.sm,
   },
 });
