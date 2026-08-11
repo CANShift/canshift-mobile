@@ -8,7 +8,7 @@ import {
   timerFontSize,
   widgetTextColor,
 } from "@canshift/core";
-import { Colors, Fonts, Radius, Spacing, TabularNums } from "../../theme";
+import { Fonts, Spacing, TabularNums } from "../../theme";
 import { useTimerStore, type TimerStatus } from "../../stores/timer.store";
 import { useTimerElapsed } from "../../hooks/use-timer-elapsed";
 import { timerControl } from "../../services/timer-control";
@@ -115,8 +115,6 @@ export default React.memo(TimerWidget);
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.surface,
-    borderRadius: Radius.md,
     padding: Spacing.sm,
     justifyContent: "center",
     alignItems: "center",
