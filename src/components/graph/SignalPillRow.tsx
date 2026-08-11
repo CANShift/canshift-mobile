@@ -86,6 +86,6 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     backgroundColor: Colors.surface,
   },
-  pillDot: { width: 6, height: 6, borderRadius: 3 },
+  pillDot: { width: 6, height: 6 },
   pillLabel: { fontSize: Typography.xs, color: Colors.textMuted },
 });

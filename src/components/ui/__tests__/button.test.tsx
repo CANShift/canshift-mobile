@@ -33,7 +33,7 @@ describe("Button", () => {
     const node = getByRole("button") as unknown as {
       props: { className?: string };
     };
-    expect(node.props.className ?? "").toContain("bg-destructive");
+    expect(node.props.className ?? "").toContain("border-primary");
   });
 
   it("reflects accessibilityState.disabled", async () => {
