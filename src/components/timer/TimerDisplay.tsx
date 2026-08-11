@@ -45,7 +45,6 @@ export default React.memo(TimerDisplay);
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
     borderWidth: 2,
     gap: Spacing.xs,
     padding: Spacing.lg,

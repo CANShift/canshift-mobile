@@ -8,7 +8,7 @@ export interface LapChronoProps {
 }
 
 export const LapChrono = ({ elapsedMs, running }: LapChronoProps) => (
-  <Card className="items-center gap-1">
+  <Card className="gap-1">
     <SectionLabel>Current lap</SectionLabel>
     <Text
       className={`font-mono-extrabold text-5xl tabular-nums ${running ? "text-text" : "text-text-muted"}`}
