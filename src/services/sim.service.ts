@@ -7,7 +7,15 @@ import { type TelemetrySample } from "./ble.validators";
 let tickInterval: ReturnType<typeof setInterval> | null = null;
 let elapsed = 0;
 
-const rpm = (t: number) => Math.round(800 + 4200 * Math.abs(Math.sin(t / 12)));
+const IDLE_RPM = 850;
+const MAX_RPM = 6800;
+const RPM_RESPONSE = 0.08;
+
+let currentRpm = IDLE_RPM;
+
+const throttle = (t: number) => Math.round(Math.abs(Math.sin(t / 8)) * 100);
+const targetRpm = (tps: number) =>
+  IDLE_RPM + ((MAX_RPM - IDLE_RPM) * tps) / 100;
 const speed = (r: number) => Math.round(r * 0.028);
 const gear = (r: number) => {
   if (r < 1200) return 1;
@@ -29,12 +37,14 @@ export const start = () => {
   log("info", "Simulation mode started");
 
   elapsed = 0;
+  currentRpm = IDLE_RPM;
   tickInterval = setInterval(() => {
     elapsed += 0.1;
-    const r = rpm(elapsed);
+    const tps = throttle(elapsed);
+    currentRpm += (targetRpm(tps) - currentRpm) * RPM_RESPONSE;
+    const r = Math.round(currentRpm);
     const s = speed(r);
     const g = gear(r);
-    const tps = Math.round(Math.abs(Math.sin(elapsed / 8)) * 100);
 
     const sample: TelemetrySample = {
       r,
