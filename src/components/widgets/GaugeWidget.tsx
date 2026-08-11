@@ -159,7 +159,10 @@ const GaugeWidget = ({
       <View
         style={[
           styles.overlay,
-          { transform: [{ translateY: GAUGE_ARC.yShift }] },
+          {
+            maxWidth: diameter - stroke * 2,
+            transform: [{ translateY: GAUGE_ARC.yShift }],
+          },
         ]}
       >
         <ValueCluster
@@ -198,6 +201,8 @@ const ValueCluster = ({
   <>
     <View style={styles.valueRow}>
       <Text
+        adjustsFontSizeToFit
+        numberOfLines={1}
         style={{
           fontSize: intFontSize,
           fontFamily: Fonts.monoBold,
