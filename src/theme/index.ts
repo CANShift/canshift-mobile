@@ -30,6 +30,8 @@ export const TabularNums: NonNullable<TextStyle["fontVariant"]> = [
 
 export const UI_LABEL_TRACKING = 1.4;
 
+export const SCREEN_PADDING = 22;
+
 export const labelStyle: TextStyle = {
   fontFamily: Fonts.uiExtraBold,
   letterSpacing: UI_LABEL_TRACKING,

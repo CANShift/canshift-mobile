@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Colors, Typography, Spacing, Radius, HitSlop } from "../../theme";
+import {
+  Colors,
+  Typography,
+  Fonts,
+  Spacing,
+  HitSlop,
+  SCREEN_PADDING,
+} from "../../theme";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,14 +25,14 @@ const WINDOW_OPTIONS = [
   { label: "2m", value: 120, accessibilityLabel: "2 minute window" },
 ];
 
+const ACTIVE_UNDERLINE = 3;
+
 interface GraphControlsProps {
   paused: boolean;
   windowSecs: number;
   onTogglePause: () => void;
   onSetWindow: (s: number) => void;
   onClear: () => void;
-  onExport: () => void;
-  vGap: number;
 }
 
 export const GraphControls = ({
@@ -34,61 +41,47 @@ export const GraphControls = ({
   onTogglePause,
   onSetWindow,
   onClear,
-  onExport,
-  vGap,
 }: GraphControlsProps) => {
   const [confirmVisible, setConfirmVisible] = useState(false);
   return (
-    <View style={[styles.controls, { paddingVertical: vGap }]}>
+    <View style={styles.controls}>
       <TouchableOpacity
-        style={styles.pauseBtn}
+        style={styles.action}
         onPress={onTogglePause}
         hitSlop={HitSlop.vertical}
         accessibilityRole="button"
         accessibilityLabel={paused ? "Resume graph" : "Pause graph"}
       >
-        <Text style={styles.pauseBtnText}>
-          {paused ? "▶ Resume" : "⏸ Pause"}
+        <Text style={[styles.actionText, paused && styles.actionTextEngaged]}>
+          {paused ? "Resume" : "Pause"}
         </Text>
       </TouchableOpacity>
       <View style={styles.windowRow}>
-        {WINDOW_OPTIONS.map((opt) => (
-          <TouchableOpacity
-            key={opt.value}
-            style={[
-              styles.windowBtn,
-              windowSecs === opt.value && styles.windowBtnActive,
-            ]}
-            onPress={() => {
-              onSetWindow(opt.value);
-            }}
-            hitSlop={HitSlop.vertical}
-            accessibilityRole="button"
-            accessibilityLabel={opt.accessibilityLabel}
-            accessibilityState={{ selected: windowSecs === opt.value }}
-          >
-            <Text
-              style={[
-                styles.windowBtnText,
-                windowSecs === opt.value && styles.windowBtnTextActive,
-              ]}
+        {WINDOW_OPTIONS.map((opt) => {
+          const active = windowSecs === opt.value;
+          return (
+            <TouchableOpacity
+              key={opt.value}
+              style={[styles.windowBtn, active && styles.windowBtnActive]}
+              onPress={() => {
+                onSetWindow(opt.value);
+              }}
+              hitSlop={HitSlop.vertical}
+              accessibilityRole="button"
+              accessibilityLabel={opt.accessibilityLabel}
+              accessibilityState={{ selected: active }}
             >
-              {opt.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Text
+                style={[styles.windowText, active && styles.windowTextActive]}
+              >
+                {opt.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
       <TouchableOpacity
-        style={styles.exportBtn}
-        onPress={onExport}
-        hitSlop={HitSlop.vertical}
-        accessibilityRole="button"
-        accessibilityLabel="Export graph data as CSV"
-      >
-        <Text style={styles.exportText}>Export</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.clearBtn}
+        style={[styles.action, styles.clearBtn]}
         onPress={() => {
           setConfirmVisible(true);
         }}
@@ -122,56 +115,43 @@ const styles = StyleSheet.create({
   controls: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: Spacing.md,
+    minHeight: 44,
+    paddingHorizontal: SCREEN_PADDING,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    gap: Spacing.sm,
+    borderBottomColor: Colors.ruleHair,
+    gap: Spacing.md,
   },
-  pauseBtn: {
-    minHeight: 36,
-    paddingHorizontal: Spacing.sm,
-    justifyContent: "center",
-    borderRadius: Radius.sm,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  pauseBtnText: { fontSize: Typography.xs, color: Colors.textDim },
-  windowRow: { flexDirection: "row", gap: Spacing.xs },
-  windowBtn: {
-    minHeight: 36,
-    minWidth: 44,
-    paddingHorizontal: Spacing.sm,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: Radius.sm,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  windowBtnActive: {
-    borderColor: Colors.accent,
-    backgroundColor: Colors.accentDim,
-  },
-  windowBtnText: { fontSize: Typography.xs, color: Colors.textMuted },
-  windowBtnTextActive: { color: Colors.accent, fontWeight: "700" },
-  exportBtn: {
-    marginLeft: "auto",
-    minHeight: 36,
-    minWidth: 44,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: Spacing.sm,
-  },
-  exportText: {
+  action: { minHeight: 44, justifyContent: "center" },
+  actionText: {
+    fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.xs,
-    color: Colors.accent,
-    fontWeight: "700",
+    letterSpacing: 1.1,
+    textTransform: "uppercase",
+    color: Colors.textDim,
   },
-  clearBtn: {
-    minHeight: 36,
+  actionTextEngaged: { color: Colors.accent },
+  windowRow: { flexDirection: "row", gap: Spacing.sm },
+  windowBtn: {
+    minHeight: 44,
     minWidth: 44,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: Spacing.sm,
+    borderBottomWidth: ACTIVE_UNDERLINE,
+    borderBottomColor: "transparent",
   },
-  clearText: { fontSize: Typography.xs, color: Colors.textMuted },
+  windowBtnActive: { borderBottomColor: Colors.accent },
+  windowText: {
+    fontFamily: Fonts.mono,
+    fontSize: Typography.xs,
+    color: Colors.textMuted,
+  },
+  windowTextActive: { color: Colors.text },
+  clearBtn: { marginLeft: "auto" },
+  clearText: {
+    fontFamily: Fonts.uiExtraBold,
+    fontSize: Typography.xs,
+    letterSpacing: 1.1,
+    textTransform: "uppercase",
+    color: Colors.textMuted,
+  },
 });

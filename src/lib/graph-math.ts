@@ -41,18 +41,15 @@ export const buildPoints = (
   return pts.join(" ");
 };
 
-export const formatTime = (ms: number): string => {
-  const d = new Date(ms);
-  return d.toLocaleTimeString("en-US", { hour12: false });
-};
+export const STALE_PLACEHOLDER = "- -";
 
-export const formatValue = (
+export const formatNumber = (
   key: SignalKey,
   val: number | undefined,
 ): string => {
-  if (val === undefined) return "—";
+  if (val === undefined) return STALE_PLACEHOLDER;
   const meta = SIGNAL_META[key];
   return meta.decimals === 0
-    ? `${String(Math.round(val))}${meta.unit}`
-    : `${val.toFixed(meta.decimals)}${meta.unit}`;
+    ? String(Math.round(val))
+    : val.toFixed(meta.decimals);
 };
