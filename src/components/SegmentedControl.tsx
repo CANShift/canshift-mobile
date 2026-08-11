@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Colors, Typography, Spacing, Radius } from "../theme";
+import { Colors, Typography, Spacing } from "../theme";
 
 interface SegmentOption<T> {
   label: string;
@@ -42,20 +42,25 @@ export const SegmentedControl = <T extends string | number | boolean | null>({
   </View>
 );
 
+const SEGMENT_UNDERLINE = 3;
+
 const styles = StyleSheet.create({
-  row: { flexDirection: "row", gap: Spacing.sm },
+  row: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.ruleHair,
+  },
   btn: {
     flex: 1,
     paddingVertical: Spacing.sm,
     minHeight: 44,
     justifyContent: "center",
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.sm,
     alignItems: "center",
+    borderBottomWidth: SEGMENT_UNDERLINE,
+    borderBottomColor: "transparent",
+    marginBottom: -1,
   },
-  btnActive: { backgroundColor: Colors.accentDim, borderColor: Colors.accent },
+  btnActive: { borderBottomColor: Colors.accent },
   label: { fontSize: Typography.sm, color: Colors.textMuted },
-  labelActive: { color: Colors.accent, fontWeight: "600" },
+  labelActive: { color: Colors.text, fontWeight: "600" },
 });

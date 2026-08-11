@@ -9,8 +9,9 @@ import RNToast, {
 import { Colors } from "@/theme";
 
 const baseStyle = {
-  backgroundColor: Colors.surface,
-  borderLeftWidth: 4,
+  backgroundColor: Colors.bg,
+  borderRadius: 0,
+  borderLeftWidth: 2,
   borderColor: Colors.border,
   borderTopWidth: 1,
   borderRightWidth: 1,

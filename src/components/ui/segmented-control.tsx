@@ -1,5 +1,5 @@
 import { View, Text, Pressable, StyleSheet } from "react-native";
-import { Colors, Radius, Typography, Fonts } from "../../theme";
+import { Colors, Typography, Fonts } from "../../theme";
 
 export interface SegmentedControlOption<T extends string> {
   value: T;
@@ -40,24 +40,24 @@ export const SegmentedControl = <T extends string>({
   </View>
 );
 
+const SEGMENT_UNDERLINE = 3;
+
 const styles = StyleSheet.create({
   track: {
     flexDirection: "row",
-    backgroundColor: Colors.surface,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    padding: 3,
-    gap: 3,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.ruleHair,
   },
   segment: {
     flex: 1,
     minHeight: 40,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: Radius.sm,
+    borderBottomWidth: SEGMENT_UNDERLINE,
+    borderBottomColor: "transparent",
+    marginBottom: -1,
   },
-  segmentActive: { backgroundColor: Colors.accent },
+  segmentActive: { borderBottomColor: Colors.accent },
   label: {
     fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.sm,
@@ -65,5 +65,5 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     color: Colors.textMuted,
   },
-  labelActive: { color: Colors.bg, fontFamily: Fonts.uiExtraBold },
+  labelActive: { color: Colors.text },
 });

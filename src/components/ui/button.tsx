@@ -4,43 +4,40 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { Colors } from "@/theme";
 
-const buttonVariants = cva(
-  "flex-row items-center justify-center gap-2 rounded-md",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary",
-        destructive: "bg-destructive",
-        outline: "border border-border bg-transparent",
-        secondary: "bg-secondary",
-        ghost: "bg-transparent",
-        link: "bg-transparent",
-      },
-      size: {
-        default: "h-12 px-4",
-        sm: "h-9 px-3",
-        lg: "h-14 px-6",
-        icon: "h-12 w-12",
-      },
+const buttonVariants = cva("flex-row items-center justify-start gap-2 px-5", {
+  variants: {
+    variant: {
+      default: "bg-primary",
+      destructive: "border-2 border-primary bg-transparent",
+      outline: "border-2 border-text bg-transparent",
+      secondary: "bg-secondary",
+      ghost: "bg-transparent",
+      link: "bg-transparent",
     },
-    defaultVariants: { variant: "default", size: "default" },
+    size: {
+      default: "h-14",
+      sm: "h-9 px-3",
+      lg: "h-16",
+      icon: "h-12 w-12 justify-center px-0",
+    },
   },
-);
+  defaultVariants: { variant: "default", size: "default" },
+});
 
-const buttonTextVariants = cva("text-base font-medium", {
+const buttonTextVariants = cva("font-ui-extrabold uppercase", {
   variants: {
     variant: {
       default: "text-primary-foreground",
-      destructive: "text-destructive-foreground",
+      destructive: "text-primary",
       outline: "text-text",
       secondary: "text-secondary-foreground",
       ghost: "text-text",
       link: "text-primary underline",
     },
     size: {
-      default: "text-base",
-      sm: "text-sm",
-      lg: "text-lg",
+      default: "text-[15px] tracking-[1.35px]",
+      sm: "text-sm tracking-[1px]",
+      lg: "text-[15px] tracking-[1.35px]",
       icon: "text-base",
     },
   },
@@ -55,7 +52,7 @@ const ICON_SIZE = 16;
 
 const iconColorByVariant: Record<ButtonVariant, string> = {
   default: Colors.primaryForeground,
-  destructive: Colors.destructiveForeground,
+  destructive: Colors.primary,
   outline: Colors.text,
   secondary: Colors.secondaryForeground,
   ghost: Colors.text,
