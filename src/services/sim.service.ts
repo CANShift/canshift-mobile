@@ -4,7 +4,10 @@ import { clearBuffer } from "../stores/telemetry.store";
 import { log } from "../stores/log.store";
 import { type TelemetrySample } from "./ble.validators";
 
-let tickInterval: ReturnType<typeof setInterval> | null = null;
+const simGlobal = globalThis as typeof globalThis & {
+  __canshiftSimTick?: ReturnType<typeof setInterval>;
+};
+
 let elapsed = 0;
 
 const IDLE_RPM = 850;
@@ -68,7 +71,7 @@ const boost = (tps: number): number => {
 };
 
 export const start = () => {
-  if (tickInterval) return;
+  if (simGlobal.__canshiftSimTick) return;
   const { setDevice, setFirmwareStatus, setMode } = useDeviceStore.getState();
   setDevice("SIM", "CANShift (sim)");
   setFirmwareStatus("sim", true);
@@ -80,7 +83,7 @@ export const start = () => {
   currentRpm = IDLE_RPM;
   currentBoost = 0;
   sensors = { ...SENSOR_BASE };
-  tickInterval = setInterval(() => {
+  simGlobal.__canshiftSimTick = setInterval(() => {
     elapsed += 0.1;
     const tps = throttle(elapsed);
     currentRpm += (targetRpm(tps) - currentRpm) * RPM_RESPONSE;
@@ -106,9 +109,9 @@ export const start = () => {
 };
 
 export const stop = () => {
-  if (tickInterval) {
-    clearInterval(tickInterval);
-    tickInterval = null;
+  if (simGlobal.__canshiftSimTick) {
+    clearInterval(simGlobal.__canshiftSimTick);
+    delete simGlobal.__canshiftSimTick;
   }
   useDeviceStore.getState().disconnect();
   useSignalsStore.getState().markStale();
@@ -117,5 +120,5 @@ export const stop = () => {
 };
 
 export const isRunning = () => {
-  return tickInterval !== null;
+  return simGlobal.__canshiftSimTick !== undefined;
 };
