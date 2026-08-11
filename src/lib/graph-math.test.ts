@@ -1,10 +1,6 @@
 import type { SignalValues, TelemetrySample } from "../stores/telemetry.store";
-import {
-  SIGNAL_RANGE,
-  STALE_PLACEHOLDER,
-  buildPoints,
-  formatNumber,
-} from "./graph-math";
+import { STALE_PLACEHOLDER } from "@canshift/core";
+import { SIGNAL_RANGE, buildPoints, formatNumber } from "./graph-math";
 
 describe("formatNumber", () => {
   it("renders the stale placeholder for undefined", () => {
