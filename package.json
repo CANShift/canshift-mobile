@@ -19,7 +19,7 @@
     "lint:pre-commit": "lint-staged"
   },
   "dependencies": {
-    "@canshift/core": "^4.1.0",
+    "@canshift/core": "^5.0.0",
     "@expo-google-fonts/archivo": "0.4.2",
     "@expo-google-fonts/jetbrains-mono": "^0.4.1",
     "@react-native-community/slider": "5.2.0",
