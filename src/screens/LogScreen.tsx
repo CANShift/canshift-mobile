@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useShallow } from "zustand/react/shallow";
 import { Button, SegmentedControl } from "../components/ui";
+import { StatusRow } from "../components/StatusRow";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -241,6 +242,7 @@ export default function LogScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusRow />
       <SegmentedControl options={TABS} value={tab} onChange={setTab} />
       {tab === "log" && <LogTab />}
       {tab === "send" && <SendTab />}
