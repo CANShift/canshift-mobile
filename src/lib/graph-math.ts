@@ -1,3 +1,4 @@
+import { STALE_PLACEHOLDER } from "@canshift/core";
 import type { TelemetrySample } from "../stores/telemetry.store";
 import { SIGNAL_META, type SignalKey } from "../constants/ble";
 
@@ -40,8 +41,6 @@ export const buildPoints = (
   }
   return pts.join(" ");
 };
-
-export const STALE_PLACEHOLDER = "- -";
 
 export const formatNumber = (
   key: SignalKey,
