@@ -44,19 +44,21 @@ export interface TrackModeController {
   isActive(): boolean;
 }
 
+const OPTIONAL_TRACK_FIELDS = [
+  "currentLapMs",
+  "lastLapMs",
+  "bestLapMs",
+  "lapNumber",
+  "deltaMs",
+  "isBestLap",
+] as const;
+
 export const toTrackStateCmd = (telemetry: TrackTelemetry): CmdPayload => {
   const payload: CmdPayload = { trackMode: telemetry.trackMode };
-  if (telemetry.currentLapMs !== undefined)
-    payload.currentLapMs = telemetry.currentLapMs;
-  if (telemetry.lastLapMs !== undefined)
-    payload.lastLapMs = telemetry.lastLapMs;
-  if (telemetry.bestLapMs !== undefined)
-    payload.bestLapMs = telemetry.bestLapMs;
-  if (telemetry.lapNumber !== undefined)
-    payload.lapNumber = telemetry.lapNumber;
-  if (telemetry.deltaMs !== undefined) payload.deltaMs = telemetry.deltaMs;
-  if (telemetry.isBestLap !== undefined)
-    payload.isBestLap = telemetry.isBestLap;
+  for (const field of OPTIONAL_TRACK_FIELDS) {
+    const value = telemetry[field];
+    if (value !== undefined) payload[field] = value;
+  }
   return payload;
 };
 

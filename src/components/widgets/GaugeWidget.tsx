@@ -72,22 +72,22 @@ const GaugeWidget = ({
   const stale = value === undefined;
 
   const fontSize = gaugeValueFontSize(size);
-
   const unitColor = dayMode
     ? WIDGET_TEXT_COLORS.day
     : WIDGET_STALE_TEXT_COLORS.day;
+  const text = stale
+    ? STALE_PLACEHOLDER
+    : formatWidgetValue(value, meta.decimals);
+  const accessibilityLabel = `${meta.label} ${text} ${meta.unit}`;
 
   if (!kind) {
-    const text = stale
-      ? STALE_PLACEHOLDER
-      : formatWidgetValue(value, meta.decimals);
     const color = stale
       ? widgetStaleTextColor(dayMode)
       : widgetTextColor(dayMode);
     return (
       <View
         style={[styles.container, { width: size, height: size }]}
-        accessibilityLabel={`${meta.label} ${stale ? STALE_PLACEHOLDER : String(value)} ${meta.unit}`}
+        accessibilityLabel={accessibilityLabel}
       >
         <ValueCluster
           text={text}
@@ -109,10 +109,6 @@ const GaugeWidget = ({
   const fillColor = inDanger
     ? WIDGET_ZONE_COLORS.danger
     : widgetTextColor(dayMode);
-
-  const text = stale
-    ? STALE_PLACEHOLDER
-    : formatWidgetValue(value, meta.decimals);
   const valueColor = stale ? widgetStaleTextColor(dayMode) : fillColor;
 
   return (
@@ -120,7 +116,7 @@ const GaugeWidget = ({
       size={size}
       fillAngle={fillAngle}
       fillColor={fillColor}
-      accessibilityLabel={`${meta.label} ${stale ? STALE_PLACEHOLDER : String(value)} ${meta.unit}`}
+      accessibilityLabel={accessibilityLabel}
     >
       <ValueCluster
         text={text}
