@@ -8,10 +8,12 @@ import {
   VALUE_UNIT_FONT_SIZE,
   WIDGET_STALE_TEXT_COLORS,
   WIDGET_TEXT_COLORS,
+  WIDGET_ZONE_COLORS,
   gaugeArcStrokeWidth,
-  gaugeGradientColorAt,
   gaugeValueAngle,
   gaugeValueFontSize,
+  isWarningTripped,
+  sensorDefaultDangerThreshold,
   sensorDefaultRange,
   widgetFracFontSize,
   widgetStaleTextColor,
@@ -20,11 +22,7 @@ import {
 import { Fonts, TabularNums } from "../../theme";
 import { SIGNAL_META, type SignalKey } from "../../constants/ble";
 import { signalKeyToSensorKind } from "../../theme/signal-colors";
-import {
-  formatWidgetValue,
-  gaugeFillFraction,
-  splitWidgetValue,
-} from "./widget-value";
+import { formatWidgetValue, splitWidgetValue } from "./widget-value";
 
 interface GaugeWidgetProps {
   signalKey: SignalKey;
@@ -104,7 +102,6 @@ const GaugeWidget = ({
   }
 
   const range = sensorDefaultRange(kind);
-  const fraction = stale ? 0 : gaugeFillFraction(value, range.min, range.max);
   const fillAngle = stale ? 0 : gaugeValueAngle(value, range.min, range.max);
 
   const stroke = gaugeArcStrokeWidth(size, size);
@@ -124,7 +121,12 @@ const GaugeWidget = ({
     startDeg,
     startDeg + GAUGE_ARC.sweepDeg,
   );
-  const fillColor = gaugeGradientColorAt(fraction);
+  const danger = sensorDefaultDangerThreshold(kind);
+  const inDanger =
+    !stale && isWarningTripped(value, danger.threshold, danger.invertLogic);
+  const fillColor = inDanger
+    ? WIDGET_ZONE_COLORS.danger
+    : widgetTextColor(dayMode);
 
   const parts = stale
     ? { int: STALE_PLACEHOLDER, frac: "" }
@@ -139,7 +141,7 @@ const GaugeWidget = ({
       <Svg width={size} height={size} style={StyleSheet.absoluteFill}>
         <Path
           d={trackPath}
-          stroke={GAUGE_TRACK_COLORS.gradient}
+          stroke={GAUGE_TRACK_COLORS.plain}
           strokeWidth={stroke}
           strokeLinecap="butt"
           fill="none"

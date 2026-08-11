@@ -6,7 +6,6 @@ import {
 import {
   formatTimerElapsed,
   formatWidgetValue,
-  gaugeFillFraction,
   gearColor,
   gearGlyphFor,
   splitWidgetValue,
@@ -44,21 +43,6 @@ describe("splitWidgetValue", () => {
 
   it("leaves short integers unsplit even when requested", () => {
     expect(splitWidgetValue("95", true)).toEqual({ int: "95", frac: "" });
-  });
-});
-
-describe("gaugeFillFraction", () => {
-  it("maps a mid-range value to half fill", () => {
-    expect(gaugeFillFraction(60, 0, 120)).toBeCloseTo(0.5);
-  });
-
-  it("clamps values above and below the range", () => {
-    expect(gaugeFillFraction(200, 0, 120)).toBe(1);
-    expect(gaugeFillFraction(-50, 0, 120)).toBe(0);
-  });
-
-  it("returns zero for a degenerate range", () => {
-    expect(gaugeFillFraction(50, 100, 100)).toBe(0);
   });
 });
 
