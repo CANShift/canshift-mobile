@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Colors, Typography, Spacing } from "../theme";
+import { Colors, Fonts, Spacing } from "../theme";
 import { useSignalValue, useSignalsIsLive } from "../stores/signals.store";
 import { useDeviceStore } from "../stores/device.store";
 import { SIGNAL_META, type SignalMeta, type SignalKey } from "../constants/ble";
@@ -40,6 +40,7 @@ const GRID_SIGNALS: SignalKey[] = [
 ];
 const SAFETY_SIGNALS: SignalKey[] = ["op", "ct"];
 
+const KICKER_SIZE = 10;
 const GAUGE_SIZE_PORTRAIT = 132;
 const GAUGE_SIZE_LANDSCAPE = 116;
 const GRID_CELL_HEIGHT = 88;
@@ -245,12 +246,16 @@ const styles = StyleSheet.create({
   },
   primaryCard: {
     flex: 1,
-    alignItems: "center",
+    alignItems: "flex-start",
+    borderTopWidth: 2,
+    borderTopColor: Colors.text,
+    paddingTop: Spacing.xs,
   },
   primaryLabel: {
-    fontSize: Typography.xs,
-    color: Colors.textMuted,
-    letterSpacing: 0.8,
+    fontFamily: Fonts.uiExtraBold,
+    fontSize: KICKER_SIZE,
+    letterSpacing: KICKER_SIZE * 0.18,
+    color: Colors.textDim,
     marginBottom: Spacing.xs,
   },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: Spacing.sm },
