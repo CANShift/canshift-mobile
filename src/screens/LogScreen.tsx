@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useShallow } from "zustand/react/shallow";
-import { SegmentedControl } from "../components/ui";
+import { Button, SegmentedControl } from "../components/ui";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../components/ui/alert-dialog";
-import { Colors, Typography, Spacing, Radius, Fonts, HitSlop } from "../theme";
+import { Colors, Typography, Spacing, Fonts, HitSlop } from "../theme";
 import {
   useLogStore,
   log,
@@ -45,6 +45,9 @@ const LEVEL_COLOR: Record<LogLevel, string> = {
   warn: Colors.warning,
   error: Colors.danger,
 };
+
+const CONSOLE_TEXT_SIZE = 12;
+const CONSOLE_LINE_HEIGHT = CONSOLE_TEXT_SIZE * 2.1;
 
 const formatTime = (ms: number): string =>
   new Date(ms).toLocaleTimeString("en-US", { hour12: false });
@@ -211,18 +214,13 @@ const SendTab = () => {
         returnKeyType="send"
         accessibilityLabel="Command to send"
       />
-      <Pressable
-        style={[
-          styles.sendBtn,
-          (!command.trim() || sending) && styles.sendBtnOff,
-        ]}
+      <Button
         onPress={() => void handleSend()}
         disabled={!command.trim() || sending}
-        accessibilityRole="button"
         accessibilityLabel="Send command"
       >
-        <Text style={styles.sendBtnText}>{sending ? "Sending…" : "Send"}</Text>
-      </Pressable>
+        {sending ? "Sending…" : "Send"}
+      </Button>
     </View>
   );
 };
@@ -243,9 +241,7 @@ export default function LogScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.tabsWrap}>
-        <SegmentedControl options={TABS} value={tab} onChange={setTab} />
-      </View>
+      <SegmentedControl options={TABS} value={tab} onChange={setTab} />
       {tab === "log" && <LogTab />}
       {tab === "send" && <SendTab />}
       {tab === "can" && <CanTab />}
@@ -255,44 +251,38 @@ export default function LogScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
-  tabsWrap: { padding: Spacing.lg },
 
   controls: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.sm,
     paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.md,
+    paddingVertical: Spacing.md,
   },
   pauseBtn: {
     minHeight: 40,
     paddingHorizontal: Spacing.md,
     justifyContent: "center",
-    borderRadius: Radius.sm,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    borderWidth: 2,
+    borderColor: Colors.text,
   },
-  pauseBtnActive: {
-    borderColor: Colors.accent,
-    backgroundColor: Colors.accentDim,
-  },
+  pauseBtnActive: { borderColor: Colors.accent },
   pauseText: {
     fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.xs,
     letterSpacing: 0.8,
     textTransform: "uppercase",
-    color: Colors.textMuted,
+    color: Colors.text,
   },
   pauseTextActive: { color: Colors.accent },
   filterInput: {
     flex: 1,
     minHeight: 40,
-    borderRadius: Radius.sm,
     borderWidth: 1,
     borderColor: Colors.border,
     paddingHorizontal: Spacing.md,
     color: Colors.text,
-    fontFamily: Fonts.ui,
+    fontFamily: Fonts.mono,
     fontSize: Typography.sm,
   },
   clearBtn: {
@@ -331,15 +321,16 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "flex-start",
-    paddingVertical: Spacing.sm,
+    paddingVertical: Spacing.xs,
     paddingHorizontal: Spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: Colors.ruleHair,
     gap: Spacing.sm,
   },
   timestamp: {
     fontFamily: Fonts.mono,
-    fontSize: Typography.xs,
+    fontSize: CONSOLE_TEXT_SIZE,
+    lineHeight: CONSOLE_LINE_HEIGHT,
     color: Colors.textMuted,
     minWidth: 66,
     flexShrink: 0,
@@ -348,6 +339,7 @@ const styles = StyleSheet.create({
   level: {
     fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.xs,
+    lineHeight: CONSOLE_LINE_HEIGHT,
     letterSpacing: 0.6,
     minWidth: 38,
     flexShrink: 0,
@@ -355,9 +347,9 @@ const styles = StyleSheet.create({
   message: {
     flex: 1,
     fontFamily: Fonts.mono,
-    fontSize: Typography.xs,
-    color: Colors.text,
-    lineHeight: 17,
+    fontSize: CONSOLE_TEXT_SIZE,
+    lineHeight: CONSOLE_LINE_HEIGHT,
+    color: Colors.textDim,
   },
 
   sendBody: { padding: Spacing.lg, gap: Spacing.sm },
@@ -370,27 +362,11 @@ const styles = StyleSheet.create({
   },
   sendInput: {
     minHeight: 48,
-    borderRadius: Radius.md,
     borderWidth: 1,
     borderColor: Colors.border,
     paddingHorizontal: Spacing.md,
     color: Colors.text,
     fontFamily: Fonts.mono,
     fontSize: Typography.md,
-  },
-  sendBtn: {
-    minHeight: 48,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.accent,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  sendBtnOff: { opacity: 0.5 },
-  sendBtnText: {
-    fontFamily: Fonts.uiExtraBold,
-    fontSize: Typography.md,
-    letterSpacing: 1,
-    textTransform: "uppercase",
-    color: Colors.bg,
   },
 });
