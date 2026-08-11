@@ -6,6 +6,7 @@ import { useShallow } from "zustand/react/shallow";
 import { CURRENT_SCHEMA_VERSION } from "@canshift/core";
 import { readAppVersion } from "../lib/expo-version";
 import { ScreenHeader } from "../components/ScreenHeader";
+import { StatusRow } from "../components/StatusRow";
 import { InfoRow } from "../components/InfoRow";
 import { SegmentedControl } from "../components/SegmentedControl";
 import { Button, Section, SectionLabel } from "@/components/ui";
@@ -101,6 +102,7 @@ export default function DeviceScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusRow />
       <ScreenHeader
         title="Device"
         onBack={() => {
