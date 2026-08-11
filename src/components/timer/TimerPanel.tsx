@@ -1,0 +1,60 @@
+import React, { useEffect } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { Colors, Spacing, Typography } from "../../theme";
+import TimerDisplay from "./TimerDisplay";
+import TimerControls from "./TimerControls";
+import LapList from "./LapList";
+import { useTimerStore } from "../../stores/timer.store";
+import {
+  acknowledgePersistFailure,
+  hydrateTimerSessions,
+  useTimerSessionsStore,
+} from "../../stores/timer-sessions.store";
+import SessionPersistWarning from "./SessionPersistWarning";
+import { timerControl } from "../../services/timer-control";
+import { useTimerElapsed } from "../../hooks/use-timer-elapsed";
+
+export const TimerPanel = () => {
+  const status = useTimerStore((s) => s.status);
+  const laps = useTimerStore((s) => s.laps);
+  const deviceSynced = useTimerStore((s) => s.deviceSynced);
+  const elapsedMs = useTimerElapsed(status);
+  const persistFailed = useTimerSessionsStore((s) => s.persistFailed);
+
+  useEffect(() => {
+    void hydrateTimerSessions();
+  }, []);
+
+  return (
+    <View style={styles.body}>
+      {persistFailed && (
+        <SessionPersistWarning onDismiss={acknowledgePersistFailure} />
+      )}
+      <TimerDisplay
+        elapsedMs={elapsedMs}
+        status={status}
+        deviceSynced={deviceSynced}
+      />
+      <TimerControls
+        status={status}
+        onStart={timerControl.start}
+        onPause={timerControl.pause}
+        onResume={timerControl.resume}
+        onReset={timerControl.reset}
+        onLap={timerControl.lap}
+      />
+      <Text style={styles.lapsTitle}>LAPS</Text>
+      <LapList laps={laps} />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  body: { flex: 1, padding: Spacing.lg, gap: Spacing.md },
+  lapsTitle: {
+    color: Colors.textMuted,
+    fontSize: Typography.xs,
+    fontWeight: "700",
+    letterSpacing: 1.2,
+  },
+});

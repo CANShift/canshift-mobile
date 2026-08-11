@@ -1,28 +1,9 @@
-import React, { useCallback, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Menu, Power } from "lucide-react-native";
-import { useNavigation } from "@react-navigation/native";
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
 import { useShallow } from "zustand/react/shallow";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Colors, Typography, Spacing, Radius, Fonts } from "../theme";
+import { Colors, Typography, Spacing, Fonts } from "../theme";
 import { useDeviceStore } from "../stores/device.store";
 import { useSignalValue, useSignalsIsLive } from "../stores/signals.store";
-import * as BleService from "../services/ble.service";
-import * as SimService from "../services/sim.service";
-import type { RootStackParamList } from "../navigation";
-import { Sheet, SheetContent } from "./ui/sheet";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "./ui/alert-dialog";
-
-type RootNav = NativeStackNavigationProp<RootStackParamList>;
 
 export default function DashTopBar() {
   const { deviceName, firmwareVersion, canHealthy, isSim } = useDeviceStore(
@@ -36,131 +17,43 @@ export default function DashTopBar() {
   const isLive = useSignalsIsLive();
   const mi = useSignalValue("mi");
   const activeMapIndex = mi !== undefined ? Math.round(mi) : undefined;
-  const [menuVisible, setMenuVisible] = useState(false);
-  const [disconnectVisible, setDisconnectVisible] = useState(false);
-
-  const tabNav = useNavigation();
-  const rootNav = tabNav.getParent<RootNav>();
-
-  const handleDisconnect = useCallback(() => {
-    setDisconnectVisible(true);
-  }, []);
-
-  const confirmDisconnect = useCallback(async () => {
-    if (SimService.isRunning()) {
-      SimService.stop();
-    } else {
-      await BleService.disconnect();
-    }
-    rootNav.replace("Scan");
-  }, [rootNav]);
 
   return (
-    <>
-      <View style={styles.topBar}>
-        <View>
-          <Text style={styles.deviceName}>{deviceName ?? "CANShift"}</Text>
-          <View style={styles.versionRow}>
-            <Text style={styles.version}>
-              {!isSim && firmwareVersion ? `v${firmwareVersion} · ` : "· "}
-            </Text>
-            <Text
-              style={[
-                styles.version,
-                { color: canHealthy ? Colors.success : Colors.textMuted },
-              ]}
-            >
-              CAN
-            </Text>
-          </View>
-        </View>
-        <View style={styles.topBarRight}>
-          {activeMapIndex !== undefined && (
-            <View style={styles.mapBadge}>
-              <Text style={styles.mapText}>MAP {activeMapIndex}</Text>
-            </View>
-          )}
-          {isSim && (
-            <View style={styles.simBadge}>
-              <Text style={styles.simText}>SIM</Text>
-            </View>
-          )}
-          {!isLive && !isSim && (
-            <View style={styles.staleBadge}>
-              <Text style={styles.staleText}>NO DATA</Text>
-            </View>
-          )}
-          <TouchableOpacity
-            onPress={() => {
-              setMenuVisible(true);
-            }}
-            style={styles.iconBtn}
-            accessibilityRole="button"
-            accessibilityLabel="Open menu"
+    <View style={styles.topBar}>
+      <View>
+        <Text style={styles.deviceName}>{deviceName ?? "CANShift"}</Text>
+        <View style={styles.versionRow}>
+          <Text style={styles.version}>
+            {!isSim && firmwareVersion ? `v${firmwareVersion} · ` : "· "}
+          </Text>
+          <Text
+            style={[
+              styles.version,
+              { color: canHealthy ? Colors.success : Colors.textMuted },
+            ]}
           >
-            <Menu size={20} color={Colors.textDim} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleDisconnect}
-            style={styles.iconBtn}
-            accessibilityRole="button"
-            accessibilityLabel={isSim ? "End demo" : "Disconnect"}
-          >
-            <Power size={20} color={Colors.accent} />
-          </TouchableOpacity>
+            CAN
+          </Text>
         </View>
       </View>
-
-      <AlertDialog open={disconnectVisible} onOpenChange={setDisconnectVisible}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {isSim ? "End demo mode?" : "Disconnect"}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {isSim
-                ? "Stop the simulator and return to scan?"
-                : "Disconnect from the dashboard?"}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onPress={() => void confirmDisconnect()}>
-              {isSim ? "End demo" : "Disconnect"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <Sheet open={menuVisible} onOpenChange={setMenuVisible}>
-        <SheetContent side="bottom" className="p-0">
-          <View style={styles.menuSheet}>
-            <TouchableOpacity
-              style={styles.menuItem}
-              accessibilityRole="button"
-              onPress={() => {
-                setMenuVisible(false);
-                rootNav.navigate("Device");
-              }}
-            >
-              <Text style={styles.menuItemText}>Device</Text>
-            </TouchableOpacity>
-            <View style={styles.menuDivider} />
-            <TouchableOpacity
-              style={styles.menuItem}
-              accessibilityRole="button"
-              onPress={() => {
-                setMenuVisible(false);
-              }}
-            >
-              <Text style={[styles.menuItemText, { color: Colors.textMuted }]}>
-                Cancel
-              </Text>
-            </TouchableOpacity>
+      <View style={styles.topBarRight}>
+        {activeMapIndex !== undefined && (
+          <View style={styles.mapBadge}>
+            <Text style={styles.mapText}>MAP {activeMapIndex}</Text>
           </View>
-        </SheetContent>
-      </Sheet>
-    </>
+        )}
+        {isSim && (
+          <View style={styles.simBadge}>
+            <Text style={styles.simText}>SIM</Text>
+          </View>
+        )}
+        {!isLive && !isSim && (
+          <View style={styles.staleBadge}>
+            <Text style={styles.staleText}>NO DATA</Text>
+          </View>
+        )}
+      </View>
+    </View>
   );
 }
 
@@ -198,10 +91,8 @@ const styles = StyleSheet.create({
   },
   topBarRight: { flexDirection: "row", alignItems: "center", gap: Spacing.sm },
   mapBadge: {
-    backgroundColor: Colors.successBg,
     borderWidth: 1,
     borderColor: Colors.successBorder,
-    borderRadius: Radius.sm,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
   },
@@ -212,10 +103,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   simBadge: {
-    backgroundColor: Colors.accentDim,
     borderWidth: 1,
     borderColor: Colors.accent,
-    borderRadius: Radius.sm,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
   },
@@ -226,10 +115,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   staleBadge: {
-    backgroundColor: Colors.accentDim,
     borderWidth: 1,
     borderColor: Colors.accent,
-    borderRadius: Radius.sm,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
   },
@@ -238,26 +125,5 @@ const styles = StyleSheet.create({
     fontSize: Typography.xs,
     color: Colors.accent,
     letterSpacing: 0.8,
-  },
-  iconBtn: {
-    minWidth: 44,
-    minHeight: 44,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  menuSheet: {
-    backgroundColor: Colors.bg,
-    paddingBottom: Spacing.xl,
-  },
-  menuItem: {
-    paddingVertical: Spacing.lg,
-    paddingHorizontal: Spacing.xl,
-    alignItems: "center",
-  },
-  menuItemText: { fontSize: Typography.md, color: Colors.text },
-  menuDivider: {
-    height: 1,
-    backgroundColor: Colors.border,
-    marginHorizontal: Spacing.lg,
   },
 });

@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useShallow } from "zustand/react/shallow";
 import { Button, SegmentedControl } from "../components/ui";
+import { ScreenHeader } from "../components/ScreenHeader";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -236,11 +237,16 @@ const CanTab = () => (
   </View>
 );
 
-export default function LogScreen() {
+interface LogScreenProps {
+  onBack: () => void;
+}
+
+export default function LogScreen({ onBack }: LogScreenProps) {
   const [tab, setTab] = useState<ConsoleTab>("log");
 
   return (
     <SafeAreaView style={styles.container}>
+      <ScreenHeader title="Console" onBack={onBack} />
       <SegmentedControl options={TABS} value={tab} onChange={setTab} />
       {tab === "log" && <LogTab />}
       {tab === "send" && <SendTab />}
