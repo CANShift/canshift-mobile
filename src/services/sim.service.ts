@@ -24,8 +24,48 @@ const gear = (r: number) => {
   if (r < 4200) return 4;
   return 5;
 };
-const rand = (base: number, range: number) =>
-  base + (Math.random() - 0.5) * range;
+
+const PULL_BACK = 0.02;
+const BOOST_RESPONSE = 0.1;
+
+const SENSOR_BASE = {
+  ct: 88,
+  ot: 95,
+  op: 4.2,
+  lam: 1.0,
+  bat: 13.8,
+  iat: 35,
+} as const;
+
+const SENSOR_JITTER = {
+  ct: 0.2,
+  ot: 0.25,
+  op: 0.04,
+  lam: 0.006,
+  bat: 0.02,
+  iat: 0.2,
+} as const;
+
+type SensorKey = keyof typeof SENSOR_BASE;
+
+let sensors = { ...SENSOR_BASE };
+
+const drift = (key: SensorKey): number => {
+  const next =
+    sensors[key] +
+    (SENSOR_BASE[key] - sensors[key]) * PULL_BACK +
+    (Math.random() - 0.5) * SENSOR_JITTER[key];
+  sensors = { ...sensors, [key]: next };
+  return next;
+};
+
+let currentBoost = 0;
+
+const boost = (tps: number): number => {
+  const target = tps > 50 ? 0.4 + (tps / 100) * 0.5 : 0;
+  currentBoost += (target - currentBoost) * BOOST_RESPONSE;
+  return currentBoost;
+};
 
 export const start = () => {
   if (tickInterval) return;
@@ -38,6 +78,8 @@ export const start = () => {
 
   elapsed = 0;
   currentRpm = IDLE_RPM;
+  currentBoost = 0;
+  sensors = { ...SENSOR_BASE };
   tickInterval = setInterval(() => {
     elapsed += 0.1;
     const tps = throttle(elapsed);
@@ -51,13 +93,13 @@ export const start = () => {
       s,
       g,
       tps,
-      ct: Math.round(rand(88, 4)),
-      ot: Math.round(rand(95, 6)),
-      op: parseFloat(rand(4.2, 0.4).toFixed(1)),
-      lam: parseFloat(rand(1.0, 0.06).toFixed(2)),
-      bat: parseFloat(rand(13.8, 0.4).toFixed(1)),
-      bst: parseFloat((tps > 50 ? rand(0.8, 0.2) : rand(0.0, 0.05)).toFixed(2)),
-      iat: Math.round(rand(35, 4)),
+      ct: Math.round(drift("ct")),
+      ot: Math.round(drift("ot")),
+      op: parseFloat(drift("op").toFixed(1)),
+      lam: parseFloat(drift("lam").toFixed(2)),
+      bat: parseFloat(drift("bat").toFixed(1)),
+      bst: parseFloat(boost(tps).toFixed(2)),
+      iat: Math.round(drift("iat")),
     };
     useSignalsStore.getState().update(sample);
   }, 100);
