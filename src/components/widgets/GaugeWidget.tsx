@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { Animated, Easing, View, Text, StyleSheet } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import {
   GAUGE_ARC,
@@ -33,6 +33,9 @@ interface GaugeWidgetProps {
 
 const DEGREES_TO_RADIANS = Math.PI / 180;
 const HALF_CIRCLE_DEG = 180;
+const CATCH_UP_MS = 120;
+
+const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 const polarPoint = (
   cx: number,
@@ -104,6 +107,53 @@ const GaugeWidget = ({
   const range = sensorDefaultRange(kind);
   const fillAngle = stale ? 0 : gaugeValueAngle(value, range.min, range.max);
 
+  const danger = sensorDefaultDangerThreshold(kind);
+  const inDanger =
+    !stale && isWarningTripped(value, danger.threshold, danger.invertLogic);
+  const fillColor = inDanger
+    ? WIDGET_ZONE_COLORS.danger
+    : widgetTextColor(dayMode);
+
+  const parts = stale
+    ? { int: STALE_PLACEHOLDER, frac: "" }
+    : splitWidgetValue(formatWidgetValue(value, meta.decimals), false);
+  const valueColor = stale ? widgetStaleTextColor(dayMode) : fillColor;
+
+  return (
+    <SensorArc
+      size={size}
+      fillAngle={fillAngle}
+      fillColor={fillColor}
+      accessibilityLabel={`${meta.label} ${stale ? STALE_PLACEHOLDER : String(value)} ${meta.unit}`}
+    >
+      <ValueCluster
+        intText={parts.int}
+        fracText={parts.frac}
+        unit={meta.unit}
+        color={valueColor}
+        unitColor={unitColor}
+        intFontSize={intFontSize}
+        fracFontSize={fracFontSize}
+      />
+    </SensorArc>
+  );
+};
+
+interface SensorArcProps {
+  size: number;
+  fillAngle: number;
+  fillColor: string;
+  accessibilityLabel: string;
+  children: React.ReactNode;
+}
+
+const SensorArc = ({
+  size,
+  fillAngle,
+  fillColor,
+  accessibilityLabel,
+  children,
+}: SensorArcProps) => {
   const stroke = gaugeArcStrokeWidth(size, size);
   const diameter = Math.max(
     size - stroke - GAUGE_ARC.containerPadding,
@@ -121,22 +171,29 @@ const GaugeWidget = ({
     startDeg,
     startDeg + GAUGE_ARC.sweepDeg,
   );
-  const danger = sensorDefaultDangerThreshold(kind);
-  const inDanger =
-    !stale && isWarningTripped(value, danger.threshold, danger.invertLogic);
-  const fillColor = inDanger
-    ? WIDGET_ZONE_COLORS.danger
-    : widgetTextColor(dayMode);
 
-  const parts = stale
-    ? { int: STALE_PLACEHOLDER, frac: "" }
-    : splitWidgetValue(formatWidgetValue(value, meta.decimals), false);
-  const valueColor = stale ? widgetStaleTextColor(dayMode) : fillColor;
+  const arcLength = radius * GAUGE_ARC.sweepDeg * DEGREES_TO_RADIANS;
+  const fillFraction = fillAngle / GAUGE_ARC.sweepDeg;
+  const progress = useRef(new Animated.Value(fillFraction)).current;
+
+  useEffect(() => {
+    Animated.timing(progress, {
+      toValue: fillFraction,
+      duration: CATCH_UP_MS,
+      easing: Easing.linear,
+      useNativeDriver: false,
+    }).start();
+  }, [fillFraction, progress]);
+
+  const dashOffset = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [arcLength, 0],
+  });
 
   return (
     <View
       style={[styles.container, { width: size, height: size }]}
-      accessibilityLabel={`${meta.label} ${stale ? STALE_PLACEHOLDER : String(value)} ${meta.unit}`}
+      accessibilityLabel={accessibilityLabel}
     >
       <Svg width={size} height={size} style={StyleSheet.absoluteFill}>
         <Path
@@ -146,15 +203,15 @@ const GaugeWidget = ({
           strokeLinecap="butt"
           fill="none"
         />
-        {fillAngle > 0 ? (
-          <Path
-            d={arcPath(cx, cy, radius, startDeg, startDeg + fillAngle)}
-            stroke={fillColor}
-            strokeWidth={stroke}
-            strokeLinecap="butt"
-            fill="none"
-          />
-        ) : null}
+        <AnimatedPath
+          d={trackPath}
+          stroke={fillColor}
+          strokeWidth={stroke}
+          strokeLinecap="butt"
+          fill="none"
+          strokeDasharray={[arcLength, arcLength]}
+          strokeDashoffset={dashOffset}
+        />
       </Svg>
       <View
         style={[
@@ -165,15 +222,7 @@ const GaugeWidget = ({
           },
         ]}
       >
-        <ValueCluster
-          intText={parts.int}
-          fracText={parts.frac}
-          unit={meta.unit}
-          color={valueColor}
-          unitColor={unitColor}
-          intFontSize={intFontSize}
-          fracFontSize={fracFontSize}
-        />
+        {children}
       </View>
     </View>
   );
