@@ -1,29 +1,49 @@
 import React, { useEffect, useMemo, useRef } from "react";
-import { Animated, View, Text, Pressable, StyleSheet } from "react-native";
+import {
+  Animated,
+  Easing,
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useShallow } from "zustand/react/shallow";
-import { TriangleAlert } from "lucide-react-native";
+import { sensorDefaultDangerThreshold } from "@canshift/core";
 import {
-  WIDGET_ZONE_COLORS,
-  sensorDefaultDangerThreshold,
-} from "@canshift/core";
-import { Typography, Spacing, Radius, Fonts } from "../theme";
+  Colors,
+  Typography,
+  Spacing,
+  Fonts,
+  TabularNums,
+  SCREEN_PADDING,
+} from "../theme";
 import { SIGNAL_META, type SignalKey } from "../constants/ble";
 import { signalKeyToSensorKind } from "../theme/signal-colors";
 import { useSignalsStore, useSignalsIsLive } from "../stores/signals.store";
 import { useCriticalAlertStore } from "../stores/critical-alert.store";
 import { selectCriticalAlert } from "../lib/critical-alert";
+import { useSecondsSince } from "../hooks/use-seconds-since";
 import { formatWidgetValue } from "./widgets/widget-value";
 
-const PULSE_MIN_OPACITY = 0.55;
+const PULSE_MIN_OPACITY = 0.35;
 const PULSE_HALF_PERIOD_MS = 450;
+const WHITE_50 = "rgba(255,255,255,0.5)";
+const WHITE_70 = "rgba(255,255,255,0.7)";
+const NAME_SIZE = 26;
+const VALUE_SIZE = 132;
+const STOP_SIZE = 24;
 
-const contextText = (key: SignalKey): string => {
+const thresholdText = (key: SignalKey): string => {
   const kind = signalKeyToSensorKind(key);
+  const meta = SIGNAL_META[key];
   if (kind === undefined) return "Out of the safe range";
-  return sensorDefaultDangerThreshold(kind).invertLogic
-    ? "Below the safe range"
-    : "Above the safe range";
+  const danger = sensorDefaultDangerThreshold(kind);
+  const limit = danger.invertLogic ? "minimum" : "maximum";
+  const value = formatWidgetValue(danger.threshold, meta.decimals);
+  return meta.unit === ""
+    ? `${limit} ${value}`
+    : `${meta.unit} — ${limit} ${value}`;
 };
 
 export const CriticalAlertOverlay = () => {
@@ -45,6 +65,7 @@ export const CriticalAlertOverlay = () => {
   const alertKey = alert?.key ?? null;
   const active = alert !== null && alert.key !== acknowledgedKey ? alert : null;
   const activeKey = active?.key ?? null;
+  const sinceSeconds = useSecondsSince(activeKey);
 
   useEffect(() => {
     if (acknowledgedKey !== null && alertKey !== acknowledgedKey) {
@@ -61,11 +82,13 @@ export const CriticalAlertOverlay = () => {
         Animated.timing(pulse, {
           toValue: PULSE_MIN_OPACITY,
           duration: PULSE_HALF_PERIOD_MS,
+          easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
         Animated.timing(pulse, {
           toValue: 1,
           duration: PULSE_HALF_PERIOD_MS,
+          easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
       ]),
@@ -79,13 +102,14 @@ export const CriticalAlertOverlay = () => {
   if (active === null) return null;
 
   const meta = SIGNAL_META[active.key];
+  const rpm = values.r;
 
   return (
     <View style={styles.overlay} accessibilityViewIsModal>
       <Animated.View
         style={[
           StyleSheet.absoluteFill,
-          { backgroundColor: WIDGET_ZONE_COLORS.danger, opacity: pulse },
+          { backgroundColor: Colors.danger, opacity: pulse },
         ]}
       />
       <SafeAreaView style={styles.safe}>
@@ -93,16 +117,28 @@ export const CriticalAlertOverlay = () => {
           style={styles.body}
           accessibilityRole="alert"
           accessibilityLiveRegion="assertive"
-          accessibilityLabel={`Critical: ${meta.label} ${contextText(active.key)}`}
+          accessibilityLabel={`Critical: ${meta.label} ${thresholdText(active.key)}`}
         >
-          <TriangleAlert color="#FFFFFF" size={64} />
-          <Text style={styles.eyebrow}>Critical</Text>
-          <Text style={styles.label}>{meta.label.toUpperCase()}</Text>
-          <Text style={styles.value}>
+          <Text style={styles.name}>{meta.label.toUpperCase()}</Text>
+          <Text style={styles.value} adjustsFontSizeToFit numberOfLines={1}>
             {formatWidgetValue(active.value, meta.decimals)}
-            {meta.unit ? <Text style={styles.unit}> {meta.unit}</Text> : null}
           </Text>
-          <Text style={styles.context}>{contextText(active.key)}</Text>
+          <Text style={styles.threshold}>{thresholdText(active.key)}</Text>
+          <View style={styles.contextTable}>
+            {rpm !== undefined && (
+              <View style={styles.contextRow}>
+                <Text style={styles.contextLabel}>RPM</Text>
+                <Text style={styles.contextValue}>
+                  {formatWidgetValue(rpm, 0)}
+                </Text>
+              </View>
+            )}
+            <View style={styles.contextRow}>
+              <Text style={styles.contextLabel}>SINCE</Text>
+              <Text style={styles.contextValue}>{String(sinceSeconds)} s</Text>
+            </View>
+          </View>
+          <Text style={styles.stop}>Stop the engine</Text>
         </View>
         <View style={styles.actions}>
           <Pressable
@@ -133,74 +169,93 @@ export const CriticalAlertOverlay = () => {
 
 const styles = StyleSheet.create({
   overlay: { ...StyleSheet.absoluteFillObject, zIndex: 100, elevation: 100 },
-  safe: { flex: 1, justifyContent: "space-between" },
+  safe: { flex: 1 },
   body: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.xl,
+    paddingHorizontal: SCREEN_PADDING,
+    paddingTop: 26,
   },
-  eyebrow: {
+  name: {
     fontFamily: Fonts.uiExtraBold,
-    fontSize: Typography.sm,
-    letterSpacing: 4,
+    fontSize: NAME_SIZE,
+    letterSpacing: NAME_SIZE * 0.16,
     textTransform: "uppercase",
-    color: "#FFFFFF",
-    marginTop: Spacing.sm,
-  },
-  label: {
-    fontFamily: Fonts.uiExtraBold,
-    fontSize: Typography.lg,
-    letterSpacing: 2,
-    color: "#FFFFFF",
-    textAlign: "center",
+    color: Colors.text,
   },
   value: {
-    fontFamily: Fonts.monoExtraBold,
-    fontSize: 72,
-    color: "#FFFFFF",
-    fontVariant: ["tabular-nums"],
+    fontFamily: Fonts.mono,
+    fontVariant: TabularNums,
+    fontSize: VALUE_SIZE,
+    lineHeight: VALUE_SIZE * 0.95,
+    letterSpacing: VALUE_SIZE * -0.05,
+    color: Colors.text,
+    marginTop: 10,
   },
-  unit: { fontFamily: Fonts.mono, fontSize: Typography.lg },
-  context: {
+  threshold: {
+    fontFamily: Fonts.mono,
+    fontSize: 20,
+    color: Colors.text,
+    marginTop: 6,
+  },
+  contextTable: {
+    marginTop: 32,
+    borderTopWidth: 2,
+    borderTopColor: WHITE_50,
+    paddingTop: 14,
+    gap: 10,
+  },
+  contextRow: { flexDirection: "row", justifyContent: "space-between" },
+  contextLabel: {
     fontFamily: Fonts.mono,
     fontSize: Typography.md,
-    color: "#FFFFFF",
-    opacity: 0.85,
+    color: Colors.text,
+    opacity: 0.8,
+  },
+  contextValue: {
+    fontFamily: Fonts.mono,
+    fontVariant: TabularNums,
+    fontSize: Typography.md,
+    color: Colors.text,
+  },
+  stop: {
+    marginTop: "auto",
+    marginBottom: Spacing.lg,
+    fontFamily: Fonts.uiExtraBold,
+    fontSize: STOP_SIZE,
+    letterSpacing: STOP_SIZE * 0.14,
+    textTransform: "uppercase",
+    color: Colors.text,
   },
   actions: {
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.lg,
-    gap: Spacing.sm,
+    paddingHorizontal: SCREEN_PADDING,
+    paddingBottom: 30,
+    gap: 12,
   },
   ackBtn: {
-    minHeight: 64,
-    borderRadius: Radius.md,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
+    height: 64,
+    backgroundColor: Colors.text,
     justifyContent: "center",
+    paddingHorizontal: 20,
   },
   ackText: {
     fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.md,
-    letterSpacing: 1.5,
+    letterSpacing: Typography.md * 0.09,
     textTransform: "uppercase",
-    color: WIDGET_ZONE_COLORS.danger,
+    color: Colors.danger,
   },
   muteBtn: {
-    minHeight: 56,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: "#FFFFFF",
-    alignItems: "center",
+    height: 56,
+    borderWidth: 2,
+    borderColor: WHITE_70,
     justifyContent: "center",
+    paddingHorizontal: 20,
   },
   muteText: {
     fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.sm,
-    letterSpacing: 1.5,
+    letterSpacing: Typography.sm * 0.08,
     textTransform: "uppercase",
-    color: "#FFFFFF",
+    color: Colors.text,
   },
 });
