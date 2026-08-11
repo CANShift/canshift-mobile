@@ -22,7 +22,7 @@ import { log } from "@/stores/log.store";
 import { hydrateTimerSessions } from "@/stores/timer-sessions.store";
 import { markFirstScreenReady } from "./diag/cold-start";
 
-export default function App() {
+const App = () => {
   const [fontsLoaded, fontError] = useFonts({
     Archivo_400Regular,
     Archivo_600SemiBold,
@@ -56,4 +56,6 @@ export default function App() {
       <Toaster />
     </SafeAreaProvider>
   );
-}
+};
+
+export default App;

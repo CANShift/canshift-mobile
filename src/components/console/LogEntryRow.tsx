@@ -15,23 +15,18 @@ const LEVEL_COLOR: Record<LogLevel, string> = {
 const formatTime = (ms: number): string =>
   new Date(ms).toLocaleTimeString("en-US", { hour12: false });
 
-export const LogEntryRow = React.memo(function LogEntryRow({
-  entry,
-}: {
-  entry: LogEntry;
-}) {
-  return (
-    <View style={styles.row}>
-      <Text style={styles.timestamp}>{formatTime(entry.timestamp)}</Text>
-      <Text style={[styles.level, { color: LEVEL_COLOR[entry.level] }]}>
-        {entry.level.toUpperCase()}
-      </Text>
-      <Text style={styles.message} numberOfLines={3}>
-        {entry.message}
-      </Text>
-    </View>
-  );
-});
+export const LogEntryRow = React.memo(({ entry }: { entry: LogEntry }) => (
+  <View style={styles.row}>
+    <Text style={styles.timestamp}>{formatTime(entry.timestamp)}</Text>
+    <Text style={[styles.level, { color: LEVEL_COLOR[entry.level] }]}>
+      {entry.level.toUpperCase()}
+    </Text>
+    <Text style={styles.message} numberOfLines={3}>
+      {entry.message}
+    </Text>
+  </View>
+));
+LogEntryRow.displayName = "LogEntryRow";
 
 const styles = StyleSheet.create({
   row: {

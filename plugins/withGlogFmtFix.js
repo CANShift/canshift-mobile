@@ -7,11 +7,8 @@
 //   error: call to consteval function 'fmt::basic_format_string<...>'
 //   is not a constant expression
 //   in ios/Pods/fmt/include/fmt/format-inl.h
-const { withDangerousMod } = require('@expo/config-plugins')
-const fs = require('fs')
-const path = require('path')
 
-const PATCH_MARKER = '# canshift-fmt-glog-cxx17-fix'
+const PATCH_MARKER = "# canshift-fmt-glog-cxx17-fix";
 const PATCH = `
     ${PATCH_MARKER}
     # Downgrade fmt + glog to gnu++17 so __cpp_consteval is undefined →
@@ -37,34 +34,10 @@ const PATCH = `
         File.write(xcconfig_path, content)
       end
     end
-`
+`;
+
+const withPodfilePostInstall = require("./withPodfilePostInstall");
 
 module.exports = function withGlogFmtFix(config) {
-  return withDangerousMod(config, [
-    'ios',
-    (config) => {
-      const podfilePath = path.join(config.modRequest.platformProjectRoot, 'Podfile')
-      const podfile = fs.readFileSync(podfilePath, 'utf8')
-
-      if (podfile.includes(PATCH_MARKER)) {
-        return config
-      }
-
-      // Insert the patch just before the final `end` that closes the
-      // `post_install do |installer|` block. The block always ends with a
-      // line containing `  end` (two-space indent) followed by the outer
-      // target's `end`. Match that pair and inject our patch above it.
-      const insertionRegex = /\n( {2}end\nend\s*\n?)$/
-      if (!insertionRegex.test(podfile)) {
-        throw new Error(
-          'withGlogFmtFix: could not locate post_install closing in Podfile. ' +
-            'The plugin needs an update for the current Expo template.'
-        )
-      }
-
-      const patched = podfile.replace(insertionRegex, `${PATCH}\n$1`)
-      fs.writeFileSync(podfilePath, patched)
-      return config
-    },
-  ])
-}
+  return withPodfilePostInstall(config, "withGlogFmtFix", PATCH_MARKER, PATCH);
+};

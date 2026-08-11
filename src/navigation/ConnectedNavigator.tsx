@@ -34,7 +34,7 @@ const TAB_LABEL_SIZE = 11;
 const TAB_LABEL_SIZE_LANDSCAPE = 9;
 const TAB_LABEL_TRACKING = TAB_LABEL_SIZE * 0.1;
 
-export default function ConnectedNavigator({ navigation }: Props) {
+const ConnectedNavigator = ({ navigation }: Props) => {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const isLandscape = width > height;
@@ -88,10 +88,12 @@ export default function ConnectedNavigator({ navigation }: Props) {
       <CriticalAlertOverlay />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
   tabIconHidden: { display: "none" },
   tabItem: { justifyContent: "center", alignItems: "center" },
 });
+
+export default ConnectedNavigator;

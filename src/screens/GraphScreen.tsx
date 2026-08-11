@@ -19,7 +19,7 @@ import { errText } from "../lib/error-text";
 
 const DEFAULT_SIGNALS: SignalKey[] = ["r", "lam"];
 
-export default function GraphScreen() {
+const GraphScreen = () => {
   const [pausedAt, setPausedAt] = useState<number | null>(null);
   const [windowSecs, setWindowSecs] = useState(30);
   const [visibleSignals, setVisibleSignals] =
@@ -70,8 +70,10 @@ export default function GraphScreen() {
       <ChartPanel {...panelProps} />
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
 });
+
+export default GraphScreen;

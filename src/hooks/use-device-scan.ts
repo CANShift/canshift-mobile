@@ -6,7 +6,7 @@ import { mapBleError } from "../services/ble.errors";
 import { bleErrorMessage } from "../services/ble-error-message";
 import { blePermissionMessage } from "../services/ble-permission-message";
 import { getLastDevice } from "../services/last-device";
-import type { BlePermissionPlatform } from "../components/ble-permission-dialog";
+import type { BlePermissionPlatform } from "../components/BlePermissionDialog";
 
 const SCAN_TIMEOUT_MS = 10000;
 

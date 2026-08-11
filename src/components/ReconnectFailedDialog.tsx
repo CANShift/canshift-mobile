@@ -19,7 +19,7 @@ interface Props {
   navigation: NativeStackNavigationProp<RootStackParamList, "Connected">;
 }
 
-export default function ReconnectFailedDialog({ navigation }: Props) {
+const ReconnectFailedDialog = ({ navigation }: Props) => {
   const isSim = useDeviceStore((s) => s.mode === "sim");
   const hasError = useDeviceStore((s) => s.error !== null);
   const isReconnecting = useReconnectStore((s) => s.isReconnecting);
@@ -56,4 +56,6 @@ export default function ReconnectFailedDialog({ navigation }: Props) {
       </AlertDialogContent>
     </AlertDialog>
   );
-}
+};
+
+export default ReconnectFailedDialog;

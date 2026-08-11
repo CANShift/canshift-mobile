@@ -19,7 +19,7 @@ import type { RootStackParamList } from "../navigation";
 import {
   BlePermissionDialog,
   type BlePermissionPlatform,
-} from "../components/ble-permission-dialog";
+} from "../components/BlePermissionDialog";
 import { BrandLockup } from "../components/brand/BrandLockup";
 import { DeviceRow } from "../components/scan/DeviceRow";
 import { ReconnectStrip } from "../components/scan/ReconnectStrip";
@@ -31,7 +31,7 @@ interface Props {
   navigation: NativeStackNavigationProp<RootStackParamList, "Scan">;
 }
 
-export default function ScanScreen({ navigation }: Props) {
+const ScanScreen = ({ navigation }: Props) => {
   const [unauthorizedPlatform, setUnauthorizedPlatform] =
     useState<BlePermissionPlatform | null>(null);
   const connectionState = useDeviceStore((s) => s.connectionState);
@@ -139,7 +139,7 @@ export default function ScanScreen({ navigation }: Props) {
       />
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -176,3 +176,5 @@ const styles = StyleSheet.create({
   },
   list: { paddingTop: Spacing.sm },
 });
+
+export default ScanScreen;

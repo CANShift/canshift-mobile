@@ -5,36 +5,23 @@ import { log } from "./log.store";
 import { setBufferCap } from "./telemetry.store";
 import { errText } from "../lib/error-text";
 
-export type AppTheme = "system" | "light" | "dark";
-export type Units = "metric" | "imperial";
 export type ReconnectBehavior = "auto" | "off";
 
 export const TELEMETRY_BUFFER_OPTIONS = [1000, 3000, 6000] as const;
 export type TelemetryBufferSize = (typeof TELEMETRY_BUFFER_OPTIONS)[number];
 
 const STORAGE_KEY = "canshift.mobile.appSettings";
-const LEGACY_PRE_RELEASE_KEY = "canshift.mobile.releases.showPrerelease";
 
 const settingsSchema = z.object({
-  theme: z.enum(["system", "light", "dark"]),
-  telemetryBufferSize: z.union([
-    z.literal(1000),
-    z.literal(3000),
-    z.literal(6000),
-  ]),
+  telemetryBufferSize: z.literal(TELEMETRY_BUFFER_OPTIONS),
   reconnectBehavior: z.enum(["auto", "off"]),
-  showPreRelease: z.boolean(),
-  units: z.enum(["metric", "imperial"]),
 });
 
 export type AppSettings = z.infer<typeof settingsSchema>;
 
 const DEFAULT_SETTINGS: AppSettings = {
-  theme: "system",
   telemetryBufferSize: 3000,
   reconnectBehavior: "auto",
-  showPreRelease: true,
-  units: "metric",
 };
 
 const readPersisted = async (): Promise<AppSettings | null> => {
@@ -60,34 +47,16 @@ const writePersisted = async (settings: AppSettings): Promise<void> => {
   }
 };
 
-const migrateLegacyPreRelease = async (): Promise<boolean | null> => {
-  try {
-    const legacy = await SecureStore.getItemAsync(LEGACY_PRE_RELEASE_KEY);
-    if (legacy === null) return null;
-    await SecureStore.deleteItemAsync(LEGACY_PRE_RELEASE_KEY);
-    return legacy !== "false";
-  } catch (err) {
-    log("warn", `Failed to migrate pre-release preference: ${errText(err)}`);
-    return null;
-  }
-};
-
 interface AppSettingsState extends AppSettings {
   hydrated: boolean;
   hydrate: () => Promise<void>;
-  setTheme: (theme: AppTheme) => void;
   setTelemetryBufferSize: (size: TelemetryBufferSize) => void;
   setReconnectBehavior: (behavior: ReconnectBehavior) => void;
-  setShowPreRelease: (value: boolean) => void;
-  setUnits: (units: Units) => void;
 }
 
 const snapshot = (state: AppSettings): AppSettings => ({
-  theme: state.theme,
   telemetryBufferSize: state.telemetryBufferSize,
   reconnectBehavior: state.reconnectBehavior,
-  showPreRelease: state.showPreRelease,
-  units: state.units,
 });
 
 export const useAppSettingsStore = create<AppSettingsState>()((set, get) => {
@@ -108,31 +77,17 @@ export const useAppSettingsStore = create<AppSettingsState>()((set, get) => {
         setBufferCap(persisted.telemetryBufferSize);
         return;
       }
-      const migrated = await migrateLegacyPreRelease();
-      const next: AppSettings = {
-        ...DEFAULT_SETTINGS,
-        ...(migrated !== null ? { showPreRelease: migrated } : {}),
-      };
-      set({ ...next, hydrated: true });
-      setBufferCap(next.telemetryBufferSize);
-      void writePersisted(next);
+      set({ ...DEFAULT_SETTINGS, hydrated: true });
+      setBufferCap(DEFAULT_SETTINGS.telemetryBufferSize);
+      void writePersisted(DEFAULT_SETTINGS);
     },
 
-    setTheme: (theme) => {
-      update({ theme });
-    },
     setTelemetryBufferSize: (telemetryBufferSize) => {
       update({ telemetryBufferSize });
       setBufferCap(telemetryBufferSize);
     },
     setReconnectBehavior: (reconnectBehavior) => {
       update({ reconnectBehavior });
-    },
-    setShowPreRelease: (showPreRelease) => {
-      update({ showPreRelease });
-    },
-    setUnits: (units) => {
-      update({ units });
     },
   };
 });
