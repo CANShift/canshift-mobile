@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   menuSheet: {
-    backgroundColor: Colors.surfaceHigh,
+    backgroundColor: Colors.bg,
     paddingBottom: Spacing.xl,
   },
   menuItem: {

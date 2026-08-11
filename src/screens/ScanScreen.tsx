@@ -23,7 +23,7 @@ import {
 } from "lucide-react-native";
 import type { LucideIcon } from "lucide-react-native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Colors, Typography, Spacing, Radius, Fonts, HitSlop } from "../theme";
+import { Colors, Typography, Spacing, Fonts, HitSlop } from "../theme";
 import { useDeviceStore } from "../stores/device.store";
 import { useReconnectStore } from "../stores/reconnect.store";
 import * as BleService from "../services/ble.service";
@@ -88,7 +88,9 @@ const DeviceRow = React.memo(
         accessibilityLabel={`Connect to ${device.name}`}
         accessibilityState={{ disabled: connecting || disabled }}
       >
-        <Card className="flex-row items-center gap-3">
+        <View
+          style={[styles.deviceRow, lastPaired && styles.deviceRowSelected]}
+        >
           <strength.Icon size={22} color={strength.color} />
           <View style={styles.deviceInfo}>
             <View style={styles.deviceNameRow}>
@@ -112,7 +114,7 @@ const DeviceRow = React.memo(
           ) : (
             <ChevronRight size={18} color={Colors.textMuted} />
           )}
-        </Card>
+        </View>
       </TouchableOpacity>
     );
   },
@@ -455,7 +457,22 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     textAlign: "center",
   },
-  list: { gap: Spacing.sm, paddingTop: Spacing.sm },
+  list: { paddingTop: Spacing.sm },
+  deviceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    borderLeftWidth: 3,
+    borderLeftColor: "transparent",
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.ruleHair,
+  },
+  deviceRowSelected: {
+    backgroundColor: Colors.selectedBg,
+    borderLeftColor: Colors.accent,
+  },
   deviceInfo: { flex: 1 },
   deviceNameRow: {
     flexDirection: "row",
@@ -475,8 +492,8 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   badge: {
-    borderRadius: Radius.sm,
-    backgroundColor: Colors.accentDim,
+    borderWidth: 1,
+    borderColor: Colors.accent,
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
   },
@@ -492,7 +509,6 @@ const styles = StyleSheet.create({
   scanBar: {
     height: ACCENT_BAR_HEIGHT,
     backgroundColor: Colors.accent,
-    borderRadius: Radius.md,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

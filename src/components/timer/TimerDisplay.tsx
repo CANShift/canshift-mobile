@@ -1,14 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { TIMER_BORDER_COLORS } from "@canshift/core";
-import {
-  Colors,
-  Fonts,
-  Radius,
-  Spacing,
-  TabularNums,
-  Typography,
-} from "../../theme";
+import { Colors, Fonts, Spacing, TabularNums, Typography } from "../../theme";
 import type { TimerStatus } from "../../stores/timer.store";
 import { formatTimerElapsed } from "../widgets/widget-value";
 
@@ -53,8 +46,6 @@ export default React.memo(TimerDisplay);
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    backgroundColor: Colors.surface,
-    borderRadius: Radius.md,
     borderWidth: 2,
     gap: Spacing.xs,
     padding: Spacing.lg,

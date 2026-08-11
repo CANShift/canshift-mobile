@@ -3,17 +3,11 @@ import { Text, View, type TextProps, type ViewProps } from "react-native";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-const cardVariants = cva("border border-border bg-surface", {
+const cardVariants = cva("border bg-transparent", {
   variants: {
     variant: {
-      default: "border-border bg-surface",
-      accent: "border-accent bg-surface",
-      muted: "border-border bg-surface-2",
-    },
-    radius: {
-      sm: "rounded-sm",
-      md: "rounded-md",
-      lg: "rounded-lg",
+      default: "border-border",
+      accent: "border-accent",
     },
     padding: {
       none: "",
@@ -22,7 +16,7 @@ const cardVariants = cva("border border-border bg-surface", {
       lg: "p-4",
     },
   },
-  defaultVariants: { variant: "default", radius: "md", padding: "md" },
+  defaultVariants: { variant: "default", padding: "md" },
 });
 
 type CardVariantProps = VariantProps<typeof cardVariants>;
@@ -34,10 +28,10 @@ export interface CardProps extends ViewProps, CardVariantProps {
 export const Card = React.forwardRef<
   React.ComponentRef<typeof View>,
   CardProps
->(({ className, variant, radius, padding, ...props }, ref) => (
+>(({ className, variant, padding, ...props }, ref) => (
   <View
     ref={ref}
-    className={cn(cardVariants({ variant, radius, padding }), className)}
+    className={cn(cardVariants({ variant, padding }), className)}
     {...props}
   />
 ));

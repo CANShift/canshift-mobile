@@ -1,14 +1,7 @@
 import React from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { TIMER_BORDER_COLORS } from "@canshift/core";
-import {
-  Colors,
-  Fonts,
-  Radius,
-  Spacing,
-  TabularNums,
-  Typography,
-} from "../../theme";
+import { Colors, Fonts, Spacing, TabularNums, Typography } from "../../theme";
 import type { SessionLap } from "../../lib/timer-laps";
 import { formatTimerElapsed } from "../widgets/widget-value";
 
@@ -64,11 +57,11 @@ export default React.memo(LapList);
 
 const styles = StyleSheet.create({
   list: { flex: 1 },
-  listContent: { gap: Spacing.xs },
+  listContent: {},
   row: {
     alignItems: "center",
-    backgroundColor: Colors.surface,
-    borderRadius: Radius.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.ruleHair,
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: Spacing.md,
