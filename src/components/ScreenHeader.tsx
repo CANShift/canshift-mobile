@@ -4,7 +4,7 @@ import { Colors, Fonts, Typography, Spacing, HitSlop } from "../theme";
 
 interface ScreenHeaderProps {
   title: string;
-  onBack?: () => void;
+  onBack?: (() => void) | undefined;
 }
 
 const HEADER_RULE = 2;

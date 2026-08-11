@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useShallow } from "zustand/react/shallow";
 import { CURRENT_SCHEMA_VERSION } from "@canshift/core";
 import { readAppVersion } from "../lib/expo-version";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { InfoRow } from "../components/InfoRow";
+import { NavRow } from "../components/NavRow";
 import { SegmentedControl } from "../components/SegmentedControl";
 import { Button, Section, SectionLabel } from "@/components/ui";
 import {
@@ -29,10 +29,16 @@ import { useDeviceStore, type ConnectionState } from "../stores/device.store";
 import * as BleService from "../services/ble.service";
 import * as SimService from "../services/sim.service";
 import { Colors, Spacing, SCREEN_PADDING } from "../theme";
-import type { RootStackParamList } from "../navigation";
+
+interface DeviceNav {
+  goBack: () => void;
+  replace: (screen: "Scan") => void;
+  navigate: (screen: "Console") => void;
+}
 
 interface Props {
-  navigation: NativeStackNavigationProp<RootStackParamList, "Device">;
+  navigation: DeviceNav;
+  showBack?: boolean;
 }
 
 const EM_DASH = "—";
@@ -57,7 +63,7 @@ const BUFFER_OPTIONS: { label: string; value: TelemetryBufferSize }[] =
     value,
   }));
 
-export default function DeviceScreen({ navigation }: Props) {
+export default function DeviceScreen({ navigation, showBack = false }: Props) {
   const { connectionState, firmwareVersion, deviceName, deviceId, isSim } =
     useDeviceStore(
       useShallow((s) => ({
@@ -103,9 +109,13 @@ export default function DeviceScreen({ navigation }: Props) {
     <SafeAreaView style={styles.container}>
       <ScreenHeader
         title="Device"
-        onBack={() => {
-          navigation.goBack();
-        }}
+        onBack={
+          showBack
+            ? () => {
+                navigation.goBack();
+              }
+            : undefined
+        }
       />
 
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -158,6 +168,13 @@ export default function DeviceScreen({ navigation }: Props) {
           />
           <InfoRow label="Config schema" value={`v${CURRENT_SCHEMA_VERSION}`} />
         </View>
+
+        <NavRow
+          label="Console"
+          onPress={() => {
+            navigation.navigate("Console");
+          }}
+        />
 
         {(connected || isSim) && (
           <View style={styles.disconnectWrap}>

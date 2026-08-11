@@ -5,9 +5,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import DashScreen from "../screens/DashScreen";
 import GraphScreen from "../screens/GraphScreen";
-import LogScreen from "../screens/LogScreen";
-import TimerScreen from "../screens/TimerScreen";
 import TrackScreen from "../screens/TrackScreen";
+import DeviceScreen from "../screens/DeviceScreen";
 import ReconnectBanner from "../components/ReconnectBanner";
 import ReconnectFailedDialog from "../components/ReconnectFailedDialog";
 import { CriticalAlertOverlay } from "../components/CriticalAlertOverlay";
@@ -22,9 +21,8 @@ interface Props {
 export type ConnectedTabParamList = {
   Dash: undefined;
   Graph: undefined;
-  Timer: undefined;
   Track: undefined;
-  Console: undefined;
+  Device: undefined;
 };
 
 const Tab = createBottomTabNavigator<ConnectedTabParamList>();
@@ -78,20 +76,13 @@ export default function ConnectedNavigator({ navigation }: Props) {
           options={{ tabBarLabel: "Graph" }}
         />
         <Tab.Screen
-          name="Timer"
-          component={TimerScreen}
-          options={{ tabBarLabel: "Timer" }}
-        />
-        <Tab.Screen
           name="Track"
           component={TrackScreen}
           options={{ tabBarLabel: "Track" }}
         />
-        <Tab.Screen
-          name="Console"
-          component={LogScreen}
-          options={{ tabBarLabel: "Console" }}
-        />
+        <Tab.Screen name="Device" options={{ tabBarLabel: "Device" }}>
+          {() => <DeviceScreen navigation={navigation} />}
+        </Tab.Screen>
       </Tab.Navigator>
       <ReconnectFailedDialog navigation={navigation} />
       <CriticalAlertOverlay />

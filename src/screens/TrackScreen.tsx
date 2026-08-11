@@ -2,6 +2,8 @@ import { useCallback, useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import DashTopBar from "../components/DashTopBar";
+import { SegmentedControl } from "../components/ui";
+import { TimerPanel } from "../components/timer/TimerPanel";
 import { LapChrono } from "../components/track/LapChrono";
 import { LapList } from "../components/track/LapList";
 import { LapStats } from "../components/track/LapStats";
@@ -25,7 +27,15 @@ const START_FAILURE_MESSAGES = {
   session_failed: "Track mode could not start — try again",
 } as const;
 
+type TrackTab = "track" | "timer";
+
+const TABS: { value: TrackTab; label: string }[] = [
+  { value: "track", label: "Track" },
+  { value: "timer", label: "Timer" },
+];
+
 const TrackScreen = () => {
+  const [tab, setTab] = useState<TrackTab>("track");
   const recording = useTrackSessionStore((s) => s.recording);
   const laps = useTrackSessionStore((s) => s.laps);
   const bestLapMs = useTrackSessionStore((s) => s.bestLapMs);
@@ -73,26 +83,31 @@ const TrackScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <DashTopBar />
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        showsVerticalScrollIndicator={false}
-      >
-        <TrackControls
-          active={recording}
-          startFinishSet={startFinishSet}
-          canSetStartFinish={recording && writeIndex > 0}
-          onToggleTrackMode={() => {
-            void handleToggleTrackMode();
-          }}
-          onSetStartFinish={handleSetStartFinish}
-        />
-        <LapChrono elapsedMs={currentLapMs} running={recording} />
-        <LapStats
-          lastLapMs={lastLap?.durationMs ?? null}
-          bestLapMs={bestLapMs > 0 ? bestLapMs : null}
-        />
-        <LapList laps={laps} bestLapMs={bestLapMs} />
-      </ScrollView>
+      <SegmentedControl options={TABS} value={tab} onChange={setTab} />
+      {tab === "timer" ? (
+        <TimerPanel />
+      ) : (
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          showsVerticalScrollIndicator={false}
+        >
+          <TrackControls
+            active={recording}
+            startFinishSet={startFinishSet}
+            canSetStartFinish={recording && writeIndex > 0}
+            onToggleTrackMode={() => {
+              void handleToggleTrackMode();
+            }}
+            onSetStartFinish={handleSetStartFinish}
+          />
+          <LapChrono elapsedMs={currentLapMs} running={recording} />
+          <LapStats
+            lastLapMs={lastLap?.durationMs ?? null}
+            bestLapMs={bestLapMs > 0 ? bestLapMs : null}
+          />
+          <LapList laps={laps} bestLapMs={bestLapMs} />
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
