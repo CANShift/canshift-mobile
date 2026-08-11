@@ -1,10 +1,8 @@
 import {
-  GAUGE_ARC,
   GEAR_NEUTRAL_GLYPH,
   WIDGET_ZONE_COLORS,
   formatTimerMmSs,
   formatTimerSsMmm,
-  gaugeValueAngle,
   gearGlyph,
   isWarningTripped,
   widgetStaleTextColor,
@@ -53,12 +51,6 @@ export const splitWidgetValue = (
   }
   return { int: formatted, frac: "" };
 };
-
-export const gaugeFillFraction = (
-  value: number,
-  min: number,
-  max: number,
-): number => gaugeValueAngle(value, min, max) / GAUGE_ARC.sweepDeg;
 
 export type WarnState = "idle" | "alarm" | "stale";
 
