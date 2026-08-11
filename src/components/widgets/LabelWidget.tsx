@@ -10,7 +10,6 @@ import {
   isWarningTripped,
   labelFontSize,
   sensorDefaultDangerThreshold,
-  widgetFracFontSize,
   widgetStaleTextColor,
   widgetTextColor,
   widgetTopRulePx,
@@ -18,7 +17,7 @@ import {
 import { Colors, Fonts, Spacing, TabularNums } from "../../theme";
 import { SIGNAL_META, type SignalKey } from "../../constants/ble";
 import { signalKeyToSensorKind } from "../../theme/signal-colors";
-import { formatWidgetValue, splitWidgetValue } from "./widget-value";
+import { formatWidgetValue } from "./widget-value";
 
 interface LabelWidgetProps {
   signalKey: SignalKey;
@@ -50,12 +49,10 @@ const LabelWidget = ({
   const stale = value === undefined;
   const danger = isInDanger(signalKey, value);
 
-  const intFontSize = labelFontSize(width, height);
-  const fracFontSize = widgetFracFontSize(intFontSize);
-
-  const parts = stale
-    ? { int: STALE_PLACEHOLDER, frac: "" }
-    : splitWidgetValue(formatWidgetValue(value, meta.decimals), true);
+  const fontSize = labelFontSize(width, height);
+  const text = stale
+    ? STALE_PLACEHOLDER
+    : formatWidgetValue(value, meta.decimals);
 
   const ink = danger ? WIDGET_ZONE_COLORS.danger : widgetTextColor(dayMode);
   const tint = stale ? widgetStaleTextColor(dayMode) : ink;
@@ -64,7 +61,7 @@ const LabelWidget = ({
     ? WIDGET_TEXT_COLORS.day
     : WIDGET_STALE_TEXT_COLORS.day;
 
-  const rulePx = widgetTopRulePx(intFontSize);
+  const rulePx = widgetTopRulePx(fontSize);
   const ruleColor = danger
     ? WIDGET_TOP_RULE.dangerColor
     : rulePx === WIDGET_TOP_RULE.primaryPx
@@ -85,28 +82,15 @@ const LabelWidget = ({
       <View style={styles.valueRow}>
         <Text
           style={{
-            fontSize: intFontSize,
+            fontSize,
             fontFamily: Fonts.monoBold,
             color: tint,
             fontVariant: TabularNums,
           }}
           numberOfLines={1}
         >
-          {parts.int}
+          {text}
         </Text>
-        {parts.frac ? (
-          <Text
-            style={{
-              fontSize: fracFontSize,
-              fontFamily: Fonts.monoBold,
-              color: tint,
-              fontVariant: TabularNums,
-            }}
-            numberOfLines={1}
-          >
-            {parts.frac}
-          </Text>
-        ) : null}
         {meta.unit ? (
           <Text
             style={[
