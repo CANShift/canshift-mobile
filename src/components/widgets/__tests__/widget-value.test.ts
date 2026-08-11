@@ -8,7 +8,6 @@ import {
   formatWidgetValue,
   gearColor,
   gearGlyphFor,
-  splitWidgetValue,
   warningState,
 } from "../widget-value";
 import { signalKeyToSensorKind } from "../../../theme/signal-colors";
@@ -22,27 +21,6 @@ describe("formatWidgetValue", () => {
   it("fixes to the requested decimals", () => {
     expect(formatWidgetValue(1.234, 2)).toBe("1.23");
     expect(formatWidgetValue(8, 1)).toBe("8.0");
-  });
-});
-
-describe("splitWidgetValue", () => {
-  it("splits on the decimal point, keeping the dot with the fraction", () => {
-    expect(splitWidgetValue("1.05", true)).toEqual({ int: "1", frac: ".05" });
-    expect(splitWidgetValue("12.3", false)).toEqual({ int: "12", frac: ".3" });
-  });
-
-  it("splits the trailing thousands group when requested", () => {
-    expect(splitWidgetValue("8000", true)).toEqual({ int: "8", frac: "000" });
-    expect(splitWidgetValue("-1500", true)).toEqual({ int: "-1", frac: "500" });
-  });
-
-  it("keeps the whole integer when thousands split is disabled", () => {
-    expect(splitWidgetValue("8000", false)).toEqual({ int: "8000", frac: "" });
-    expect(splitWidgetValue("95", false)).toEqual({ int: "95", frac: "" });
-  });
-
-  it("leaves short integers unsplit even when requested", () => {
-    expect(splitWidgetValue("95", true)).toEqual({ int: "95", frac: "" });
   });
 });
 

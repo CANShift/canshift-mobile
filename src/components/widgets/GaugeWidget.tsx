@@ -15,14 +15,13 @@ import {
   isWarningTripped,
   sensorDefaultDangerThreshold,
   sensorDefaultRange,
-  widgetFracFontSize,
   widgetStaleTextColor,
   widgetTextColor,
 } from "@canshift/core";
 import { Fonts, TabularNums } from "../../theme";
 import { SIGNAL_META, type SignalKey } from "../../constants/ble";
 import { signalKeyToSensorKind } from "../../theme/signal-colors";
-import { formatWidgetValue, splitWidgetValue } from "./widget-value";
+import { formatWidgetValue } from "./widget-value";
 
 interface GaugeWidgetProps {
   signalKey: SignalKey;
@@ -72,17 +71,16 @@ const GaugeWidget = ({
   const kind = signalKeyToSensorKind(signalKey);
   const stale = value === undefined;
 
-  const intFontSize = gaugeValueFontSize(size);
-  const fracFontSize = widgetFracFontSize(intFontSize);
+  const fontSize = gaugeValueFontSize(size);
 
   const unitColor = dayMode
     ? WIDGET_TEXT_COLORS.day
     : WIDGET_STALE_TEXT_COLORS.day;
 
   if (!kind) {
-    const parts = stale
-      ? { int: STALE_PLACEHOLDER, frac: "" }
-      : splitWidgetValue(formatWidgetValue(value, meta.decimals), false);
+    const text = stale
+      ? STALE_PLACEHOLDER
+      : formatWidgetValue(value, meta.decimals);
     const color = stale
       ? widgetStaleTextColor(dayMode)
       : widgetTextColor(dayMode);
@@ -92,13 +90,11 @@ const GaugeWidget = ({
         accessibilityLabel={`${meta.label} ${stale ? STALE_PLACEHOLDER : String(value)} ${meta.unit}`}
       >
         <ValueCluster
-          intText={parts.int}
-          fracText={parts.frac}
+          text={text}
           unit={meta.unit}
           color={color}
           unitColor={unitColor}
-          intFontSize={intFontSize}
-          fracFontSize={fracFontSize}
+          fontSize={fontSize}
         />
       </View>
     );
@@ -114,9 +110,9 @@ const GaugeWidget = ({
     ? WIDGET_ZONE_COLORS.danger
     : widgetTextColor(dayMode);
 
-  const parts = stale
-    ? { int: STALE_PLACEHOLDER, frac: "" }
-    : splitWidgetValue(formatWidgetValue(value, meta.decimals), false);
+  const text = stale
+    ? STALE_PLACEHOLDER
+    : formatWidgetValue(value, meta.decimals);
   const valueColor = stale ? widgetStaleTextColor(dayMode) : fillColor;
 
   return (
@@ -127,13 +123,11 @@ const GaugeWidget = ({
       accessibilityLabel={`${meta.label} ${stale ? STALE_PLACEHOLDER : String(value)} ${meta.unit}`}
     >
       <ValueCluster
-        intText={parts.int}
-        fracText={parts.frac}
+        text={text}
         unit={meta.unit}
         color={valueColor}
         unitColor={unitColor}
-        intFontSize={intFontSize}
-        fracFontSize={fracFontSize}
+        fontSize={fontSize}
       />
     </SensorArc>
   );
@@ -229,23 +223,19 @@ const SensorArc = ({
 };
 
 interface ValueClusterProps {
-  intText: string;
-  fracText: string;
+  text: string;
   unit: string;
   color: string;
   unitColor: string;
-  intFontSize: number;
-  fracFontSize: number;
+  fontSize: number;
 }
 
 const ValueCluster = ({
-  intText,
-  fracText,
+  text,
   unit,
   color,
   unitColor,
-  intFontSize,
-  fracFontSize,
+  fontSize,
 }: ValueClusterProps) => (
   <>
     <View style={styles.valueRow}>
@@ -253,26 +243,14 @@ const ValueCluster = ({
         adjustsFontSizeToFit
         numberOfLines={1}
         style={{
-          fontSize: intFontSize,
+          fontSize,
           fontFamily: Fonts.monoBold,
           color,
           fontVariant: TabularNums,
         }}
       >
-        {intText}
+        {text}
       </Text>
-      {fracText ? (
-        <Text
-          style={{
-            fontSize: fracFontSize,
-            fontFamily: Fonts.monoBold,
-            color,
-            fontVariant: TabularNums,
-          }}
-        >
-          {fracText}
-        </Text>
-      ) : null}
     </View>
     {unit ? (
       <Text
