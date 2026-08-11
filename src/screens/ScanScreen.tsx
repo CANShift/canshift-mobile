@@ -38,7 +38,6 @@ import {
   type BlePermissionPlatform,
 } from "../components/ble-permission-dialog";
 import { Card } from "../components/ui";
-import { StatusRow } from "../components/StatusRow";
 import { BrandLockup } from "../components/brand/BrandLockup";
 
 interface Props {
@@ -255,7 +254,6 @@ export default function ScanScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusRow />
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.infoBtn}

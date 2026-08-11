@@ -49,7 +49,7 @@ export default function App() {
   if (!fontsLoaded && !fontError) return null;
   return (
     <SafeAreaProvider>
-      <StatusBar hidden />
+      <StatusBar style="light" />
       <ErrorBoundary>
         <Navigation />
       </ErrorBoundary>

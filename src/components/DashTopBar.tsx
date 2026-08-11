@@ -10,7 +10,6 @@ import { useSignalValue, useSignalsIsLive } from "../stores/signals.store";
 import * as BleService from "../services/ble.service";
 import * as SimService from "../services/sim.service";
 import type { RootStackParamList } from "../navigation";
-import { StatusRow } from "./StatusRow";
 import { Sheet, SheetContent } from "./ui/sheet";
 import {
   AlertDialog,
@@ -58,7 +57,6 @@ export default function DashTopBar() {
 
   return (
     <>
-      <StatusRow />
       <View style={styles.topBar}>
         <View>
           <Text style={styles.deviceName}>{deviceName ?? "CANShift"}</Text>
