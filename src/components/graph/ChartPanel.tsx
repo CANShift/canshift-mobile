@@ -1,19 +1,17 @@
-import { useState, useMemo, useCallback } from "react";
-import { View, Text, StyleSheet, LayoutChangeEvent } from "react-native";
-import Svg, { Polyline, Line, Text as SvgText } from "react-native-svg";
-import { Colors, Fonts, TabularNums, Typography, Spacing } from "../../theme";
-import { getSignalColor } from "../../theme/signal-colors";
-import { SIGNAL_META, type SignalKey } from "../../constants/ble";
-import {
-  SIGNAL_RANGE,
-  buildPoints,
-  formatTime,
-  formatValue,
-} from "../../lib/graph-math";
+import { useState } from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Colors, Typography, Spacing, SCREEN_PADDING } from "../../theme";
+import type { SignalKey } from "../../constants/ble";
+import { buildPoints, formatNumber } from "../../lib/graph-math";
 import type { SignalValues } from "../../stores/telemetry.store";
 import { useGraphSeries } from "../../hooks/use-graph-series";
-import { SignalPillRow } from "./SignalPillRow";
+import { useCriticalAlertKey } from "../../hooks/use-critical-alert-key";
+import { Button } from "../ui/button";
 import { GraphControls } from "./GraphControls";
+import { SignalStrip, STRIP_VIEW_WIDTH, STRIP_HEIGHT } from "./SignalStrip";
+import { SignalPickerSheet } from "./SignalPickerSheet";
+
+const ACTION_TEXT = "text-[13px] tracking-[1.04px]";
 
 export interface ChartPanelProps {
   visibleSignals: SignalKey[];
@@ -25,7 +23,6 @@ export interface ChartPanelProps {
   onClear: () => void;
   onExport: () => void;
   onToggleSignal: (key: SignalKey) => void;
-  compact: boolean;
 }
 
 export const ChartPanel = ({
@@ -38,186 +35,91 @@ export const ChartPanel = ({
   onClear,
   onExport,
   onToggleSignal,
-  compact,
 }: ChartPanelProps) => {
-  const [chartSize, setChartSize] = useState({ width: 300, height: 160 });
-
-  const onChartLayout = useCallback((e: LayoutChangeEvent) => {
-    const { width, height } = e.nativeEvent.layout;
-    setChartSize({ width, height });
-  }, []);
-
+  const [pickerOpen, setPickerOpen] = useState(false);
   const { rolling, windowStart, windowEnd, hasData } = useGraphSeries(
     windowSecs,
     paused,
     pausedAt,
   );
-
-  const lines = useMemo(() => {
-    const latest: SignalValues = rolling[rolling.length - 1]?.v ?? {};
-    return visibleSignals.map((key) => ({
-      key,
-      color: getSignalColor(key),
-      points: buildPoints(
-        rolling,
-        key,
-        windowStart,
-        windowEnd,
-        chartSize.width,
-        chartSize.height,
-      ),
-      latestValue: latest[key],
-    }));
-  }, [rolling, windowStart, windowEnd, visibleSignals, chartSize]);
-
-  const vGap = compact ? 2 : Spacing.xs;
+  const alarmKey = useCriticalAlertKey();
+  const latest: SignalValues = rolling[rolling.length - 1]?.v ?? {};
 
   return (
     <>
-      <SignalPillRow
-        visibleSignals={visibleSignals}
-        onToggleSignal={onToggleSignal}
-        vGap={vGap}
-      />
-
       <GraphControls
         paused={paused}
         windowSecs={windowSecs}
         onTogglePause={onTogglePause}
         onSetWindow={onSetWindow}
         onClear={onClear}
-        onExport={onExport}
-        vGap={vGap}
       />
 
-      <View style={styles.chartContainer} onLayout={onChartLayout}>
-        {!hasData ? (
-          <View style={styles.noDataOverlay}>
-            <Text style={styles.noDataText}>No telemetry data yet</Text>
-          </View>
-        ) : (
-          <Svg width={chartSize.width} height={chartSize.height}>
-            {[0.25, 0.5, 0.75].map((f) => (
-              <Line
-                key={f}
-                x1={0}
-                y1={chartSize.height * f}
-                x2={chartSize.width}
-                y2={chartSize.height * f}
-                stroke={Colors.border}
-                strokeWidth={1}
-              />
-            ))}
-            {lines.map((line) =>
-              line.points ? (
-                <Polyline
-                  key={line.key}
-                  points={line.points}
-                  fill="none"
-                  stroke={line.color}
-                  strokeWidth={1.5}
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                />
-              ) : null,
-            )}
-            {lines.map((line) => {
-              const range = SIGNAL_RANGE[line.key];
-              if (line.latestValue === undefined) return null;
-              const norm = Math.max(
-                0,
-                Math.min(
-                  1,
-                  (line.latestValue - range.min) / (range.max - range.min),
-                ),
-              );
-              const y = Math.max(
-                10,
-                Math.min(chartSize.height - 4, (1 - norm) * chartSize.height),
-              );
-              return (
-                <SvgText
-                  key={line.key}
-                  transform={`translate(${String(chartSize.width - 4)}, ${String(y)})`}
-                  fill={line.color}
-                  fontSize={9}
-                  textAnchor="end"
-                  fontWeight="600"
-                >
-                  {SIGNAL_META[line.key].label}{" "}
-                  {formatValue(line.key, line.latestValue)}
-                </SvgText>
-              );
-            })}
-          </Svg>
-        )}
-      </View>
-
-      <View style={styles.timeAxis}>
-        <Text style={styles.timeLabel}>{formatTime(windowStart)}</Text>
-        <Text style={styles.timeLabel}>
-          {formatTime((windowStart + windowEnd) / 2)}
-        </Text>
-        <Text style={styles.timeLabel}>{formatTime(windowEnd)}</Text>
-      </View>
-
-      {hasData && (
-        <View style={[styles.valuesGrid, { paddingVertical: vGap + 2 }]}>
-          {lines.map((line) => (
-            <View key={line.key} style={styles.valueChip}>
-              <Text style={[styles.valueKey, { color: line.color }]}>
-                {SIGNAL_META[line.key].label}
-              </Text>
-              <Text style={[styles.valueNum, { color: line.color }]}>
-                {formatValue(line.key, line.latestValue)}
-              </Text>
-            </View>
-          ))}
+      {!hasData ? (
+        <View style={styles.noDataOverlay}>
+          <Text style={styles.noDataText}>No telemetry data yet</Text>
         </View>
+      ) : (
+        <ScrollView style={styles.strips}>
+          {visibleSignals.map((key, index) => (
+            <SignalStrip
+              key={key}
+              signalKey={key}
+              points={buildPoints(
+                rolling,
+                key,
+                windowStart,
+                windowEnd,
+                STRIP_VIEW_WIDTH,
+                STRIP_HEIGHT,
+              )}
+              value={formatNumber(key, latest[key])}
+              alarm={key === alarmKey}
+              last={index === visibleSignals.length - 1}
+            />
+          ))}
+        </ScrollView>
       )}
+
+      <View style={styles.actions}>
+        <Button
+          variant="outline"
+          className="flex-1"
+          textClassName={ACTION_TEXT}
+          onPress={() => {
+            setPickerOpen(true);
+          }}
+        >
+          Pick signals
+        </Button>
+        <Button
+          variant="outline"
+          className="flex-1"
+          textClassName={ACTION_TEXT}
+          onPress={onExport}
+        >
+          Export
+        </Button>
+      </View>
+
+      <SignalPickerSheet
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        visibleSignals={visibleSignals}
+        onToggleSignal={onToggleSignal}
+      />
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  chartContainer: {
-    flex: 1,
-    backgroundColor: Colors.bgInset,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
+  strips: { flex: 1 },
   noDataOverlay: { flex: 1, justifyContent: "center", alignItems: "center" },
   noDataText: { color: Colors.textMuted, fontSize: Typography.sm },
-
-  timeAxis: {
+  actions: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  timeLabel: {
-    fontSize: Typography.xxs,
-    color: Colors.textMuted,
-    fontFamily: Fonts.mono,
-    fontVariant: TabularNums,
-  },
-
-  valuesGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    paddingHorizontal: Spacing.sm,
-  },
-  valueChip: {
-    width: "20%",
-    alignItems: "center",
-    paddingVertical: 4,
-  },
-  valueKey: { fontSize: 10, fontWeight: "600", letterSpacing: 0.3 },
-  valueNum: {
-    fontSize: 15,
-    fontFamily: Fonts.monoBold,
-    fontVariant: TabularNums,
+    gap: 10,
+    paddingHorizontal: SCREEN_PADDING,
+    paddingVertical: Spacing.lg,
   },
 });

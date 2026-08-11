@@ -1,26 +1,23 @@
 import type { SignalValues, TelemetrySample } from "../stores/telemetry.store";
 import {
   SIGNAL_RANGE,
+  STALE_PLACEHOLDER,
   buildPoints,
-  formatTime,
-  formatValue,
+  formatNumber,
 } from "./graph-math";
 
-describe("formatValue", () => {
-  it("renders an em-dash for undefined", () => {
-    expect(formatValue("r", undefined)).toBe("—");
+describe("formatNumber", () => {
+  it("renders the stale placeholder for undefined", () => {
+    expect(formatNumber("r", undefined)).toBe(STALE_PLACEHOLDER);
   });
 
-  it("rounds zero-decimal signals (RPM carries no unit suffix)", () => {
-    expect(formatValue("r", 6543.7)).toBe("6544");
-  });
-
-  it("appends the unit for a zero-decimal signal that has one", () => {
-    expect(formatValue("map", 250.4)).toBe("250kPa");
+  it("rounds zero-decimal signals", () => {
+    expect(formatNumber("r", 6543.7)).toBe("6544");
+    expect(formatNumber("map", 250.4)).toBe("250");
   });
 
   it("uses the signal decimal count for fractional signals", () => {
-    expect(formatValue("lam", 0.923)).toBe("0.92λ");
+    expect(formatNumber("lam", 0.923)).toBe("0.92");
   });
 });
 
@@ -47,14 +44,6 @@ describe("buildPoints", () => {
       sample(50, { r: 4000 }),
     ];
     expect(buildPoints(buffer, "r", 0, 100, 200, 100)).toBe("100.0,50.0");
-  });
-});
-
-describe("formatTime", () => {
-  it("formats a timestamp as a 24-hour clock string", () => {
-    expect(formatTime(Date.parse("2026-01-01T12:34:56Z"))).toMatch(
-      /^\d{1,2}:\d{2}:\d{2}$/,
-    );
   });
 });
 

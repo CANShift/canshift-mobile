@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Alert, StyleSheet, useWindowDimensions } from "react-native";
+import { Alert, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "../theme";
 import {
@@ -20,9 +20,6 @@ import { errText } from "../lib/error-text";
 const DEFAULT_SIGNALS: SignalKey[] = ["r", "lam"];
 
 export default function GraphScreen() {
-  const { width, height } = useWindowDimensions();
-  const isLandscape = width > height;
-
   const [pausedAt, setPausedAt] = useState<number | null>(null);
   const [windowSecs, setWindowSecs] = useState(30);
   const [visibleSignals, setVisibleSignals] =
@@ -65,7 +62,6 @@ export default function GraphScreen() {
       void handleExport();
     },
     onToggleSignal: handleToggleSignal,
-    compact: isLandscape,
   };
 
   return (
