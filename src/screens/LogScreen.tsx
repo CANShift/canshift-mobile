@@ -26,7 +26,7 @@ interface LogScreenProps {
   onBack: () => void;
 }
 
-export default function LogScreen({ onBack }: LogScreenProps) {
+const LogScreen = ({ onBack }: LogScreenProps) => {
   const [tab, setTab] = useState<ConsoleTab>("log");
   const TabView = TAB_VIEWS[tab];
 
@@ -37,8 +37,10 @@ export default function LogScreen({ onBack }: LogScreenProps) {
       <TabView />
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
 });
+
+export default LogScreen;

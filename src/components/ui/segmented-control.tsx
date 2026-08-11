@@ -1,34 +1,39 @@
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { Colors, Typography, Fonts } from "../../theme";
 
-export interface SegmentedControlOption<T extends string> {
+export interface SegmentedControlOption<
+  T extends string | number | boolean | null,
+> {
   value: T;
   label: string;
 }
 
-interface SegmentedControlProps<T extends string> {
+interface SegmentedControlProps<T extends string | number | boolean | null> {
   options: readonly SegmentedControlOption<T>[];
   value: T;
   onChange: (value: T) => void;
+  disabled?: boolean;
 }
 
-export const SegmentedControl = <T extends string>({
+export const SegmentedControl = <T extends string | number | boolean | null>({
   options,
   value,
   onChange,
+  disabled = false,
 }: SegmentedControlProps<T>) => (
   <View style={styles.track} accessibilityRole="tablist">
     {options.map((option) => {
       const active = option.value === value;
       return (
         <Pressable
-          key={option.value}
+          key={String(option.value)}
           style={[styles.segment, active && styles.segmentActive]}
           onPress={() => {
             onChange(option.value);
           }}
+          disabled={disabled}
           accessibilityRole="tab"
-          accessibilityState={{ selected: active }}
+          accessibilityState={{ selected: active, disabled }}
           accessibilityLabel={option.label}
         >
           <Text style={[styles.label, active && styles.labelActive]}>

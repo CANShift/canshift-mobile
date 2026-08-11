@@ -8,8 +8,12 @@ import { firmwareLabel } from "../lib/device-labels";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { InfoRow } from "../components/InfoRow";
 import { NavRow } from "../components/NavRow";
-import { SegmentedControl } from "../components/SegmentedControl";
-import { Button, Section, SectionLabel } from "@/components/ui";
+import {
+  Button,
+  Section,
+  SectionLabel,
+  SegmentedControl,
+} from "@/components/ui";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -64,7 +68,7 @@ const BUFFER_OPTIONS: { label: string; value: TelemetryBufferSize }[] =
     value,
   }));
 
-export default function DeviceScreen({ navigation, showBack = false }: Props) {
+const DeviceScreen = ({ navigation, showBack = false }: Props) => {
   const { connectionState, firmwareVersion, deviceName, deviceId, isSim } =
     useDeviceStore(
       useShallow((s) => ({
@@ -207,7 +211,7 @@ export default function DeviceScreen({ navigation, showBack = false }: Props) {
       </AlertDialog>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
@@ -225,3 +229,5 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.lg,
   },
 });
+
+export default DeviceScreen;

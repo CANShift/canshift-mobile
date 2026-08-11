@@ -5,7 +5,7 @@ import { Colors, Typography, Spacing, Fonts } from "../theme";
 import { useDeviceStore } from "../stores/device.store";
 import { useSignalValue, useSignalsIsLive } from "../stores/signals.store";
 
-export default function DashTopBar() {
+const DashTopBar = () => {
   const { deviceName, firmwareVersion, canHealthy, isSim } = useDeviceStore(
     useShallow((s) => ({
       deviceName: s.deviceName,
@@ -61,7 +61,7 @@ export default function DashTopBar() {
       </View>
     </View>
   );
-}
+};
 
 const TopBarBadge = ({
   label,
@@ -121,3 +121,5 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
 });
+
+export default DashTopBar;

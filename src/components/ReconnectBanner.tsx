@@ -19,7 +19,7 @@ interface Props {
   navigation: NativeStackNavigationProp<RootStackParamList, "Connected">;
 }
 
-export default function ReconnectBanner({ navigation }: Props) {
+const ReconnectBanner = ({ navigation }: Props) => {
   const insets = useSafeAreaInsets();
   const isSim = useDeviceStore((s) => s.mode === "sim");
   const { isReconnecting, attempt, maxAttempts } = useReconnectStore(
@@ -58,7 +58,7 @@ export default function ReconnectBanner({ navigation }: Props) {
       </TouchableOpacity>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   banner: {
@@ -78,3 +78,5 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 });
+
+export default ReconnectBanner;

@@ -21,10 +21,10 @@ interface TimerSessionsState {
   persistFailed: boolean;
 }
 
-let s_storage: TimerSessionStorage = fileTimerSessionStorage;
+let activeStorage: TimerSessionStorage = fileTimerSessionStorage;
 
 export const setTimerSessionStorage = (storage: TimerSessionStorage): void => {
-  s_storage = storage;
+  activeStorage = storage;
 };
 
 export const useTimerSessionsStore = create<TimerSessionsState>()(() => ({
@@ -36,7 +36,7 @@ export const useTimerSessionsStore = create<TimerSessionsState>()(() => ({
 }));
 
 const persistSessions = (sessions: readonly StoredTimerSession[]): void => {
-  void s_storage.save(sessions).then((persisted) => {
+  void activeStorage.save(sessions).then((persisted) => {
     useTimerSessionsStore.setState({ persistFailed: !persisted });
   });
 };
@@ -47,7 +47,7 @@ export const acknowledgePersistFailure = (): void => {
 
 export const hydrateTimerSessions = async (): Promise<void> => {
   if (useTimerSessionsStore.getState().hydrated) return;
-  const stored = await s_storage.load();
+  const stored = await activeStorage.load();
   const recordedBeforeHydration = useTimerSessionsStore.getState().sessions;
   const storedKeys = new Set(
     recordedBeforeHydration.map((session) => session.key),

@@ -4,9 +4,9 @@ import { errText } from "../../lib/error-text";
 
 const BLE_RESTORE_STATE_IDENTIFIER = "canshift.ble.central";
 
-let s_bleNativeAvailable = true;
+let bleNativeAvailable = true;
 
-export const isBleAvailable = (): boolean => s_bleNativeAvailable;
+export const isBleAvailable = (): boolean => bleNativeAvailable;
 
 const createInertBleManager = (): BleManager => {
   const unavailable = (): Promise<never> =>
@@ -29,7 +29,7 @@ export const createBleManager = (
   onRestore: (restoredState: BleRestoredState | null) => void,
 ): BleManager => {
   if (process.env.EXPO_PUBLIC_DISABLE_BLE === "1") {
-    s_bleNativeAvailable = false;
+    bleNativeAvailable = false;
     log(
       "warn",
       "BLE disabled via EXPO_PUBLIC_DISABLE_BLE — no CoreBluetooth activation",
@@ -42,7 +42,7 @@ export const createBleManager = (
       restoreStateFunction: onRestore,
     });
   } catch (err) {
-    s_bleNativeAvailable = false;
+    bleNativeAvailable = false;
     log(
       "warn",
       `BLE native module unavailable (Expo Go?) — Bluetooth disabled: ${errText(err)}`,

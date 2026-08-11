@@ -15,7 +15,7 @@ interface Props {
   navigation: NativeStackNavigationProp<RootStackParamList, "Connected">;
 }
 
-export default function DashScreen(_: Props) {
+const DashScreen = (_: Props) => {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
   const dayMode = useDeviceStore((s) => s.isDayMode) === true;
@@ -40,7 +40,7 @@ export default function DashScreen(_: Props) {
       )}
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
@@ -49,3 +49,5 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
   },
 });
+
+export default DashScreen;
