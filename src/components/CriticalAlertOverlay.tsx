@@ -20,6 +20,7 @@ import {
 } from "../theme";
 import { SIGNAL_META, type SignalKey } from "../constants/ble";
 import { signalKeyToSensorKind } from "../theme/signal-colors";
+import { fromSensorKindValue } from "../theme/sensor-units";
 import { useSignalsStore, useSignalsIsLive } from "../stores/signals.store";
 import { useCriticalAlertStore } from "../stores/critical-alert.store";
 import { selectCriticalAlert } from "../lib/critical-alert";
@@ -40,7 +41,10 @@ const thresholdText = (key: SignalKey): string => {
   if (kind === undefined) return "Out of the safe range";
   const danger = sensorDefaultDangerThreshold(kind);
   const limit = danger.invertLogic ? "minimum" : "maximum";
-  const value = formatWidgetValue(danger.threshold, meta.decimals);
+  const value = formatWidgetValue(
+    fromSensorKindValue(key, danger.threshold),
+    meta.decimals,
+  );
   return meta.unit === ""
     ? `${limit} ${value}`
     : `${meta.unit} — ${limit} ${value}`;
