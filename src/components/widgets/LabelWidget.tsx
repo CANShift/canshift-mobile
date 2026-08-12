@@ -17,6 +17,7 @@ import {
 import { Colors, Fonts, Spacing, TabularNums } from "../../theme";
 import { SIGNAL_META, type SignalKey } from "../../constants/ble";
 import { signalKeyToSensorKind } from "../../theme/signal-colors";
+import { toSensorKindValue } from "../../theme/sensor-units";
 import { formatWidgetValue } from "./widget-value";
 
 interface LabelWidgetProps {
@@ -35,7 +36,11 @@ const isInDanger = (key: SignalKey, value: number | undefined): boolean => {
   const kind = signalKeyToSensorKind(key);
   if (kind === undefined) return false;
   const danger = sensorDefaultDangerThreshold(kind);
-  return isWarningTripped(value, danger.threshold, danger.invertLogic);
+  return isWarningTripped(
+    toSensorKindValue(key, value),
+    danger.threshold,
+    danger.invertLogic,
+  );
 };
 
 const LabelWidget = ({
