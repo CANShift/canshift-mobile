@@ -66,7 +66,7 @@ const GraphScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <DashTopBar />
+      <DashTopBar title="Graph" />
       <ChartPanel {...panelProps} />
     </SafeAreaView>
   );

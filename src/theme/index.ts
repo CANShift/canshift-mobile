@@ -32,6 +32,18 @@ export const UI_LABEL_TRACKING = 1.4;
 
 export const SCREEN_PADDING = 22;
 
+export const SCREEN_RULE = 2;
+
+const FOOTER_NOTE_SIZE = 16;
+const FOOTER_NOTE_LEADING = 1.6;
+
+export const footerNoteStyle: TextStyle = {
+  fontFamily: Fonts.mono,
+  fontSize: FOOTER_NOTE_SIZE,
+  lineHeight: Math.round(FOOTER_NOTE_SIZE * FOOTER_NOTE_LEADING),
+  color: Colors.textMuted,
+};
+
 export const labelStyle: TextStyle = {
   fontFamily: Fonts.uiExtraBold,
   letterSpacing: UI_LABEL_TRACKING,

@@ -3,7 +3,15 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useShallow } from "zustand/react/shallow";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Colors, Typography, Spacing, HitSlop, Fonts } from "../theme";
+import {
+  Colors,
+  Typography,
+  Spacing,
+  HitSlop,
+  Fonts,
+  SCREEN_PADDING,
+  SCREEN_RULE,
+} from "../theme";
 import { useDeviceStore } from "../stores/device.store";
 import { useReconnectStore } from "../stores/reconnect.store";
 import * as BleService from "../services/ble.service";
@@ -13,8 +21,7 @@ interface Props {
   navigation: NativeStackNavigationProp<RootStackParamList, "Connected">;
 }
 
-const BANNER_RULE = 2;
-const BANNER_TEXT_SIZE = 11;
+const BANNER_TEXT_SIZE = 14;
 const BANNER_TEXT_TRACKING = BANNER_TEXT_SIZE * 0.14;
 
 const ReconnectBanner = ({ navigation }: Props) => {
@@ -42,31 +49,35 @@ const ReconnectBanner = ({ navigation }: Props) => {
       accessibilityRole="alert"
       accessibilityLiveRegion="polite"
     >
-      <Text style={styles.text}>
-        {`RECONNECTING · ATTEMPT ${String(attempt)}/${String(maxAttempts)}`}
-      </Text>
-      <TouchableOpacity
-        onPress={cancelAndGoToScan}
-        hitSlop={HitSlop.default}
-        accessibilityRole="button"
-        accessibilityLabel="Cancel reconnecting and return to scan"
-      >
-        <Text style={styles.cancel}>CANCEL</Text>
-      </TouchableOpacity>
+      <View style={styles.rule}>
+        <Text style={styles.text}>
+          {`RECONNECTING · ATTEMPT ${String(attempt)}/${String(maxAttempts)}`}
+        </Text>
+        <TouchableOpacity
+          onPress={cancelAndGoToScan}
+          hitSlop={HitSlop.default}
+          accessibilityRole="button"
+          accessibilityLabel="Cancel reconnecting and return to scan"
+        >
+          <Text style={styles.cancel}>CANCEL</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   banner: {
+    paddingHorizontal: SCREEN_PADDING,
+    backgroundColor: Colors.bg,
+  },
+  rule: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.sm,
-    paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.sm,
-    backgroundColor: Colors.bg,
-    borderBottomWidth: BANNER_RULE,
-    borderBottomColor: Colors.border,
+    borderBottomWidth: SCREEN_RULE,
+    borderBottomColor: Colors.warning,
   },
   text: {
     flex: 1,

@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Spacing } from "../../theme";
+import { Spacing, SCREEN_PADDING } from "../../theme";
 import {
   PRIMARY_SIGNALS,
   GRID_SIGNALS,
@@ -59,7 +59,7 @@ export const DashPortraitLayout = ({
 );
 
 const styles = StyleSheet.create({
-  scroll: { padding: Spacing.lg, gap: Spacing.lg },
+  scroll: { padding: SCREEN_PADDING, gap: Spacing.lg },
   primaryRow: {
     flexDirection: "row",
     gap: Spacing.md,

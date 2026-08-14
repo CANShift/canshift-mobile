@@ -82,7 +82,7 @@ const TrackScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <DashTopBar />
+      <DashTopBar title="Track" />
       <SegmentedControl options={TABS} value={tab} onChange={setTab} />
       {tab === "timer" ? (
         <TimerPanel />
