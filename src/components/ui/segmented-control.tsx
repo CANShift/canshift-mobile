@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
   trackInline: {
     flexDirection: "row",
     gap: INLINE_GAP,
-    paddingHorizontal: Spacing.lg,
+    marginHorizontal: Spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: Colors.ruleHair,
   },
