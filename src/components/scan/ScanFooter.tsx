@@ -1,9 +1,19 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Play, Search, Square } from "lucide-react-native";
-import { Colors, Fonts, Typography, Spacing } from "../../theme";
+import { Colors, Fonts, SCREEN_PADDING } from "../../theme";
 
-const ACCENT_BAR_HEIGHT = 64;
-const SECONDARY_ROW_HEIGHT = 56;
+const ACTION_BORDER = 2;
+const ACTION_PADDING_VERTICAL = 18;
+const ACTION_PADDING_HORIZONTAL = 21;
+const ACTION_LABEL_SIZE = 16;
+const ACTION_LABEL_TRACKING = ACTION_LABEL_SIZE * 0.09;
+const LINK_SIZE = 15;
+const NOTE_SIZE = 16;
+const NOTE_LINE_HEIGHT = 26;
+const NOTE_MARGIN_TOP = 26;
+const LINK_GAP = 26;
+const LINK_MARGIN_TOP = 18;
+
+const PAIRING_NOTE = "The dash shows a four-digit code. Confirm it there.";
 
 type ScanAction = "stop" | "rescan" | "scan";
 
@@ -13,12 +23,18 @@ const SCAN_ACTION_LABELS: Record<ScanAction, string> = {
   scan: "Scan for devices",
 };
 
+const scanAction = (scanning: boolean, hasScanned: boolean): ScanAction => {
+  if (scanning) return "stop";
+  return hasScanned ? "rescan" : "scan";
+};
+
 export interface ScanFooterProps {
   scanning: boolean;
   hasScanned: boolean;
   disabled: boolean;
   onScanPress: () => void;
   onDemoPress: () => void;
+  onInfoPress: () => void;
 }
 
 export const ScanFooter = ({
@@ -27,71 +43,77 @@ export const ScanFooter = ({
   disabled,
   onScanPress,
   onDemoPress,
+  onInfoPress,
 }: ScanFooterProps) => {
-  const action: ScanAction = scanning ? "stop" : hasScanned ? "rescan" : "scan";
-  const label = SCAN_ACTION_LABELS[action];
+  const label = SCAN_ACTION_LABELS[scanAction(scanning, hasScanned)];
   return (
     <View style={styles.footer}>
       <TouchableOpacity
-        style={[styles.scanBar, disabled && styles.scanBarDisabled]}
+        style={[styles.action, disabled && styles.actionDisabled]}
         onPress={onScanPress}
         disabled={disabled}
         accessibilityRole="button"
         accessibilityLabel={label}
         accessibilityState={{ disabled }}
       >
-        <Text style={styles.scanBarLabel}>{label}</Text>
-        {action === "stop" ? (
-          <Square size={18} color={Colors.bg} fill={Colors.bg} />
-        ) : (
-          <Search size={20} color={Colors.bg} />
-        )}
+        <Text style={styles.actionLabel}>{label}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.demoRow}
-        onPress={onDemoPress}
-        accessibilityRole="button"
-        accessibilityLabel="Demo simulation"
-      >
-        <Play size={16} color={Colors.textDim} />
-        <Text style={styles.demoLabel}>Demo — simulation</Text>
-      </TouchableOpacity>
+      <View style={styles.links}>
+        <TouchableOpacity
+          onPress={onDemoPress}
+          accessibilityRole="button"
+          accessibilityLabel="Demo simulation"
+        >
+          <Text style={styles.link}>Demo — simulation</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={onInfoPress}
+          accessibilityRole="button"
+          accessibilityLabel="Device and app info"
+        >
+          <Text style={styles.link}>Device info</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Text style={styles.note}>{PAIRING_NOTE}</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   footer: {
-    paddingBottom: Spacing.sm,
+    paddingHorizontal: SCREEN_PADDING,
   },
-  scanBar: {
-    height: ACCENT_BAR_HEIGHT,
-    backgroundColor: Colors.accent,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: Spacing.lg,
+  action: {
+    borderWidth: ACTION_BORDER,
+    borderColor: Colors.text,
+    paddingVertical: ACTION_PADDING_VERTICAL,
+    paddingHorizontal: ACTION_PADDING_HORIZONTAL,
   },
-  scanBarDisabled: { opacity: 0.5 },
-  scanBarLabel: {
+  actionDisabled: { opacity: 0.5 },
+  actionLabel: {
     fontFamily: Fonts.uiExtraBold,
-    fontSize: Typography.md,
-    color: Colors.bg,
-    letterSpacing: 1.5,
+    fontSize: ACTION_LABEL_SIZE,
+    letterSpacing: ACTION_LABEL_TRACKING,
     textTransform: "uppercase",
+    color: Colors.text,
   },
-  demoRow: {
-    height: SECONDARY_ROW_HEIGHT,
+  links: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.sm,
+    gap: LINK_GAP,
+    marginTop: LINK_MARGIN_TOP,
   },
-  demoLabel: {
-    fontFamily: Fonts.uiExtraBold,
-    fontSize: Typography.sm,
-    color: Colors.textDim,
-    letterSpacing: 1,
-    textTransform: "uppercase",
+  link: {
+    fontFamily: Fonts.mono,
+    fontSize: LINK_SIZE,
+    color: Colors.textMuted,
+  },
+  note: {
+    fontFamily: Fonts.mono,
+    fontSize: NOTE_SIZE,
+    lineHeight: NOTE_LINE_HEIGHT,
+    color: Colors.textMuted,
+    marginTop: NOTE_MARGIN_TOP,
   },
 });
