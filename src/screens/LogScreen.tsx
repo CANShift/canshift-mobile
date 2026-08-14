@@ -27,13 +27,18 @@ interface LogScreenProps {
 }
 
 const LogScreen = ({ onBack }: LogScreenProps) => {
-  const [tab, setTab] = useState<ConsoleTab>("log");
+  const [tab, setTab] = useState<ConsoleTab>("can");
   const TabView = TAB_VIEWS[tab];
 
   return (
     <SafeAreaView style={styles.container}>
       <ScreenHeader title="Console" onBack={onBack} />
-      <SegmentedControl options={TABS} value={tab} onChange={setTab} />
+      <SegmentedControl
+        options={TABS}
+        value={tab}
+        onChange={setTab}
+        variant="inline"
+      />
       <TabView />
     </SafeAreaView>
   );

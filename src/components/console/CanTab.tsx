@@ -1,8 +1,21 @@
-import { ConsoleEmpty } from "./ConsoleEmpty";
+import { useCanFilterStore } from "../../stores/can-filter.store";
+import {
+  CLEAR_FILTER_LABEL,
+  canEmptyMessage,
+  canFilterLabel,
+} from "../../lib/can-filter";
+import { ConsoleEmpty, type ConsoleEmptyAction } from "./ConsoleEmpty";
 
-export const CanTab = () => (
-  <ConsoleEmpty title="No CAN stream">
-    Raw CAN frames aren&apos;t streamed to the companion app yet — the dashboard
-    sends telemetry, status and timer channels over Bluetooth, not the raw bus.
-  </ConsoleEmpty>
-);
+export const CanTab = () => {
+  const range = useCanFilterStore((s) => s.range);
+  const clear = useCanFilterStore((s) => s.clear);
+
+  const action: ConsoleEmptyAction | undefined =
+    range === null ? undefined : { label: CLEAR_FILTER_LABEL, onPress: clear };
+
+  return (
+    <ConsoleEmpty action={action} footer={canFilterLabel(range)}>
+      {canEmptyMessage(range)}
+    </ConsoleEmpty>
+  );
+};
