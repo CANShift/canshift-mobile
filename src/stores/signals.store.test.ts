@@ -47,6 +47,30 @@ describe("useSignalsStore", () => {
     expect(state.values).toEqual({ r: 1500 });
   });
 
+  it("markStale() stamps the drop once and keeps the first stamp", () => {
+    useSignalsStore.getState().update({ r: 1500 });
+    useSignalsStore.getState().markStale();
+    const first = useSignalsStore.getState().staleSinceMs;
+    expect(first).toBeGreaterThan(0);
+    useSignalsStore.getState().markStale();
+    expect(useSignalsStore.getState().staleSinceMs).toBe(first);
+  });
+
+  it("update() clears the drop stamp when frames come back", () => {
+    useSignalsStore.getState().markStale();
+    useSignalsStore.getState().update({ r: 1500 });
+    expect(useSignalsStore.getState().staleSinceMs).toBe(0);
+  });
+
+  it("clearHeld() drops the held values without clearing the drop stamp", () => {
+    useSignalsStore.getState().update({ r: 1500 });
+    useSignalsStore.getState().markStale();
+    useSignalsStore.getState().clearHeld();
+    const state = useSignalsStore.getState();
+    expect(state.values).toEqual({});
+    expect(state.staleSinceMs).toBeGreaterThan(0);
+  });
+
   it("successive updates MERGE into the cached payload (issue #1017 M-LO-3)", () => {
     useSignalsStore.getState().update({ r: 1500, tps: 10 });
     useSignalsStore.getState().update({ r: 2000 });

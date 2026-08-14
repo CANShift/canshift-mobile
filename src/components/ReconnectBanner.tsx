@@ -1,15 +1,9 @@
 import React, { useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useShallow } from "zustand/react/shallow";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Colors, Typography, Spacing, HitSlop } from "../theme";
+import { Colors, Typography, Spacing, HitSlop, Fonts } from "../theme";
 import { useDeviceStore } from "../stores/device.store";
 import { useReconnectStore } from "../stores/reconnect.store";
 import * as BleService from "../services/ble.service";
@@ -18,6 +12,10 @@ import type { RootStackParamList } from "../navigation";
 interface Props {
   navigation: NativeStackNavigationProp<RootStackParamList, "Connected">;
 }
+
+const BANNER_RULE = 2;
+const BANNER_TEXT_SIZE = 11;
+const BANNER_TEXT_TRACKING = BANNER_TEXT_SIZE * 0.14;
 
 const ReconnectBanner = ({ navigation }: Props) => {
   const insets = useSafeAreaInsets();
@@ -44,9 +42,8 @@ const ReconnectBanner = ({ navigation }: Props) => {
       accessibilityRole="alert"
       accessibilityLiveRegion="polite"
     >
-      <ActivityIndicator color={Colors.statusDanger} size="small" />
       <Text style={styles.text}>
-        {`Reconnecting… (attempt ${String(attempt)}/${String(maxAttempts)})`}
+        {`RECONNECTING · ATTEMPT ${String(attempt)}/${String(maxAttempts)}`}
       </Text>
       <TouchableOpacity
         onPress={cancelAndGoToScan}
@@ -54,7 +51,7 @@ const ReconnectBanner = ({ navigation }: Props) => {
         accessibilityRole="button"
         accessibilityLabel="Cancel reconnecting and return to scan"
       >
-        <Text style={styles.cancel}>Cancel</Text>
+        <Text style={styles.cancel}>CANCEL</Text>
       </TouchableOpacity>
     </View>
   );
@@ -67,15 +64,22 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.sm,
-    backgroundColor: Colors.statusDangerDim,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.statusDanger,
+    backgroundColor: Colors.bg,
+    borderBottomWidth: BANNER_RULE,
+    borderBottomColor: Colors.border,
   },
-  text: { flex: 1, fontSize: Typography.sm, color: Colors.text },
+  text: {
+    flex: 1,
+    fontFamily: Fonts.mono,
+    fontSize: BANNER_TEXT_SIZE,
+    letterSpacing: BANNER_TEXT_TRACKING,
+    color: Colors.warning,
+  },
   cancel: {
-    fontSize: Typography.sm,
-    color: Colors.statusDanger,
-    fontWeight: "700",
+    fontFamily: Fonts.uiExtraBold,
+    fontSize: Typography.xs,
+    letterSpacing: Typography.xs * 0.09,
+    color: Colors.accent,
   },
 });
 

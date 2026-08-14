@@ -46,6 +46,7 @@ import { BlePermissionDeniedError, mapBleError } from "./ble.errors";
 import { forgetDevice } from "./last-device";
 import { useDeviceStore } from "../stores/device.store";
 import { useReconnectStore } from "../stores/reconnect.store";
+import { useSignalsStore } from "../stores/signals.store";
 import {
   BLE_CHAR_TELE,
   BLE_CHAR_STATUS,
@@ -379,6 +380,20 @@ describe("BleService monitor death", () => {
     expect(useDeviceStore.getState().error).toEqual({ kind: "disconnected" });
     expect(useReconnectStore.getState().isReconnecting).toBe(true);
     expect(useReconnectStore.getState().deviceId).toBe("test-device");
+    service.cancelReconnect();
+  });
+
+  it("declares the link lost so the dash starts its hold on the last values", async () => {
+    const { service, monitors } = makeMonitoredService();
+    await service.connect("test-device");
+    useSignalsStore.getState().update({ r: 4000 });
+
+    await killUntilLost(monitors, BLE_CHAR_TELE);
+
+    const signals = useSignalsStore.getState();
+    expect(signals.isLive).toBe(false);
+    expect(signals.staleSinceMs).toBeGreaterThan(0);
+    expect(signals.values).toEqual({ r: 4000 });
     service.cancelReconnect();
   });
 

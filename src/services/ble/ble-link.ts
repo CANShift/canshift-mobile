@@ -211,6 +211,7 @@ export class DeviceLink implements MonitorHost {
     this.device = null;
     this.removeSubscriptions();
     this.stopStalenessTimer();
+    useSignalsStore.getState().markStale();
     useDeviceStore.getState().disconnect();
     useTimerStore.getState().clearDeviceSync();
   }

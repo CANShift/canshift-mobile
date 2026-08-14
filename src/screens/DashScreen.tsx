@@ -8,6 +8,7 @@ import { PORTRAIT_GRID_COLUMNS } from "../constants/dash-layout";
 import { ShiftStrip } from "../components/widgets";
 import { DashPortraitLayout } from "../components/dash/DashPortraitLayout";
 import { DashLandscapeLayout } from "../components/dash/DashLandscapeLayout";
+import { DashLinkFooter } from "../components/dash/DashLinkFooter";
 import DashTopBar from "../components/DashTopBar";
 import type { RootStackParamList } from "../navigation";
 
@@ -38,6 +39,8 @@ const DashScreen = (_: Props) => {
       ) : (
         <DashPortraitLayout dayMode={dayMode} cellWidth={portraitCellWidth} />
       )}
+
+      <DashLinkFooter />
     </SafeAreaView>
   );
 };
