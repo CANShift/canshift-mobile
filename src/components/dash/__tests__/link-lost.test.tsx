@@ -28,17 +28,27 @@ const dropTheLink = (): void => {
 };
 
 describe("DashTopBar", () => {
-  it("states how long the link has been lost", async () => {
+  it("states how long the link has been lost under the screen title", async () => {
     dropTheLink();
-    const { getByText } = await render(<DashTopBar />);
+    const { getByText } = await render(<DashTopBar title="Dashboard" />);
+    expect(getByText("Dashboard")).toBeTruthy();
     expect(getByText("LINK LOST 8 s AGO")).toBeTruthy();
   });
 
   it("says nothing about the link while frames arrive", async () => {
     useSignalsStore.getState().update({ r: 4000 });
-    const { queryByText } = await render(<DashTopBar />);
+    const { queryByText } = await render(<DashTopBar title="Dashboard" />);
     expect(queryByText("LINK LOST 0 s AGO")).toBeNull();
     expect(queryByText("NO DATA")).toBeNull();
+  });
+
+  it("carries nothing but the title and the note", async () => {
+    useDeviceStore.setState({ deviceName: "CANSHIFT-8F21" });
+    useSignalsStore.getState().update({ r: 4000, mi: 2 });
+    const { queryByText } = await render(<DashTopBar title="Dashboard" />);
+    expect(queryByText("CANSHIFT-8F21")).toBeNull();
+    expect(queryByText("MAP 2")).toBeNull();
+    expect(queryByText("CAN")).toBeNull();
   });
 });
 
