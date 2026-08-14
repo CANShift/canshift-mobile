@@ -40,6 +40,19 @@ describe("DeviceRow", () => {
     expect(queryByText("-58 dBm")).toBeNull();
   });
 
+  it("leaves the column empty when a device never advertised a signal", async () => {
+    const { queryByText } = await render(
+      <DeviceRow
+        device={{ id: "3", name: "CANSHIFT-1B77", rssi: null }}
+        connecting={false}
+        disabled={false}
+        onPress={jest.fn()}
+      />,
+    );
+    expect(queryByText(/dBm/)).toBeNull();
+    expect(queryByText(/- -/)).toBeNull();
+  });
+
   it("tints the connecting detail with the engaged accent", async () => {
     const { getByText } = await renderPair();
     const node = getByText("CONNECTING") as unknown as {
