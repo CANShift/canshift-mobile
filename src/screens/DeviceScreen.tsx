@@ -8,11 +8,13 @@ import { firmwareLabel } from "../lib/device-labels";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { InfoRow } from "../components/InfoRow";
 import { NavRow } from "../components/NavRow";
+import { LowBatteryWarning } from "../components/device/LowBatteryWarning";
 import {
   Button,
   Section,
   SectionLabel,
   SegmentedControl,
+  Toast,
 } from "@/components/ui";
 import {
   AlertDialog,
@@ -31,8 +33,18 @@ import {
   type TelemetryBufferSize,
 } from "../stores/app-settings.store";
 import { useDeviceStore, type ConnectionState } from "../stores/device.store";
+import { usePhoneBatteryStore } from "../stores/phone-battery.store";
+import { useTrackSessionStore } from "../stores/track-session.store";
+import { useSignalValue } from "../stores/signals.store";
+import { useLoggingElapsedMs } from "../hooks/use-logging-elapsed-ms";
+import { isPhoneBatteryLow } from "../lib/phone-battery";
+import { loggingStatusText } from "../lib/logging-status";
+import { errText } from "../lib/error-text";
+import { formatWidgetValue } from "../components/widgets/widget-value";
+import { SIGNAL_META } from "../constants/ble";
 import * as BleService from "../services/ble.service";
 import * as SimService from "../services/sim.service";
+import { trackModeController } from "../services/track-mode-controller";
 import { Colors, Spacing, SCREEN_PADDING } from "../theme";
 
 interface DeviceNav {
@@ -68,6 +80,13 @@ const BUFFER_OPTIONS: { label: string; value: TelemetryBufferSize }[] =
     value,
   }));
 
+const STOP_LOGGING_LABEL = "STOP LOGGING NOW";
+
+const dashBatteryText = (volts: number | undefined): string =>
+  volts === undefined
+    ? EM_DASH
+    : `${formatWidgetValue(volts, SIGNAL_META.bat.decimals)} ${SIGNAL_META.bat.unit}`;
+
 const DeviceScreen = ({ navigation, showBack = false }: Props) => {
   const { connectionState, firmwareVersion, deviceName, deviceId, isSim } =
     useDeviceStore(
@@ -90,9 +109,28 @@ const DeviceScreen = ({ navigation, showBack = false }: Props) => {
 
   const [disconnectVisible, setDisconnectVisible] = useState(false);
 
+  const batteryLow = usePhoneBatteryStore((s) =>
+    isPhoneBatteryLow(s.levelPercent),
+  );
+  const recording = useTrackSessionStore((s) => s.recording);
+  const loggingElapsedMs = useLoggingElapsedMs();
+  const dashVolts = useSignalValue("bat");
+
   const appVersion = readAppVersion();
   const connected = connectionState === "connected";
   const firmwareValue = firmwareLabel(isSim, connected, firmwareVersion);
+
+  const stopLogging = useCallback(async () => {
+    try {
+      await trackModeController.stop();
+    } catch (err) {
+      Toast.show({
+        type: "error",
+        text1: "Could not stop logging",
+        text2: errText(err),
+      });
+    }
+  }, []);
 
   const confirmDisconnect = useCallback(async () => {
     if (SimService.isRunning()) {
@@ -117,6 +155,21 @@ const DeviceScreen = ({ navigation, showBack = false }: Props) => {
       />
 
       <ScrollView contentContainerStyle={styles.scroll}>
+        {batteryLow && <LowBatteryWarning />}
+
+        <View style={styles.section}>
+          <InfoRow
+            label="LOGGING"
+            value={loggingStatusText(recording, loggingElapsedMs)}
+            muted={!recording}
+          />
+          <InfoRow
+            label="DASH BATT"
+            value={dashBatteryText(dashVolts)}
+            muted={dashVolts === undefined}
+          />
+        </View>
+
         <View style={styles.section}>
           <SectionLabel>Dashboard</SectionLabel>
           <InfoRow
@@ -189,6 +242,20 @@ const DeviceScreen = ({ navigation, showBack = false }: Props) => {
         )}
       </ScrollView>
 
+      {batteryLow && recording && (
+        <View style={styles.stopLoggingWrap}>
+          <Button
+            variant="destructive"
+            onPress={() => {
+              void stopLogging();
+            }}
+            accessibilityLabel={STOP_LOGGING_LABEL}
+          >
+            {STOP_LOGGING_LABEL}
+          </Button>
+        </View>
+      )}
+
       <AlertDialog open={disconnectVisible} onOpenChange={setDisconnectVisible}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -227,6 +294,10 @@ const styles = StyleSheet.create({
     marginTop: "auto",
     paddingHorizontal: SCREEN_PADDING,
     paddingVertical: Spacing.lg,
+  },
+  stopLoggingWrap: {
+    paddingHorizontal: SCREEN_PADDING,
+    paddingBottom: Spacing.lg,
   },
 });
 
