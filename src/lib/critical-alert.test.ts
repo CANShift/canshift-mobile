@@ -1,5 +1,12 @@
 import { sensorDefaultDangerThreshold } from "@canshift/core";
-import { selectCriticalAlert } from "./critical-alert";
+import {
+  MISSING_VALUE,
+  criticalAlertName,
+  criticalAlertRows,
+  criticalAlertThreshold,
+  criticalAlertValue,
+  selectCriticalAlert,
+} from "./critical-alert";
 
 const CT = sensorDefaultDangerThreshold("coolant_temp");
 const OP = sensorDefaultDangerThreshold("oil_press");
@@ -49,5 +56,45 @@ describe("selectCriticalAlert", () => {
       key: "op",
       value: opTrip,
     });
+  });
+});
+
+describe("critical alert copy", () => {
+  it("names the signal in uppercase", () => {
+    expect(criticalAlertName("op")).toBe("OIL PRESSURE");
+  });
+
+  it("formats the value at the signal's precision", () => {
+    expect(criticalAlertValue({ key: "op", value: 0.42 })).toBe("0.4");
+  });
+
+  it("states a low-side limit as MIN with its unit", () => {
+    expect(criticalAlertThreshold("op")).toBe(
+      `MIN ${OP.threshold.toFixed(1)} bar`,
+    );
+  });
+
+  it("states a high-side limit as MAX with its unit", () => {
+    expect(criticalAlertThreshold("ct")).toBe(
+      `MAX ${Math.round(CT.threshold).toString()} °C`,
+    );
+  });
+});
+
+describe("criticalAlertRows", () => {
+  it("keeps RPM, OIL TEMP and SINCE in that order", () => {
+    expect(criticalAlertRows({ r: 5200, ot: 128 }, 3)).toEqual([
+      { label: "RPM", value: "5200" },
+      { label: "OIL TEMP", value: "128 °C" },
+      { label: "SINCE", value: "3 s" },
+    ]);
+  });
+
+  it("holds the row when the signal has no value yet", () => {
+    expect(criticalAlertRows({}, 0)).toEqual([
+      { label: "RPM", value: MISSING_VALUE },
+      { label: "OIL TEMP", value: MISSING_VALUE },
+      { label: "SINCE", value: "0 s" },
+    ]);
   });
 });
