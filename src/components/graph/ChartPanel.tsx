@@ -5,7 +5,7 @@ import type { SignalKey } from "../../constants/ble";
 import { buildPoints, formatNumber } from "../../lib/graph-math";
 import type { SignalValues } from "../../stores/telemetry.store";
 import { useGraphSeries } from "../../hooks/use-graph-series";
-import { useCriticalAlertKey } from "../../hooks/use-critical-alert-key";
+import { useCriticalAlertKey } from "../../hooks/use-critical-alert";
 import { Button } from "../ui/button";
 import { GraphControls } from "./GraphControls";
 import { SignalStrip, STRIP_VIEW_WIDTH, STRIP_HEIGHT } from "./SignalStrip";

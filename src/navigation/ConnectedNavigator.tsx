@@ -10,6 +10,7 @@ import DeviceScreen from "../screens/DeviceScreen";
 import ReconnectBanner from "../components/ReconnectBanner";
 import ReconnectFailedDialog from "../components/ReconnectFailedDialog";
 import { CriticalAlertOverlay } from "../components/CriticalAlertOverlay";
+import { useCriticalAlertHolds } from "../hooks/use-critical-alert";
 import { Colors, Fonts } from "../theme";
 import type { RootStackParamList } from "./index";
 
@@ -38,6 +39,16 @@ const ConnectedNavigator = ({ navigation }: Props) => {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const isLandscape = width > height;
+  const alertHolds = useCriticalAlertHolds();
+
+  const tabBarStyle = {
+    backgroundColor: Colors.bg,
+    borderTopWidth: TAB_BAR_RULE,
+    borderTopColor: Colors.border,
+    height:
+      (isLandscape ? TAB_BAR_HEIGHT_LANDSCAPE : TAB_BAR_HEIGHT) + insets.bottom,
+    paddingBottom: insets.bottom,
+  };
 
   return (
     <View style={styles.container}>
@@ -45,15 +56,7 @@ const ConnectedNavigator = ({ navigation }: Props) => {
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
-          tabBarStyle: {
-            backgroundColor: Colors.bg,
-            borderTopWidth: TAB_BAR_RULE,
-            borderTopColor: Colors.border,
-            height:
-              (isLandscape ? TAB_BAR_HEIGHT_LANDSCAPE : TAB_BAR_HEIGHT) +
-              insets.bottom,
-            paddingBottom: insets.bottom,
-          },
+          tabBarStyle: alertHolds ? styles.tabBarHidden : tabBarStyle,
           tabBarActiveTintColor: Colors.primary,
           tabBarInactiveTintColor: Colors.textMuted,
           tabBarLabelPosition: "beside-icon",
@@ -93,6 +96,7 @@ const ConnectedNavigator = ({ navigation }: Props) => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
   tabIconHidden: { display: "none" },
+  tabBarHidden: { display: "none" },
   tabItem: { justifyContent: "center", alignItems: "center" },
 });
 
