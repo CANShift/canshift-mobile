@@ -10,7 +10,6 @@ import {
   isWarningTripped,
   labelFontSize,
   sensorDefaultDangerThreshold,
-  widgetStaleTextColor,
   widgetTextColor,
   widgetTopRulePx,
 } from "@canshift/core";
@@ -18,7 +17,7 @@ import { Colors, Fonts, Spacing, TabularNums } from "../../theme";
 import { SIGNAL_META, type SignalKey } from "../../constants/ble";
 import { signalKeyToSensorKind } from "../../theme/signal-colors";
 import { toSensorKindValue } from "../../theme/sensor-units";
-import { formatWidgetValue } from "./widget-value";
+import { formatWidgetValue, staleTextColor } from "./widget-value";
 
 interface LabelWidgetProps {
   signalKey: SignalKey;
@@ -26,6 +25,7 @@ interface LabelWidgetProps {
   width: number;
   height: number;
   dayMode?: boolean;
+  placeholder?: string;
 }
 
 const KICKER_SIZE = 10;
@@ -49,18 +49,17 @@ const LabelWidget = ({
   width,
   height,
   dayMode = false,
+  placeholder = STALE_PLACEHOLDER,
 }: LabelWidgetProps) => {
   const meta = SIGNAL_META[signalKey];
   const stale = value === undefined;
   const danger = isInDanger(signalKey, value);
 
   const fontSize = labelFontSize(width, height);
-  const text = stale
-    ? STALE_PLACEHOLDER
-    : formatWidgetValue(value, meta.decimals);
+  const text = stale ? placeholder : formatWidgetValue(value, meta.decimals);
 
   const ink = danger ? WIDGET_ZONE_COLORS.danger : widgetTextColor(dayMode);
-  const tint = stale ? widgetStaleTextColor(dayMode) : ink;
+  const tint = stale ? staleTextColor(dayMode) : ink;
   const kickerColor = danger ? WIDGET_ZONE_COLORS.danger : Colors.textDim;
   const unitColor = dayMode
     ? WIDGET_TEXT_COLORS.day
@@ -79,7 +78,7 @@ const LabelWidget = ({
         styles.widget,
         { width, height, borderTopWidth: rulePx, borderTopColor: ruleColor },
       ]}
-      accessibilityLabel={`${meta.label} ${stale ? STALE_PLACEHOLDER : String(value)} ${meta.unit}`}
+      accessibilityLabel={`${meta.label} ${stale ? placeholder : String(value)} ${meta.unit}`}
     >
       <Text style={[styles.kicker, { color: kickerColor }]} numberOfLines={1}>
         {meta.label.toUpperCase()}

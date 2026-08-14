@@ -8,15 +8,18 @@ interface SignalsState {
   values: TelemetryPayload;
   lastUpdateMs: number;
   isLive: boolean;
+  staleSinceMs: number;
 
   update: (payload: TelemetryPayload) => void;
   markStale: () => void;
+  clearHeld: () => void;
 }
 
 export const useSignalsStore = create<SignalsState>()((set) => ({
   values: {},
   lastUpdateMs: 0,
   isLive: false,
+  staleSinceMs: 0,
 
   update: (payload) => {
     const defined: SignalValues = {};
@@ -28,11 +31,19 @@ export const useSignalsStore = create<SignalsState>()((set) => ({
       values: { ...s.values, ...payload },
       lastUpdateMs: Date.now(),
       isLive: true,
+      staleSinceMs: 0,
     }));
   },
 
   markStale: () => {
-    set({ isLive: false });
+    set((s) => ({
+      isLive: false,
+      staleSinceMs: s.staleSinceMs > 0 ? s.staleSinceMs : Date.now(),
+    }));
+  },
+
+  clearHeld: () => {
+    set({ values: {} });
   },
 }));
 

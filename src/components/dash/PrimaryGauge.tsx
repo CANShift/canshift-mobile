@@ -3,6 +3,7 @@ import { Colors, Fonts, Spacing } from "../../theme";
 import { SIGNAL_META, type SignalKey } from "../../constants/ble";
 import { useSignalValue, useSignalsIsLive } from "../../stores/signals.store";
 import { GaugeWidget, GearWidget } from "../widgets";
+import { heldPlaceholder } from "../widgets/widget-value";
 
 const KICKER_SIZE = 10;
 
@@ -20,11 +21,10 @@ export const PrimaryGauge = ({
   const value = useSignalValue(signalKey);
   const isLive = useSignalsIsLive();
   const liveValue = isLive ? value : undefined;
+  const meta = SIGNAL_META[signalKey];
   return (
     <View style={styles.card}>
-      <Text style={styles.kicker}>
-        {SIGNAL_META[signalKey].label.toUpperCase()}
-      </Text>
+      <Text style={styles.kicker}>{meta.label.toUpperCase()}</Text>
       {signalKey === "g" ? (
         <GearWidget
           signalKey={signalKey}
@@ -36,6 +36,7 @@ export const PrimaryGauge = ({
         <GaugeWidget
           signalKey={signalKey}
           value={liveValue}
+          placeholder={heldPlaceholder(value, meta.decimals)}
           size={size}
           dayMode={dayMode}
         />

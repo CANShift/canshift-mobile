@@ -8,8 +8,11 @@ import {
   formatWidgetValue,
   gearColor,
   gearGlyphFor,
+  heldPlaceholder,
+  staleTextColor,
   warningState,
 } from "../widget-value";
+import { Colors } from "../../../theme";
 import { signalKeyToSensorKind } from "../../../theme/signal-colors";
 
 describe("formatWidgetValue", () => {
@@ -51,9 +54,28 @@ describe("gearGlyphFor", () => {
   });
 });
 
+describe("staleTextColor", () => {
+  it("dims to the mobile dim token at night and to the day stale token by day", () => {
+    expect(staleTextColor(false)).toBe(Colors.textMuted);
+    expect(staleTextColor(true)).toBe(WIDGET_STALE_TEXT_COLORS.day);
+  });
+});
+
+describe("heldPlaceholder", () => {
+  it("dashes the held reading digit for digit", () => {
+    expect(heldPlaceholder(4000, 0)).toBe("- - - -");
+    expect(heldPlaceholder(88, 0)).toBe("- -");
+    expect(heldPlaceholder(13.8, 1)).toBe("- - -");
+  });
+
+  it("falls back to the shared placeholder once the values are cleared", () => {
+    expect(heldPlaceholder(undefined, 0)).toBe("- -");
+  });
+});
+
 describe("gearColor", () => {
   it("uses stale text color when the value is missing", () => {
-    expect(gearColor(undefined, false)).toBe(WIDGET_STALE_TEXT_COLORS.night);
+    expect(gearColor(undefined, false)).toBe(staleTextColor(false));
     expect(gearColor(undefined, true)).toBe(WIDGET_STALE_TEXT_COLORS.day);
   });
 

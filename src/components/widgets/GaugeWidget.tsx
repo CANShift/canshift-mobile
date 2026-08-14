@@ -15,19 +15,19 @@ import {
   isWarningTripped,
   sensorDefaultDangerThreshold,
   sensorDefaultRange,
-  widgetStaleTextColor,
   widgetTextColor,
 } from "@canshift/core";
 import { Fonts, TabularNums } from "../../theme";
 import { SIGNAL_META, type SignalKey } from "../../constants/ble";
 import { signalKeyToSensorKind } from "../../theme/signal-colors";
-import { formatWidgetValue } from "./widget-value";
+import { formatWidgetValue, staleTextColor } from "./widget-value";
 
 interface GaugeWidgetProps {
   signalKey: SignalKey;
   value: number | undefined;
   size: number;
   dayMode?: boolean;
+  placeholder?: string;
 }
 
 const DEGREES_TO_RADIANS = Math.PI / 180;
@@ -66,6 +66,7 @@ const GaugeWidget = ({
   value,
   size,
   dayMode = false,
+  placeholder = STALE_PLACEHOLDER,
 }: GaugeWidgetProps) => {
   const meta = SIGNAL_META[signalKey];
   const kind = signalKeyToSensorKind(signalKey);
@@ -75,15 +76,11 @@ const GaugeWidget = ({
   const unitColor = dayMode
     ? WIDGET_TEXT_COLORS.day
     : WIDGET_STALE_TEXT_COLORS.day;
-  const text = stale
-    ? STALE_PLACEHOLDER
-    : formatWidgetValue(value, meta.decimals);
+  const text = stale ? placeholder : formatWidgetValue(value, meta.decimals);
   const accessibilityLabel = `${meta.label} ${text} ${meta.unit}`;
 
   if (!kind) {
-    const color = stale
-      ? widgetStaleTextColor(dayMode)
-      : widgetTextColor(dayMode);
+    const color = stale ? staleTextColor(dayMode) : widgetTextColor(dayMode);
     return (
       <View
         style={[styles.container, { width: size, height: size }]}
@@ -109,7 +106,7 @@ const GaugeWidget = ({
   const fillColor = inDanger
     ? WIDGET_ZONE_COLORS.danger
     : widgetTextColor(dayMode);
-  const valueColor = stale ? widgetStaleTextColor(dayMode) : fillColor;
+  const valueColor = stale ? staleTextColor(dayMode) : fillColor;
 
   return (
     <SensorArc
