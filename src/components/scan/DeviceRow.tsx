@@ -10,13 +10,13 @@ const ROW_PADDING_VERTICAL = 21;
 const NAME_COLOR: Record<DeviceRowState, string> = {
   connecting: Colors.text,
   signal: Colors.textMuted,
-  unknown: Colors.textMuted,
+  unadvertised: Colors.textMuted,
 };
 
 const DETAIL_COLOR: Record<DeviceRowState, string> = {
   connecting: Colors.accent,
   signal: Colors.textMuted,
-  unknown: Colors.textMuted,
+  unadvertised: Colors.textMuted,
 };
 
 export interface DeviceRowProps {
@@ -46,9 +46,11 @@ export const DeviceRow = React.memo(
         >
           {device.name}
         </Text>
-        <Text style={[styles.detail, { color: DETAIL_COLOR[state] }]}>
-          {detail}
-        </Text>
+        {detail !== null && (
+          <Text style={[styles.detail, { color: DETAIL_COLOR[state] }]}>
+            {detail}
+          </Text>
+        )}
       </TouchableOpacity>
     );
   },

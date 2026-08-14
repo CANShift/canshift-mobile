@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     borderLeftWidth: STRIP_RULE,
-    borderLeftColor: Colors.accent,
+    borderLeftColor: Colors.warning,
     paddingLeft: STRIP_PADDING_LEFT,
     paddingVertical: STRIP_PADDING_VERTICAL,
     marginTop: STRIP_MARGIN_TOP,

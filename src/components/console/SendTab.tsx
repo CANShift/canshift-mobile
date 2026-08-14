@@ -1,7 +1,13 @@
 import { useCallback, useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
 import { useShallow } from "zustand/react/shallow";
-import { Colors, Typography, Spacing, Fonts } from "../../theme";
+import {
+  Colors,
+  Typography,
+  Spacing,
+  Fonts,
+  SCREEN_PADDING,
+} from "../../theme";
 import { useDeviceStore } from "../../stores/device.store";
 import { log } from "../../stores/log.store";
 import { sendCmd } from "../../services/ble.service";
@@ -72,7 +78,11 @@ export const SendTab = () => {
 };
 
 const styles = StyleSheet.create({
-  body: { padding: Spacing.lg, gap: Spacing.sm },
+  body: {
+    paddingHorizontal: SCREEN_PADDING,
+    paddingVertical: Spacing.lg,
+    gap: Spacing.sm,
+  },
   label: {
     fontFamily: Fonts.uiExtraBold,
     fontSize: Typography.xs,

@@ -7,7 +7,14 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { Colors, Typography, Spacing, Fonts, HitSlop } from "../../theme";
+import {
+  Colors,
+  Typography,
+  Spacing,
+  Fonts,
+  HitSlop,
+  SCREEN_PADDING,
+} from "../../theme";
 import { useLogStore } from "../../stores/log.store";
 import { useLogFilter } from "../../hooks/use-log-filter";
 import { LogEntryRow } from "./LogEntryRow";
@@ -102,7 +109,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.sm,
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: SCREEN_PADDING,
     paddingVertical: Spacing.md,
   },
   pauseBtn: {

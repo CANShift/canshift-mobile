@@ -15,10 +15,10 @@ describe("deviceRowStatus", () => {
     });
   });
 
-  it("falls back to the missing-value dashes without a signal", () => {
+  it("shows nothing for a device that never advertised a signal", () => {
     expect(deviceRowStatus(null, false)).toEqual({
-      state: "unknown",
-      detail: "- - dBm",
+      state: "unadvertised",
+      detail: null,
     });
   });
 });

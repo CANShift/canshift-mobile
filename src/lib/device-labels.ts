@@ -1,13 +1,12 @@
 const EM_DASH = "—";
 const NOT_CONNECTED = "Not connected";
 const CONNECTING = "CONNECTING";
-const UNKNOWN_RSSI = "- - dBm";
 
-export type DeviceRowState = "connecting" | "signal" | "unknown";
+export type DeviceRowState = "connecting" | "signal" | "unadvertised";
 
 export interface DeviceRowStatus {
   state: DeviceRowState;
-  detail: string;
+  detail: string | null;
 }
 
 export const deviceRowStatus = (
@@ -15,7 +14,7 @@ export const deviceRowStatus = (
   connecting: boolean,
 ): DeviceRowStatus => {
   if (connecting) return { state: "connecting", detail: CONNECTING };
-  if (rssi === null) return { state: "unknown", detail: UNKNOWN_RSSI };
+  if (rssi === null) return { state: "unadvertised", detail: null };
   return { state: "signal", detail: `${String(rssi)} dBm` };
 };
 

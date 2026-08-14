@@ -1,6 +1,12 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { Colors, Fonts, Typography, Spacing } from "../../theme";
+import {
+  Colors,
+  Fonts,
+  Typography,
+  Spacing,
+  SCREEN_PADDING,
+} from "../../theme";
 import type { LogEntry, LogLevel } from "../../stores/log.store";
 
 export const CONSOLE_TEXT_SIZE = 12;
@@ -33,7 +39,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     paddingVertical: Spacing.xs,
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: SCREEN_PADDING,
     borderBottomWidth: 1,
     borderBottomColor: Colors.ruleHair,
     gap: Spacing.sm,
