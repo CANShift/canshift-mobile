@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SegmentedControl } from "../components/ui";
@@ -10,13 +10,17 @@ import { Colors } from "../theme";
 
 type ConsoleTab = "can" | "log" | "send";
 
+interface ConsoleTabProps {
+  onOpenLog: () => void;
+}
+
 const TABS: { value: ConsoleTab; label: string }[] = [
   { value: "can", label: "CAN" },
   { value: "log", label: "Log" },
   { value: "send", label: "Send" },
 ];
 
-const TAB_VIEWS: Record<ConsoleTab, () => React.ReactElement> = {
+const TAB_VIEWS: Record<ConsoleTab, React.ComponentType<ConsoleTabProps>> = {
   can: CanTab,
   log: LogTab,
   send: SendTab,
@@ -28,6 +32,9 @@ interface LogScreenProps {
 
 const LogScreen = ({ onBack }: LogScreenProps) => {
   const [tab, setTab] = useState<ConsoleTab>("can");
+  const openLog = useCallback(() => {
+    setTab("log");
+  }, []);
   const TabView = TAB_VIEWS[tab];
 
   return (
@@ -39,7 +46,7 @@ const LogScreen = ({ onBack }: LogScreenProps) => {
         onChange={setTab}
         variant="inline"
       />
-      <TabView />
+      <TabView onOpenLog={openLog} />
     </SafeAreaView>
   );
 };

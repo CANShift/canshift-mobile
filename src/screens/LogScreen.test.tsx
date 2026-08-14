@@ -2,10 +2,7 @@ import * as React from "react";
 import { fireEvent, render } from "@testing-library/react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import LogScreen from "./LogScreen";
-import {
-  DEFAULT_CAN_ID_RANGE,
-  useCanFilterStore,
-} from "../stores/can-filter.store";
+import { useDeviceStore } from "../stores/device.store";
 
 const metrics = {
   frame: { x: 0, y: 0, width: 390, height: 844 },
@@ -20,18 +17,21 @@ const renderScreen = () =>
   );
 
 beforeEach(() => {
-  useCanFilterStore.setState({ range: DEFAULT_CAN_ID_RANGE });
+  useDeviceStore.setState({ mode: "idle", connectionState: "idle" });
 });
 
 describe("LogScreen — empty CAN console", () => {
-  it("states the cause over three lines and the active filter", async () => {
+  it("states over three lines why the app holds no frames", async () => {
     const { getByText } = await renderScreen();
     expect(
-      getByText(
-        "NO FRAMES YET.\nTHE BUS IS QUIET OR THE\nFILTER IS TOO NARROW.",
-      ),
+      getByText("NO FRAMES YET.\nTHE DASH SENDS TELEMETRY,\nNOT THE RAW BUS."),
     ).toBeTruthy();
-    expect(getByText("Filter: ID 0x2C0 – 0x2CF")).toBeTruthy();
+  });
+
+  it("states the link the app actually has at the bottom", async () => {
+    useDeviceStore.setState({ mode: "ble", connectionState: "connected" });
+    const { getByText } = await renderScreen();
+    expect(getByText("Link: connected")).toBeTruthy();
   });
 
   it("keeps the three tabs reachable while the console is empty", async () => {
@@ -41,13 +41,9 @@ describe("LogScreen — empty CAN console", () => {
     expect(getByRole("tab", { name: "Send", selected: true })).toBeTruthy();
   });
 
-  it("clears the filter and restates the cause without it", async () => {
-    const { getByLabelText, queryByLabelText, getByText } =
-      await renderScreen();
-    await fireEvent.press(getByLabelText("CLEAR FILTER"));
-    expect(useCanFilterStore.getState().range).toBeNull();
-    expect(queryByLabelText("CLEAR FILTER")).toBeNull();
-    expect(getByText("NO FRAMES YET.\nTHE BUS IS QUIET.")).toBeTruthy();
-    expect(getByText("Filter: none")).toBeTruthy();
+  it("sends the reader to the log, the one stream the app does receive", async () => {
+    const { getByLabelText, getByRole } = await renderScreen();
+    await fireEvent.press(getByLabelText("OPEN THE LOG"));
+    expect(getByRole("tab", { name: "Log", selected: true })).toBeTruthy();
   });
 });

@@ -1,21 +1,27 @@
-import { useCanFilterStore } from "../../stores/can-filter.store";
+import { useShallow } from "zustand/react/shallow";
+import { useDeviceStore } from "../../stores/device.store";
 import {
-  CLEAR_FILTER_LABEL,
-  canEmptyMessage,
-  canFilterLabel,
-} from "../../lib/can-filter";
-import { ConsoleEmpty, type ConsoleEmptyAction } from "./ConsoleEmpty";
+  CAN_EMPTY_MESSAGE,
+  OPEN_LOG_LABEL,
+  canLinkFooter,
+} from "../../lib/can-stream";
+import { ConsoleEmpty } from "./ConsoleEmpty";
 
-export const CanTab = () => {
-  const range = useCanFilterStore((s) => s.range);
-  const clear = useCanFilterStore((s) => s.clear);
+export interface CanTabProps {
+  onOpenLog: () => void;
+}
 
-  const action: ConsoleEmptyAction | undefined =
-    range === null ? undefined : { label: CLEAR_FILTER_LABEL, onPress: clear };
+export const CanTab = ({ onOpenLog }: CanTabProps) => {
+  const { mode, connectionState } = useDeviceStore(
+    useShallow((s) => ({ mode: s.mode, connectionState: s.connectionState })),
+  );
 
   return (
-    <ConsoleEmpty action={action} footer={canFilterLabel(range)}>
-      {canEmptyMessage(range)}
+    <ConsoleEmpty
+      action={{ label: OPEN_LOG_LABEL, onPress: onOpenLog }}
+      footer={canLinkFooter(mode, connectionState)}
+    >
+      {CAN_EMPTY_MESSAGE}
     </ConsoleEmpty>
   );
 };
