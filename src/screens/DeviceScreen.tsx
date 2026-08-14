@@ -82,6 +82,8 @@ const BUFFER_OPTIONS: { label: string; value: TelemetryBufferSize }[] =
 
 const STOP_LOGGING_LABEL = "STOP LOGGING NOW";
 
+const ROW_GROUP_GAP = 26;
+
 const dashBatteryText = (volts: number | undefined): string =>
   volts === undefined
     ? EM_DASH
@@ -157,7 +159,7 @@ const DeviceScreen = ({ navigation, showBack = false }: Props) => {
       <ScrollView contentContainerStyle={styles.scroll}>
         {batteryLow && <LowBatteryWarning />}
 
-        <View style={styles.section}>
+        <View style={styles.rowGroup}>
           <InfoRow
             label="LOGGING"
             value={loggingStatusText(recording, loggingElapsedMs)}
@@ -170,8 +172,8 @@ const DeviceScreen = ({ navigation, showBack = false }: Props) => {
           />
         </View>
 
-        <View style={styles.section}>
-          <SectionLabel>Dashboard</SectionLabel>
+        <View style={styles.rowGroup}>
+          <SectionLabel className="mb-3">Dashboard</SectionLabel>
           <InfoRow
             label="Connection"
             value={CONNECTION_LABEL[connectionState]}
@@ -210,8 +212,8 @@ const DeviceScreen = ({ navigation, showBack = false }: Props) => {
           />
         </Section>
 
-        <View style={styles.section}>
-          <SectionLabel>Application</SectionLabel>
+        <View style={styles.rowGroup}>
+          <SectionLabel className="mb-3">Application</SectionLabel>
           <InfoRow
             label="Mobile app"
             value={appVersion !== null ? `v${appVersion}` : EM_DASH}
@@ -283,6 +285,10 @@ const DeviceScreen = ({ navigation, showBack = false }: Props) => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
   scroll: { flexGrow: 1 },
+  rowGroup: {
+    paddingHorizontal: SCREEN_PADDING,
+    paddingTop: ROW_GROUP_GAP,
+  },
   section: {
     paddingHorizontal: SCREEN_PADDING,
     paddingVertical: 18,
