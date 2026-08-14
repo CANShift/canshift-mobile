@@ -17,6 +17,7 @@ import Navigation from "./navigation";
 import { Toaster } from "@/components/ui";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useBleForegroundReconnect } from "@/hooks/use-ble-foreground-reconnect";
+import { usePhoneBatteryGuard } from "@/hooks/use-phone-battery-guard";
 import { useAppSettingsStore } from "@/stores/app-settings.store";
 import { log } from "@/stores/log.store";
 import { hydrateTimerSessions } from "@/stores/timer-sessions.store";
@@ -32,6 +33,7 @@ const App = () => {
     JetBrainsMono_800ExtraBold,
   });
   useBleForegroundReconnect();
+  usePhoneBatteryGuard();
   useEffect(() => {
     void useAppSettingsStore.getState().hydrate();
     void hydrateTimerSessions();
