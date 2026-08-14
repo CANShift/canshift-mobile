@@ -1,0 +1,44 @@
+name: core drift
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+env:
+  REFERENCE_CONSUMER: CANShift/canshift-tuner
+
+jobs:
+  core-drift:
+    name: core drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Compare the declared @canshift/core range against the tuner
+        run: |
+          set -euo pipefail
+
+          ours=$(jq -r '.dependencies["@canshift/core"]' package.json)
+          theirs=$(curl -fsSL "https://raw.githubusercontent.com/${REFERENCE_CONSUMER}/main/package.json" \
+            | jq -r '.dependencies["@canshift/core"]')
+
+          if [ "$theirs" = "null" ] || [ -z "$theirs" ]; then
+            echo "::error::${REFERENCE_CONSUMER} declares no @canshift/core dependency — the reference moved"
+            exit 1
+          fi
+
+          major() { printf '%s' "$1" | sed 's/^[^0-9]*//' | cut -d. -f1; }
+          ours_major=$(major "$ours")
+          theirs_major=$(major "$theirs")
+
+          echo "mobile: $ours | tuner: $theirs" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$ours_major" != "$theirs_major" ]; then
+            echo "::error::@canshift/core major gap — mobile is on $ours, the tuner on $theirs. One of the two is compiled against an incompatible schema floor."
+            exit 1
+          fi
+
+          if [ "$ours" != "$theirs" ]; then
+            echo "::warning::@canshift/core minor gap — mobile is on $ours, the tuner on $theirs. Dependabot should close it; check the open PRs if it does not."
+          fi
