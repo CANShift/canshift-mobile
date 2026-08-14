@@ -1,6 +1,14 @@
 import { StyleSheet, Text, View } from "react-native";
-import { Colors, Fonts, Typography, Spacing } from "../../theme";
+import { Colors, Fonts } from "../../theme";
 import type { ScanStatus } from "../../hooks/use-device-scan";
+
+const NOTE_SIZE = 14;
+const TITLE_SIZE = 17;
+const BODY_SIZE = 16;
+const BODY_LINE_HEIGHT = 26;
+const BLOCK_MARGIN_TOP = 26;
+const NOTE_MARGIN_TOP = 18;
+const BODY_MARGIN_TOP = 8;
 
 export interface ScanStatusNoteProps {
   status: ScanStatus;
@@ -27,26 +35,24 @@ export const ScanStatusNote = ({ status }: ScanStatusNoteProps) => {
 
 const styles = StyleSheet.create({
   hint: {
-    fontFamily: Fonts.ui,
-    fontSize: Typography.xs,
+    fontFamily: Fonts.mono,
+    fontSize: NOTE_SIZE,
     color: Colors.textMuted,
-    textAlign: "center",
-    marginTop: Spacing.sm,
+    marginTop: NOTE_MARGIN_TOP,
   },
   empty: {
-    alignItems: "center",
-    marginTop: Spacing.xl,
-    gap: Spacing.xs,
+    marginTop: BLOCK_MARGIN_TOP,
   },
   title: {
-    fontFamily: Fonts.uiExtraBold,
-    fontSize: Typography.md,
+    fontFamily: Fonts.mono,
+    fontSize: TITLE_SIZE,
     color: Colors.text,
   },
   body: {
-    fontFamily: Fonts.ui,
-    fontSize: Typography.sm,
+    fontFamily: Fonts.mono,
+    fontSize: BODY_SIZE,
+    lineHeight: BODY_LINE_HEIGHT,
     color: Colors.textMuted,
-    textAlign: "center",
+    marginTop: BODY_MARGIN_TOP,
   },
 });

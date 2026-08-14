@@ -6,6 +6,7 @@ import { mapBleError } from "../services/ble.errors";
 import { bleErrorMessage } from "../services/ble-error-message";
 import { blePermissionMessage } from "../services/ble-permission-message";
 import { getLastDevice } from "../services/last-device";
+import { orderByLastPaired } from "../lib/device-order";
 import type { BlePermissionPlatform } from "../components/BlePermissionDialog";
 
 const SCAN_TIMEOUT_MS = 10000;
@@ -98,11 +99,10 @@ export const useDeviceScan = ({
       : "idle";
 
   return {
-    devices,
+    devices: orderByLastPaired(devices, lastPairedId),
     scanning,
     hasScanned,
     connectingId,
-    lastPairedId,
     status,
     startScan,
     stopScan,

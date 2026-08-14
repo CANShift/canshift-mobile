@@ -1,11 +1,11 @@
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-} from "react-native";
-import { Card } from "../ui";
-import { Colors, Fonts, Typography, HitSlop } from "../../theme";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Colors, Fonts, HitSlop } from "../../theme";
+
+const STRIP_TEXT_SIZE = 15;
+const STRIP_PADDING_VERTICAL = 14;
+const STRIP_MARGIN_TOP = 18;
+const STRIP_RULE = 3;
+const STRIP_PADDING_LEFT = 16;
 
 export interface ReconnectStripProps {
   attempt: number;
@@ -18,14 +18,9 @@ export const ReconnectStrip = ({
   maxAttempts,
   onCancel,
 }: ReconnectStripProps) => (
-  <Card
-    variant="accent"
-    padding="none"
-    className="w-full flex-row items-center gap-2 mb-3 px-3 py-2"
-  >
-    <ActivityIndicator color={Colors.accent} size="small" />
+  <View style={styles.strip}>
     <Text style={styles.text}>
-      {`Reconnecting to dashboard… (${String(attempt)}/${String(maxAttempts)})`}
+      {`Reconnecting… ${String(attempt)}/${String(maxAttempts)}`}
     </Text>
     <TouchableOpacity
       onPress={onCancel}
@@ -35,19 +30,29 @@ export const ReconnectStrip = ({
     >
       <Text style={styles.cancel}>Cancel</Text>
     </TouchableOpacity>
-  </Card>
+  </View>
 );
 
 const styles = StyleSheet.create({
+  strip: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderLeftWidth: STRIP_RULE,
+    borderLeftColor: Colors.accent,
+    paddingLeft: STRIP_PADDING_LEFT,
+    paddingVertical: STRIP_PADDING_VERTICAL,
+    marginTop: STRIP_MARGIN_TOP,
+  },
   text: {
-    fontFamily: Fonts.ui,
-    fontSize: Typography.sm,
+    fontFamily: Fonts.mono,
+    fontSize: STRIP_TEXT_SIZE,
     color: Colors.text,
-    flex: 1,
+    flexShrink: 1,
   },
   cancel: {
-    fontFamily: Fonts.uiExtraBold,
-    fontSize: Typography.sm,
+    fontFamily: Fonts.mono,
+    fontSize: STRIP_TEXT_SIZE,
     color: Colors.accent,
   },
 });
