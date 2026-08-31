@@ -49,7 +49,7 @@
     "react-native-toast-message": "^2.3.3",
     "react-native-worklets": "0.5.1",
     "tailwind-merge": "^2.6.1",
-    "zod": "^4.4.3",
+    "zod": "^4.5.1",
     "zustand": "^5.0.15"
   },
   "//overrides": "scripts/check-overrides.js blocks tar>=7 and @xmldom/xmldom>=0.9. Re-evaluate these blocks against the SDK 53 @expo/cli internals; remove if the constraints no longer apply. The 0.8.13 xmldom pin is the LTS line and patches all known CVEs (issue #588).",
