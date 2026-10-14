@@ -1,11 +1,16 @@
 import { clearBuffer, getRange, getWriteIndex } from "./telemetry.store";
-import { useSignalsStore, type TelemetryPayload } from "./signals.store";
+import {
+  DISPLAY_FLUSH_MS,
+  useSignalsStore,
+  type TelemetryPayload,
+} from "./signals.store";
 
 const initialState = useSignalsStore.getState();
 
 describe("useSignalsStore", () => {
   beforeEach(() => {
     useSignalsStore.setState(initialState, true);
+    useSignalsStore.getState().clearHeld();
     clearBuffer();
   });
 
@@ -25,8 +30,8 @@ describe("useSignalsStore", () => {
     expect(state.lastUpdateMs).toBeGreaterThanOrEqual(before);
   });
 
-  it("update() forwards the sample to the telemetry ring buffer", () => {
-    useSignalsStore.getState().update({ r: 2000, tps: 20 });
+  it("ingest() forwards the sample to the telemetry ring buffer immediately", () => {
+    useSignalsStore.getState().ingest({ r: 2000, tps: 20 });
     const buffer = getRange(0, getWriteIndex());
     expect(buffer).toHaveLength(1);
     expect(buffer[0]?.v).toEqual({ r: 2000, tps: 20 });
@@ -83,8 +88,8 @@ describe("useSignalsStore", () => {
     expect(useSignalsStore.getState().values).toEqual({ r: 2200 });
   });
 
-  it("update() strips undefined entries before pushing to the ring buffer", () => {
-    useSignalsStore.getState().update({
+  it("ingest() strips undefined entries before pushing to the ring buffer", () => {
+    useSignalsStore.getState().ingest({
       r: 2000,
       tps: undefined,
       ect: 90,
@@ -92,10 +97,56 @@ describe("useSignalsStore", () => {
     const buffer = getRange(0, getWriteIndex());
     expect(buffer).toHaveLength(1);
     expect(buffer[0]?.v).toEqual({ r: 2000, ect: 90 });
-    expect(useSignalsStore.getState().values).toEqual({
-      r: 2000,
-      tps: undefined,
-      ect: 90,
+  });
+
+  describe("ingest() coalescing", () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it("holds the display values until the flush window closes", () => {
+      useSignalsStore.getState().ingest({ r: 1500 });
+      expect(useSignalsStore.getState().values).toEqual({});
+      jest.advanceTimersByTime(DISPLAY_FLUSH_MS);
+      expect(useSignalsStore.getState().values).toEqual({ r: 1500 });
+      expect(useSignalsStore.getState().isLive).toBe(true);
+    });
+
+    it("merges a burst of notifies into one store write", () => {
+      const listener = jest.fn();
+      const unsubscribe = useSignalsStore.subscribe(listener);
+      useSignalsStore.getState().ingest({ r: 1500, tps: 10 });
+      useSignalsStore.getState().ingest({ r: 1600 });
+      useSignalsStore.getState().ingest({ r: 1700, s: 40 });
+      jest.advanceTimersByTime(DISPLAY_FLUSH_MS);
+      unsubscribe();
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(useSignalsStore.getState().values).toEqual({
+        r: 1700,
+        tps: 10,
+        s: 40,
+      });
+      expect(getWriteIndex()).toBe(3);
+    });
+
+    it("drops a pending flush when the link goes stale", () => {
+      useSignalsStore.getState().ingest({ r: 1500 });
+      useSignalsStore.getState().markStale();
+      jest.advanceTimersByTime(DISPLAY_FLUSH_MS);
+      expect(useSignalsStore.getState().isLive).toBe(false);
+      expect(useSignalsStore.getState().values).toEqual({});
+    });
+
+    it("drops a pending flush when the held values are cleared", () => {
+      useSignalsStore.getState().update({ r: 1500 });
+      useSignalsStore.getState().ingest({ r: 2000 });
+      useSignalsStore.getState().clearHeld();
+      jest.advanceTimersByTime(DISPLAY_FLUSH_MS);
+      expect(useSignalsStore.getState().values).toEqual({});
     });
   });
 });

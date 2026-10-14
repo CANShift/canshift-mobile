@@ -1,6 +1,6 @@
 import { start, stop, isRunning } from "./sim.service";
 import { useDeviceStore } from "../stores/device.store";
-import { useSignalsStore } from "../stores/signals.store";
+import { DISPLAY_FLUSH_MS, useSignalsStore } from "../stores/signals.store";
 import { useLogStore } from "../stores/log.store";
 
 describe("sim.service", () => {
@@ -34,7 +34,7 @@ describe("sim.service", () => {
 
   it("emits telemetry on tick", () => {
     start();
-    jest.advanceTimersByTime(100);
+    jest.advanceTimersByTime(100 + DISPLAY_FLUSH_MS);
     expect(useSignalsStore.getState().values.r).toBeGreaterThan(0);
   });
 
