@@ -23,6 +23,11 @@ export interface LapRecord {
   durationMs: number;
 }
 
+export const lapStartMs = (
+  laps: readonly LapRecord[],
+  sessionStartMs: number,
+): number => laps[laps.length - 1]?.endMs ?? sessionStartMs;
+
 interface TrackSessionState {
   recording: boolean;
   sessionStartMs: number;
@@ -106,10 +111,9 @@ const detectLapCrossing = (sample: GpsSample): void => {
     lng: sample.lng,
   });
   if (crossingMs === null) return;
-  const lastLap = state.laps[state.laps.length - 1];
-  const lapStartMs = lastLap?.endMs ?? state.sessionStartMs;
-  if (crossingMs <= lapStartMs) return;
-  recordLap(lapStartMs, crossingMs);
+  const startMs = lapStartMs(state.laps, state.sessionStartMs);
+  if (crossingMs <= startMs) return;
+  recordLap(startMs, crossingMs);
 };
 
 export const pushSample = (sample: GpsSample): void => {

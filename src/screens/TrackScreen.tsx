@@ -1,11 +1,12 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import DashTopBar from "../components/DashTopBar";
 import { SegmentedControl } from "../components/ui";
 import { TimerPanel } from "../components/timer/TimerPanel";
 import { LapChrono } from "../components/track/LapChrono";
-import { LapList } from "../components/track/LapList";
+import LapList from "../components/lap/LapList";
+import { trackLapRows } from "../components/lap/lap-rows";
 import { LapStats } from "../components/track/LapStats";
 import { TrackControls } from "../components/track/TrackControls";
 import { Toast } from "../components/ui";
@@ -34,6 +35,8 @@ const TABS: { value: TrackTab; label: string }[] = [
   { value: "timer", label: "Timer" },
 ];
 
+const TRACK_EMPTY_LAPS = "No laps yet";
+
 const TrackScreen = () => {
   const [tab, setTab] = useState<TrackTab>("track");
   const recording = useTrackSessionStore((s) => s.recording);
@@ -42,6 +45,10 @@ const TrackScreen = () => {
   const startFinishSet = useTrackSessionStore((s) => s.startFinishSet);
   const writeIndex = useTrackSessionStore((s) => s.writeIndex);
   const currentLapMs = useCurrentLapMs();
+  const lapRows = useMemo(
+    () => trackLapRows(laps, bestLapMs),
+    [laps, bestLapMs],
+  );
   const [busy, setBusy] = useState(false);
 
   const lastLap = laps[laps.length - 1];
@@ -105,7 +112,7 @@ const TrackScreen = () => {
             lastLapMs={lastLap?.durationMs ?? null}
             bestLapMs={bestLapMs > 0 ? bestLapMs : null}
           />
-          <LapList laps={laps} bestLapMs={bestLapMs} />
+          <LapList rows={lapRows} emptyText={TRACK_EMPTY_LAPS} />
         </ScrollView>
       )}
     </SafeAreaView>

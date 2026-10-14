@@ -1,5 +1,5 @@
 import type { TrackTelemetry } from "@canshift/core";
-import type { LapRecord } from "../stores/track-session.store";
+import { lapStartMs, type LapRecord } from "../stores/track-session.store";
 
 export interface BuildTrackTelemetryInput {
   recording: boolean;
@@ -10,15 +10,6 @@ export interface BuildTrackTelemetryInput {
   bestLapPulse?: boolean;
 }
 
-const inProgressLapStartMs = (
-  laps: readonly LapRecord[],
-  sessionStartMs: number,
-): number => {
-  if (laps.length === 0) return sessionStartMs;
-  const last = laps[laps.length - 1];
-  return last !== undefined ? last.endMs : sessionStartMs;
-};
-
 export const buildTrackTelemetry = (
   input: BuildTrackTelemetryInput,
 ): TrackTelemetry => {
@@ -27,8 +18,8 @@ export const buildTrackTelemetry = (
   const payload: TrackTelemetry = { trackMode: recording };
   if (!recording) return payload;
 
-  const lapStartMs = inProgressLapStartMs(laps, sessionStartMs);
-  const currentLapMs = Math.max(0, Math.floor(nowMs - lapStartMs));
+  const startMs = lapStartMs(laps, sessionStartMs);
+  const currentLapMs = Math.max(0, Math.floor(nowMs - startMs));
   payload.currentLapMs = currentLapMs;
   payload.lapNumber = laps.length;
 
