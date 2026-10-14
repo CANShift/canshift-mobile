@@ -5,7 +5,9 @@ import { useDeviceStore } from "../../../stores/device.store";
 import { LINK_HOLD_POLICY_COPY } from "../../../lib/link-hold";
 import DashTopBar from "../../DashTopBar";
 import { DashLinkFooter } from "../DashLinkFooter";
-import { GridLabel } from "../GridLabel";
+import DashValueWidget from "../DashValueWidget";
+import { dashPalette } from "../../../lib/dash-palette";
+import type { DashWidgetSpec } from "../../../lib/dash-pages";
 
 const signalsInitialState = useSignalsStore.getState();
 const deviceInitialState = useDeviceStore.getState();
@@ -66,16 +68,26 @@ describe("DashLinkFooter", () => {
   });
 });
 
-describe("GridLabel", () => {
+const RPM: DashWidgetSpec = {
+  signal: "r",
+  kicker: "RPM",
+  span: 6,
+  valueClass: "mid",
+  unit: "rpm",
+};
+const SPEED: DashWidgetSpec = { ...RPM, signal: "s", kicker: "SPEED" };
+const palette = dashPalette(false);
+
+describe("DashValueWidget", () => {
   it("dashes the held reading digit for digit", async () => {
     dropTheLink();
     const rpm = await render(
-      <GridLabel signalKey="r" width={140} height={88} dayMode={false} />,
+      <DashValueWidget spec={RPM} scale={1} palette={palette} />,
     );
     expect(rpm.getByText("- - - -")).toBeTruthy();
 
     const speed = await render(
-      <GridLabel signalKey="s" width={140} height={88} dayMode={false} />,
+      <DashValueWidget spec={SPEED} scale={1} palette={palette} />,
     );
     expect(speed.getByText("- -")).toBeTruthy();
   });
@@ -84,7 +96,7 @@ describe("GridLabel", () => {
     dropTheLink();
     useSignalsStore.getState().clearHeld();
     const { getByText } = await render(
-      <GridLabel signalKey="r" width={140} height={88} dayMode={false} />,
+      <DashValueWidget spec={RPM} scale={1} palette={palette} />,
     );
     expect(getByText("- -")).toBeTruthy();
   });

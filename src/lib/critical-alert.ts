@@ -1,4 +1,5 @@
-import { isWarningTripped, sensorDefaultDangerThreshold } from "@canshift/core";
+import { sensorDefaultDangerThreshold } from "@canshift/core";
+import { isSignalInDanger } from "./signal-danger";
 import { signalKeyToSensorKind } from "../theme/signal-colors";
 import { fromSensorKindValue } from "../theme/sensor-units";
 import { SIGNAL_META, type SignalKey } from "../constants/ble";
@@ -27,12 +28,7 @@ export const selectCriticalAlert = (
     if (muted.has(key)) continue;
     const value = values[key];
     if (value === undefined) continue;
-    const kind = signalKeyToSensorKind(key);
-    if (kind === undefined) continue;
-    const danger = sensorDefaultDangerThreshold(kind);
-    if (isWarningTripped(value, danger.threshold, danger.invertLogic)) {
-      return { key, value };
-    }
+    if (isSignalInDanger(key, value)) return { key, value };
   }
   return null;
 };
