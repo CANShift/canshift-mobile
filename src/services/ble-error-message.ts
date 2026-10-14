@@ -49,8 +49,7 @@ export const bleErrorMessage = (err: BleConnectionError): BleErrorMessage => {
       return { title: "Connection failed", body: err.message };
     default: {
       const _exhaustive: never = err;
-      void _exhaustive;
-      return { title: "Connection failed", body: "Unknown error" };
+      return _exhaustive;
     }
   }
 };
