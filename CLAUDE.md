@@ -31,5 +31,5 @@ Non-negotiable. Reviewed on every PR, ahead of feature count.
 ## Workflow
 
 - Branch `type/short-description`; Conventional Commits, subject only.
-- PR via `gh pr create`; required checks `lint`, `typecheck`, `test`; **rebase and merge only**.
+- PR via `gh pr create`; required checks `lint`, `typecheck`, `test`, all in `ci.yml` behind the `ci-success` gate; **rebase and merge only**.
 - iOS native workflow runs on native-config changes + manual dispatch only.
