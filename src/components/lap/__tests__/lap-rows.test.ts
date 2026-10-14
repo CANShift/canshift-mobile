@@ -10,17 +10,20 @@ describe("timerLapRows", () => {
     expect(rows[0]?.totalText).not.toBeNull();
   });
 
-  it("marks the fastest lap once there are two to compare", () => {
+  it("accents the fastest lap once there are two to compare", () => {
     const rows = timerLapRows([
       { index: 1, lapMs: 12_000, totalMs: 12_000 },
       { index: 2, lapMs: 11_500, totalMs: 23_500 },
     ]);
-    expect(rows.find((row) => row.isBest)?.key).toBe("2");
+    expect(rows.map((row) => [row.key, row.tone])).toEqual([
+      ["2", "accent"],
+      ["1", "ink"],
+    ]);
   });
 
   it("marks no best on a single lap", () => {
     const rows = timerLapRows([{ index: 1, lapMs: 12_000, totalMs: 12_000 }]);
-    expect(rows.some((row) => row.isBest)).toBe(false);
+    expect(rows.every((row) => row.tone === "ink")).toBe(true);
   });
 
   it("returns no rows for no laps", () => {
@@ -35,21 +38,18 @@ describe("trackLapRows", () => {
   ];
 
   it("formats GPS laps as M:SS.mmm with no total column", () => {
-    const rows = trackLapRows(laps, 58_750);
+    const rows = trackLapRows(laps);
     expect(rows[0]).toEqual({
       key: "2",
       label: "Lap 2",
       lapText: "0:58.750",
       totalText: null,
-      isBest: true,
+      tone: "ink",
     });
     expect(rows[1]?.lapText).toBe("1:01.250");
   });
 
-  it("marks the lap matching the session best", () => {
-    const rows = trackLapRows(laps, 58_750);
-    expect(rows.filter((row) => row.isBest).map((row) => row.key)).toEqual([
-      "2",
-    ]);
+  it("keeps every track lap in ink, with no best highlight", () => {
+    expect(trackLapRows(laps).every((row) => row.tone === "ink")).toBe(true);
   });
 });

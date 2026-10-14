@@ -45,10 +45,7 @@ const TrackScreen = () => {
   const startFinishSet = useTrackSessionStore((s) => s.startFinishSet);
   const writeIndex = useTrackSessionStore((s) => s.writeIndex);
   const currentLapMs = useCurrentLapMs();
-  const lapRows = useMemo(
-    () => trackLapRows(laps, bestLapMs),
-    [laps, bestLapMs],
-  );
+  const lapRows = useMemo(() => trackLapRows(laps), [laps]);
   const [busy, setBusy] = useState(false);
 
   const lastLap = laps[laps.length - 1];

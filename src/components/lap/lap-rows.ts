@@ -3,12 +3,14 @@ import type { SessionLap } from "../../lib/timer-laps";
 import type { LapRecord } from "../../stores/track-session.store";
 import { formatTimerElapsed } from "../widgets/widget-value";
 
+export type LapTone = "ink" | "accent";
+
 export interface LapRow {
   key: string;
   label: string;
   lapText: string;
   totalText: string | null;
-  isBest: boolean;
+  tone: LapTone;
 }
 
 const MIN_LAPS_FOR_TIMER_BEST = 2;
@@ -29,18 +31,15 @@ export const timerLapRows = (laps: readonly SessionLap[]): LapRow[] => {
     label: `Lap ${String(lap.index)}`,
     lapText: formatTimerElapsed(lap.lapMs, true),
     totalText: formatTimerElapsed(lap.totalMs, true),
-    isBest: lap.index === bestIndex,
+    tone: lap.index === bestIndex ? "accent" : "ink",
   }));
 };
 
-export const trackLapRows = (
-  laps: readonly LapRecord[],
-  bestLapMs: number,
-): LapRow[] =>
+export const trackLapRows = (laps: readonly LapRecord[]): LapRow[] =>
   [...laps].reverse().map((lap) => ({
     key: String(lap.number),
     label: `Lap ${String(lap.number)}`,
     lapText: formatLapMs(lap.durationMs),
     totalText: null,
-    isBest: lap.durationMs === bestLapMs,
+    tone: "ink",
   }));
