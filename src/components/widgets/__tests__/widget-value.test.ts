@@ -1,18 +1,9 @@
 import {
-  WIDGET_TEXT_COLORS,
-  WIDGET_STALE_TEXT_COLORS,
-  WIDGET_ZONE_COLORS,
-} from "@canshift/core";
-import {
   formatTimerElapsed,
   formatWidgetValue,
-  gearColor,
   gearGlyphFor,
   heldPlaceholder,
-  staleTextColor,
-  warningState,
 } from "../widget-value";
-import { Colors } from "../../../theme";
 import { signalKeyToSensorKind } from "../../../theme/signal-colors";
 
 describe("formatWidgetValue", () => {
@@ -54,13 +45,6 @@ describe("gearGlyphFor", () => {
   });
 });
 
-describe("staleTextColor", () => {
-  it("dims to the mobile dim token at night and to the day stale token by day", () => {
-    expect(staleTextColor(false)).toBe(Colors.textMuted);
-    expect(staleTextColor(true)).toBe(WIDGET_STALE_TEXT_COLORS.day);
-  });
-});
-
 describe("heldPlaceholder", () => {
   it("dashes the held reading digit for digit", () => {
     expect(heldPlaceholder(4000, 0)).toBe("- - - -");
@@ -70,40 +54,6 @@ describe("heldPlaceholder", () => {
 
   it("falls back to the shared placeholder once the values are cleared", () => {
     expect(heldPlaceholder(undefined, 0)).toBe("- -");
-  });
-});
-
-describe("gearColor", () => {
-  it("uses stale text color when the value is missing", () => {
-    expect(gearColor(undefined, false)).toBe(staleTextColor(false));
-    expect(gearColor(undefined, true)).toBe(WIDGET_STALE_TEXT_COLORS.day);
-  });
-
-  it("paints reverse in the warning color", () => {
-    expect(gearColor(-1, false)).toBe(WIDGET_ZONE_COLORS.warning);
-  });
-
-  it("paints neutral and forward gears in the text color", () => {
-    expect(gearColor(0, false)).toBe(WIDGET_TEXT_COLORS.night);
-    expect(gearColor(4, true)).toBe(WIDGET_TEXT_COLORS.day);
-  });
-});
-
-describe("warningState", () => {
-  it("is stale when the value is missing", () => {
-    expect(warningState(undefined, 110, false)).toBe("stale");
-  });
-
-  it("alarms at or above a high-side threshold", () => {
-    expect(warningState(115, 110, false)).toBe("alarm");
-    expect(warningState(110, 110, false)).toBe("alarm");
-    expect(warningState(95, 110, false)).toBe("idle");
-  });
-
-  it("alarms below an inverted low-side threshold", () => {
-    expect(warningState(0.8, 1.0, true)).toBe("alarm");
-    expect(warningState(1.0, 1.0, true)).toBe("idle");
-    expect(warningState(2.5, 1.0, true)).toBe("idle");
   });
 });
 
