@@ -1,7 +1,7 @@
-import { registerRootComponent } from 'expo'
-import { markAppLaunch } from './src/diag/cold-start'
-import App from './src/App'
+import { registerRootComponent } from "expo";
+import { markAppLaunch } from "./src/diag/cold-start";
+import App from "./src/App";
 
-markAppLaunch()
+markAppLaunch();
 
-registerRootComponent(App)
+registerRootComponent(App);

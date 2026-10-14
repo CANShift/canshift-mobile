@@ -12,8 +12,8 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:coverage": "npm --prefix ../canshift-core ci --omit=dev --ignore-scripts && npm --prefix ../canshift-core run build && jest --coverage",
-    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx}\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "preinstall": "node ./scripts/check-overrides.js",
     "prepare": "husky",
     "lint:pre-commit": "lint-staged"
