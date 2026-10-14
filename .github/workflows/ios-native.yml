@@ -3,15 +3,15 @@ name: iOS native
 on:
   pull_request:
     paths:
-      - 'app.json'
-      - 'plugins/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - '.github/workflows/ios-native.yml'
+      - "app.json"
+      - "plugins/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/ios-native.yml"
   workflow_dispatch:
 
 env:
-  NODE_VERSION: '24'
+  NODE_VERSION: "24"
 
 jobs:
   ios:
