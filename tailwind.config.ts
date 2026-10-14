@@ -1,11 +1,21 @@
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
-import { Colors, Fonts, Radius } from "./src/theme";
+import { DARK_TOKENS } from "@canshift/core";
+import { Fonts, Radius } from "./src/theme";
 
-// nativewind/preset ships an empty .d.ts, so TS treats it as "not a module".
-// Use require() and cast to Config — the runtime export is a valid preset.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const nativewindPreset = require("nativewind/preset") as Config;
+
+const toKebab = (key: string): string =>
+  key.replace(/([a-z])([A-Z0-9])/g, "$1-$2").toLowerCase();
+
+const tokenColorClasses = (): Record<string, string> =>
+  Object.fromEntries(
+    Object.entries(DARK_TOKENS.colors).map(([key, value]) => [
+      toKebab(key),
+      value,
+    ]),
+  );
 
 const config: Config = {
   content: ["./src/**/*.{ts,tsx}", "./App.tsx"],
@@ -19,28 +29,7 @@ const config: Config = {
         mono: [Fonts.mono],
         "mono-extrabold": [Fonts.monoExtraBold],
       },
-      colors: {
-        // SoT colors — all 19 keys from DARK_TOKENS.colors
-        bg: Colors.bg,
-        surface: Colors.surface,
-        "surface-2": Colors.surface2,
-        border: Colors.border,
-        primary: Colors.primary,
-        "primary-foreground": Colors.primaryForeground,
-        secondary: Colors.secondary,
-        "secondary-foreground": Colors.secondaryForeground,
-        accent: Colors.accent,
-        "accent-foreground": Colors.accentForeground,
-        destructive: Colors.destructive,
-        "destructive-foreground": Colors.destructiveForeground,
-        text: Colors.text,
-        "text-dim": Colors.textDim,
-        "text-muted": Colors.textMuted,
-        success: Colors.success,
-        warning: Colors.warning,
-        danger: Colors.danger,
-        ring: Colors.ring,
-      },
+      colors: tokenColorClasses(),
       borderRadius: {
         sm: `${Radius.sm}px`,
         md: `${Radius.md}px`,

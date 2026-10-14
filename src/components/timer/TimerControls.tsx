@@ -1,7 +1,6 @@
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
 import { Button } from "../ui";
-import { Spacing } from "../../theme";
 import type { TimerStatus } from "../../stores/timer.store";
 
 export interface TimerControlsProps {
@@ -34,8 +33,8 @@ const TimerControls = ({
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.row}>
+    <View className="gap-2">
+      <View className="flex-row gap-2">
         <Button
           className="flex-1"
           onPress={primaryAction[status]}
@@ -66,8 +65,3 @@ const TimerControls = ({
 };
 
 export default React.memo(TimerControls);
-
-const styles = StyleSheet.create({
-  container: { gap: Spacing.sm },
-  row: { flexDirection: "row", gap: Spacing.sm },
-});
