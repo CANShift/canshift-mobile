@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { ChevronLeft } from "lucide-react-native";
+import { ChevronLeftIcon } from "./ChevronLeftIcon";
 import {
   Colors,
   Fonts,
@@ -10,6 +10,7 @@ import {
 } from "../theme";
 
 const HEADER_RULE = 2;
+const BACK_ICON_SIZE = 18;
 const TITLE_SIZE = 26;
 const TITLE_TRACKING = TITLE_SIZE * -0.02;
 const TITLE_PADDING_TOP = 12;
@@ -31,7 +32,7 @@ export const ScreenHeader = ({ title, onBack }: ScreenHeaderProps) => (
           accessibilityRole="button"
           accessibilityLabel="Back"
         >
-          <ChevronLeft size={18} color={Colors.accent} />
+          <ChevronLeftIcon size={BACK_ICON_SIZE} color={Colors.accent} />
           <Text style={styles.back}>Back</Text>
         </TouchableOpacity>
       )}
