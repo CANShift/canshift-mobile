@@ -7,6 +7,7 @@ import {
   getRange,
   getSampleAt,
   getWriteIndex,
+  lapStartMs,
   pushSample,
   recordLap,
   startSession,
@@ -270,6 +271,19 @@ describe("track-session.store", () => {
       pushSample(sample(1000, 0.5, 0));
       pushSample(sample(2000, -0.5, 0));
       expect(useTrackSessionStore.getState().laps).toEqual([]);
+    });
+  });
+
+  describe("lapStartMs", () => {
+    it("starts the first lap at the session start", () => {
+      expect(lapStartMs([], 5_000)).toBe(5_000);
+    });
+
+    it("starts the next lap where the last one ended", () => {
+      const laps = [
+        { number: 1, startMs: 5_000, endMs: 65_000, durationMs: 60_000 },
+      ];
+      expect(lapStartMs(laps, 5_000)).toBe(65_000);
     });
   });
 });

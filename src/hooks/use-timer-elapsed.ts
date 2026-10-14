@@ -1,28 +1,17 @@
-import { useEffect, useState } from "react";
+import { useCallback } from "react";
 import {
   elapsedMsOf,
   useTimerStore,
   type TimerStatus,
 } from "../stores/timer.store";
-
-const DISPLAY_TICK_MS = 50;
+import { useTickingMs } from "./use-ticking-ms";
 
 export const useTimerElapsed = (status: TimerStatus): number => {
-  const [elapsedMs, setElapsedMs] = useState(() =>
-    elapsedMsOf(useTimerStore.getState()),
+  const startedAt = useTimerStore((s) => s.startedAt);
+  const accumulatedMs = useTimerStore((s) => s.accumulatedMs);
+  const readMs = useCallback(
+    () => elapsedMsOf({ status, startedAt, accumulatedMs }),
+    [status, startedAt, accumulatedMs],
   );
-
-  useEffect(() => {
-    const sync = () => {
-      setElapsedMs(elapsedMsOf(useTimerStore.getState()));
-    };
-    sync();
-    if (status !== "running") return;
-    const id = setInterval(sync, DISPLAY_TICK_MS);
-    return () => {
-      clearInterval(id);
-    };
-  }, [status]);
-
-  return elapsedMs;
+  return useTickingMs(readMs, status === "running");
 };
