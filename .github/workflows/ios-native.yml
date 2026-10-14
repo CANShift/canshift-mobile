@@ -10,6 +10,13 @@ on:
       - ".github/workflows/ios-native.yml"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-native-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   NODE_VERSION: "24"
 
@@ -17,10 +24,13 @@ jobs:
   ios:
     name: iOS simulator build
     runs-on: macos-latest
+    timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -33,7 +43,8 @@ jobs:
         working-directory: ios
         run: |
           set -o pipefail
-          WORKSPACE=$(ls | grep '\.xcworkspace$' | head -1)
+          WORKSPACES=(*.xcworkspace)
+          WORKSPACE="${WORKSPACES[0]}"
           SCHEME="${WORKSPACE%.xcworkspace}"
           xcodebuild \
             -workspace "$WORKSPACE" \
