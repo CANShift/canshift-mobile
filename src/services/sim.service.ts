@@ -104,7 +104,7 @@ export const start = () => {
       bst: parseFloat(boost(tps).toFixed(2)),
       iat: Math.round(drift("iat")),
     };
-    useSignalsStore.getState().update(sample);
+    useSignalsStore.getState().ingest(sample);
   }, 100);
 };
 

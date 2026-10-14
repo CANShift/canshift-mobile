@@ -71,7 +71,7 @@ const applyStatus = (status: {
 };
 
 export const handleTelemetry = guarded("telemetry", decodeTelemetry, (p) => {
-  useSignalsStore.getState().update(p);
+  useSignalsStore.getState().ingest(p);
 });
 
 export const handleStatus = guarded("status", decodeStatus, applyStatus);
