@@ -32,10 +32,10 @@ export type SheetSide = "top" | "bottom" | "left" | "right";
 const sheetContentVariants = cva("absolute border-border bg-surface", {
   variants: {
     side: {
-      top: "top-0 left-0 right-0 rounded-b-lg border-b",
+      top: "left-0 right-0 top-0 rounded-b-lg border-b",
       bottom: "bottom-0 left-0 right-0 rounded-t-lg border-t",
-      left: "top-0 bottom-0 left-0 w-3/4 rounded-r-lg border-r",
-      right: "top-0 bottom-0 right-0 w-3/4 rounded-l-lg border-l",
+      left: "bottom-0 left-0 top-0 w-3/4 rounded-r-lg border-r",
+      right: "bottom-0 right-0 top-0 w-3/4 rounded-l-lg border-l",
     },
   },
   defaultVariants: { side: "bottom" },

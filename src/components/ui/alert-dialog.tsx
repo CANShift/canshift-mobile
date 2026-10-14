@@ -134,7 +134,7 @@ export const AlertDialogContent = ({
           accessibilityViewIsModal
           accessibilityRole="alert"
           className={cn(
-            "mx-6 max-w-md w-full self-center rounded-lg border border-border bg-surface p-6 shadow-lg",
+            "mx-6 w-full max-w-md self-center rounded-lg border border-border bg-surface p-6 shadow-lg",
             className,
           )}
         >
@@ -174,7 +174,7 @@ export const AlertDialogFooter = ({
 }: AlertDialogFooterProps): React.ReactElement => {
   return (
     <View
-      className={cn("flex-row justify-end gap-2 mt-4", className)}
+      className={cn("mt-4 flex-row justify-end gap-2", className)}
       {...props}
     />
   );
