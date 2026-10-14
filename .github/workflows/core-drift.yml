@@ -5,6 +5,9 @@ on:
     - cron: "0 6 * * 1"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   REFERENCE_CONSUMER: CANShift/canshift-tuner
 
@@ -12,15 +15,18 @@ jobs:
   core-drift:
     name: core drift
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Compare the declared @canshift/core range against the tuner
         run: |
           set -euo pipefail
 
           ours=$(jq -r '.dependencies["@canshift/core"]' package.json)
-          theirs=$(curl -fsSL "https://raw.githubusercontent.com/${REFERENCE_CONSUMER}/main/package.json" \
+          theirs=$(curl -fsSL --retry 3 --retry-all-errors "https://raw.githubusercontent.com/${REFERENCE_CONSUMER}/main/package.json" \
             | jq -r '.dependencies["@canshift/core"]')
 
           if [ "$theirs" = "null" ] || [ -z "$theirs" ]; then
