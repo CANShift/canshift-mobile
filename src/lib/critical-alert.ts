@@ -1,7 +1,8 @@
-import { sensorDefaultDangerThreshold } from "@canshift/core";
+import { isOutsideDangerBand, sensorDefaultDangerBand } from "@canshift/core";
+import type { SensorDangerBand } from "@canshift/core";
 import { isSignalInDanger } from "./signal-danger";
 import { signalKeyToSensorKind } from "../theme/signal-colors";
-import { fromSensorKindValue } from "../theme/sensor-units";
+import { fromSensorKindValue, toSensorKindValue } from "../theme/sensor-units";
 import { SIGNAL_META, type SignalKey } from "../constants/ble";
 import type { TelemetryPayload } from "../stores/signals.store";
 import { formatWidgetValue } from "../components/widgets/widget-value";
@@ -44,16 +45,53 @@ export const criticalAlertName = (key: SignalKey): string =>
 export const criticalAlertValue = (alert: CriticalAlert): string =>
   formatWidgetValue(alert.value, SIGNAL_META[alert.key].decimals);
 
-export const criticalAlertThreshold = (key: SignalKey): string => {
-  const kind = signalKeyToSensorKind(key);
-  if (kind === undefined) return "OUT OF THE SAFE RANGE";
-  const danger = sensorDefaultDangerThreshold(kind);
-  const limit = danger.invertLogic ? "MIN" : "MAX";
+type DangerSide = keyof SensorDangerBand;
+
+interface DangerLimit {
+  side: DangerSide;
+  limit: number;
+}
+
+const DANGER_SIDES: readonly DangerSide[] = ["below", "above"];
+
+const DANGER_SIDE_LABELS: Record<DangerSide, string> = {
+  below: "MIN",
+  above: "MAX",
+};
+
+const NO_DANGER_BAND: SensorDangerBand = { below: null, above: null };
+
+const dangerLimits = (band: SensorDangerBand): DangerLimit[] =>
+  DANGER_SIDES.flatMap((side) => {
+    const limit = band[side];
+    return limit === null ? [] : [{ side, limit }];
+  });
+
+const isLimitCrossed = (value: number, { side, limit }: DangerLimit): boolean =>
+  isOutsideDangerBand(value, { ...NO_DANGER_BAND, [side]: limit });
+
+const limitsToShow = (band: SensorDangerBand, value: number): DangerLimit[] => {
+  const limits = dangerLimits(band);
+  const crossed = limits.filter((limit) => isLimitCrossed(value, limit));
+  return crossed.length > 0 ? crossed : limits;
+};
+
+const limitText = (key: SignalKey, { side, limit }: DangerLimit): string => {
   const value = formatWidgetValue(
-    fromSensorKindValue(key, danger.threshold),
+    fromSensorKindValue(key, limit),
     SIGNAL_META[key].decimals,
   );
-  return withUnit(key, `${limit} ${value}`);
+  return withUnit(key, `${DANGER_SIDE_LABELS[side]} ${value}`);
+};
+
+export const criticalAlertThreshold = (alert: CriticalAlert): string => {
+  const kind = signalKeyToSensorKind(alert.key);
+  if (kind === undefined) return "OUT OF THE SAFE RANGE";
+  const band = sensorDefaultDangerBand(kind);
+  const value = toSensorKindValue(alert.key, alert.value);
+  return limitsToShow(band, value)
+    .map((limit) => limitText(alert.key, limit))
+    .join(" · ");
 };
 
 const signalText = (key: SignalKey, value: number | undefined): string =>

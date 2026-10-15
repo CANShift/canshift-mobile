@@ -59,7 +59,7 @@ export const useCriticalAlert = (): ActiveCriticalAlert | null => {
     key: holding.key,
     name: criticalAlertName(holding.key),
     value: criticalAlertValue(holding),
-    threshold: criticalAlertThreshold(holding.key),
+    threshold: criticalAlertThreshold(holding),
     rows: criticalAlertRows(values, sinceSeconds),
   };
 };

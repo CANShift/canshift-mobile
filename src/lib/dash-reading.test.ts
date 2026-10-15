@@ -19,6 +19,11 @@ describe("dashReading", () => {
     expect(dashReading("op", 4, true).tone).toBe("normal");
   });
 
+  it("turns a battery reading to danger on either side of its band", () => {
+    expect(dashReading("bat", 11, true).tone).toBe("danger");
+    expect(dashReading("bat", 16, true).tone).toBe("danger");
+  });
+
   it("dashes a held value once the link is not live", () => {
     expect(dashReading("r", 4000, false)).toEqual({
       text: "- - - -",
