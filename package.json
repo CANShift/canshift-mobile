@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "main": "index.ts",
   "scripts": {
-    "prestart": "npm --prefix ../canshift-core ci --omit=dev --ignore-scripts && npm --prefix ../canshift-core run build",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
@@ -11,7 +10,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "jest",
-    "test:coverage": "npm --prefix ../canshift-core ci --omit=dev --ignore-scripts && npm --prefix ../canshift-core run build && jest --coverage",
+    "test:coverage": "jest --coverage",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "preinstall": "node ./scripts/check-overrides.js",
