@@ -1,7 +1,7 @@
 import * as React from "react";
 import { render, fireEvent, act } from "@testing-library/react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { sensorDefaultDangerThreshold } from "@canshift/core";
+import { sensorDefaultDangerBand } from "@canshift/core";
 import { CriticalAlertOverlay } from "./CriticalAlertOverlay";
 import { useSignalsStore } from "../stores/signals.store";
 import { useDeviceStore } from "../stores/device.store";
@@ -22,7 +22,7 @@ const metrics = {
   insets: { top: 47, left: 0, right: 0, bottom: 34 },
 };
 
-const OP_LIMIT = sensorDefaultDangerThreshold("oil_press").threshold;
+const OP_LIMIT = sensorDefaultDangerBand("oil_press").below ?? 0;
 const OP_TRIP = OP_LIMIT - 0.5;
 
 const initialSignals = useSignalsStore.getState();

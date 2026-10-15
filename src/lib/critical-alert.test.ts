@@ -1,4 +1,4 @@
-import { sensorDefaultDangerThreshold } from "@canshift/core";
+import { sensorDefaultDangerBand } from "@canshift/core";
 import {
   MISSING_VALUE,
   criticalAlertName,
@@ -8,13 +8,16 @@ import {
   selectCriticalAlert,
 } from "./critical-alert";
 
-const CT = sensorDefaultDangerThreshold("coolant_temp");
-const OP = sensorDefaultDangerThreshold("oil_press");
+const CT_MAX = sensorDefaultDangerBand("coolant_temp").above ?? 0;
+const OP_MIN = sensorDefaultDangerBand("oil_press").below ?? 0;
+const BAT = sensorDefaultDangerBand("battery_volts");
+const BAT_MIN = BAT.below ?? 0;
+const BAT_MAX = BAT.above ?? 0;
 
-const ctTrip = CT.threshold + 5;
-const ctSafe = CT.threshold - 5;
-const opTrip = OP.threshold - 0.5;
-const opSafe = OP.threshold + 1;
+const ctTrip = CT_MAX + 5;
+const ctSafe = CT_MAX - 5;
+const opTrip = OP_MIN - 0.5;
+const opSafe = OP_MIN + 1;
 
 const none = new Set<never>();
 
@@ -69,14 +72,38 @@ describe("critical alert copy", () => {
   });
 
   it("states a low-side limit as MIN with its unit", () => {
-    expect(criticalAlertThreshold("op")).toBe(
-      `MIN ${OP.threshold.toFixed(1)} bar`,
+    expect(criticalAlertThreshold({ key: "op", value: opTrip })).toBe(
+      `MIN ${OP_MIN.toFixed(1)} bar`,
     );
   });
 
   it("states a high-side limit as MAX with its unit", () => {
-    expect(criticalAlertThreshold("ct")).toBe(
-      `MAX ${Math.round(CT.threshold).toString()} °C`,
+    expect(criticalAlertThreshold({ key: "ct", value: ctTrip })).toBe(
+      `MAX ${Math.round(CT_MAX).toString()} °C`,
+    );
+  });
+
+  it("states the low side a two-sided signal crossed", () => {
+    expect(criticalAlertThreshold({ key: "bat", value: BAT_MIN - 1 })).toBe(
+      `MIN ${BAT_MIN.toFixed(1)} V`,
+    );
+  });
+
+  it("states the high side a two-sided signal crossed", () => {
+    expect(criticalAlertThreshold({ key: "bat", value: BAT_MAX })).toBe(
+      `MAX ${BAT_MAX.toFixed(1)} V`,
+    );
+  });
+
+  it("states both sides once the value is back inside the band", () => {
+    expect(criticalAlertThreshold({ key: "bat", value: 13.8 })).toBe(
+      `MIN ${BAT_MIN.toFixed(1)} V · MAX ${BAT_MAX.toFixed(1)} V`,
+    );
+  });
+
+  it("falls back to a generic limit for a signal without a sensor kind", () => {
+    expect(criticalAlertThreshold({ key: "tps", value: 50 })).toBe(
+      "OUT OF THE SAFE RANGE",
     );
   });
 });
