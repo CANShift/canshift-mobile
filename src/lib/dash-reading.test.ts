@@ -5,7 +5,7 @@ describe("dashReading", () => {
     expect(dashReading("bat", 13.84, true)).toEqual({
       text: "13.8",
       tone: "normal",
-      barFraction: 0,
+      barFraction: 0.73,
     });
   });
 

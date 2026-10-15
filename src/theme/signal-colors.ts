@@ -6,6 +6,7 @@ export const KEY_TO_SENSOR_KIND: Record<string, SensorKind> = {
   ct: "coolant_temp",
   ot: "oil_temp",
   op: "oil_press",
+  bat: "battery_volts",
   iat: "intake_temp",
   bst: "boost",
   lam: "afr",
