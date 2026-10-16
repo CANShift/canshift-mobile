@@ -6,13 +6,13 @@ import RNToast, {
   type BaseToastProps,
   type ToastConfig,
 } from "react-native-toast-message";
-import { Colors } from "@/theme";
+import { UiColors, UiRadius } from "../../theme/ui-tokens";
 
 const baseStyle = {
-  backgroundColor: Colors.bg,
-  borderRadius: 0,
-  borderLeftWidth: 2,
-  borderColor: Colors.border,
+  backgroundColor: UiColors.surface,
+  borderRadius: UiRadius.tile,
+  borderLeftWidth: 4,
+  borderColor: UiColors.border,
   borderTopWidth: 1,
   borderRightWidth: 1,
   borderBottomWidth: 1,
@@ -22,12 +22,12 @@ const baseStyle = {
 } as const;
 
 const styles = StyleSheet.create({
-  success: { ...baseStyle, borderLeftColor: Colors.success },
-  error: { ...baseStyle, borderLeftColor: Colors.danger },
-  info: { ...baseStyle, borderLeftColor: Colors.accent },
+  success: { ...baseStyle, borderLeftColor: UiColors.success },
+  error: { ...baseStyle, borderLeftColor: UiColors.warning },
+  info: { ...baseStyle, borderLeftColor: UiColors.textMuted },
   content: { paddingHorizontal: 12 },
-  text1: { color: Colors.text, fontSize: 15, fontWeight: "600" },
-  text2: { color: Colors.textDim, fontSize: 13 },
+  text1: { color: UiColors.text, fontSize: 15, fontWeight: "600" },
+  text2: { color: UiColors.textSecondary, fontSize: 13 },
 });
 
 const toastConfig: ToastConfig = {

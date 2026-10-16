@@ -1,7 +1,7 @@
 # CANShift Mobile
 
-Companion app for the CANShift dashboard. Live BLE telemetry and settings
-push from your phone. See the
+Companion app for the CANShift dashboard: live BLE telemetry, laps and the
+dash's critical alerts on your phone. See the
 [CANShift organization](https://github.com/CANShift) for the full system overview.
 
 📖 **[Documentation](docs/README.md)** — what the app does today, and how BLE
@@ -9,7 +9,9 @@ pairing works.
 
 **Stack:** Expo SDK 54 (bare workflow via prebuild) · React Native 0.81.5 ·
 React 19.1 · TypeScript 5 · Zustand 5 · `react-native-ble-plx` 3.5.1 ·
-`expo-secure-store` 14 · React Navigation 7.
+`expo-secure-store` 15 · React Navigation 7. Styling is plain `StyleSheet`
+with the tokens in `src/theme/ui-tokens.ts` (dark only, system fonts, Menlo
+numbers). The design spec is [docs/redesign/HANDOFF.md](docs/redesign/HANDOFF.md).
 
 ## Status
 
@@ -33,7 +35,7 @@ npm run android             # build & launch on Android emulator/device
 from `app.json` and the `plugins/` config. All persistent native config
 lives in `app.json`.
 
-Other scripts: `npm run lint`, `npm run typecheck`.
+Other scripts: `npm run lint`, `npm run typecheck`, `npm test`, `npm run format:check`.
 
 ### Disabling Bluetooth in development
 
@@ -53,18 +55,17 @@ default) restores full Bluetooth.
 
 ## Feature matrix
 
-| Area                    | Status  | Notes                                                                   |
-| ----------------------- | ------- | ----------------------------------------------------------------------- |
-| Scan                    | working | BLE scan filtered to peripherals advertising the `CANShift` device name |
-| Auto-reconnect          | working | Exponential backoff with jitter, persists last device id (#284)         |
-| Last-device persistence | working | `expo-secure-store` keyed at `canshift.lastBleDeviceId`                 |
-| Dash                    | working | Live signal cards driven by BLE telemetry notifications                 |
-| Graph                   | working | Rolling chart of one selected signal                                    |
-| Log                     | working | In-app log viewer fed from `log.store`                                  |
-| Settings                | working | Day/night theme, brightness, sleep, touch calibration                   |
-| Sim                     | working | `sim.service` generates synthetic telemetry without hardware            |
-| Staleness watchdog      | working | Marks data stale at 2 s without notification                            |
-| Android runtime perms   | working | API ≥ 31 `BLUETOOTH_SCAN` / `BLUETOOTH_CONNECT` flow (#296)             |
+| Area            | What it does                                                                                                     |
+| --------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Scan            | Bluetooth pre-prompt on first run, scan, dash cards with signal strength, pairing sheet, denied state, demo mode |
+| Reconnect       | Exponential backoff with jitter, last device persisted; banner with Cancel, reconnect-failed dialog              |
+| Live            | 8 value tiles (normal / danger / stale with age / no data), 12-segment shift light, link footer, Display sheet   |
+| Graph           | Up to 4 series, 30 s / 1 min / 2 min, Pause, Clear, CSV export of the visible window                             |
+| Laps            | GPS timing (live fix, start/finish line, track mode) and the dash-synced timer                                   |
+| Device          | Connection, telemetry logging, Console (Log / Send / CAN), dash and app info, phone settings                     |
+| Critical alerts | Mirrors the dash's takeover from the ALERT characteristic; stacked cards, strips, session mute, haptic and sound |
+| Staleness       | A signal is stale 2 s after its last update; a link with no data for 2 s shows NO DATA                           |
+| Keep awake      | Screen stays on while a dash is linked (Display sheet switch)                                                    |
 
 ---
 
@@ -73,22 +74,17 @@ default) restores full Bluetooth.
 ```
 src/
 ├── App.tsx
-├── components/        DashTopBar.tsx, SignalCard.tsx
-├── constants/ble.ts   GATT UUIDs + telemetry key map
-├── diag/              cold-start probe + diagnostics helpers
-├── hooks/             use-ble-foreground-reconnect, use-graph-tick,
-│                      use-latest-release
-├── lib/               lap-detect, shared utilities
-├── navigation/        index.tsx, ConnectedNavigator.tsx
-├── screens/           ScanScreen, DashScreen, GraphScreen, LogScreen,
-│                      SettingsScreen, AboutScreen
-├── services/          ble.service.ts, ble.validators.ts, ble.errors.ts,
-│                      ble-permissions.ts, last-device.ts,
-│                      releases.service.ts, sim.service.ts,
-│                      track-telemetry-publisher.ts
-├── stores/            device, signals, telemetry, log, reconnect,
-│                      track-session (Zustand)
-└── theme/             tokens consumed by NativeWind + StyleSheet bridges
+├── components/   one file per component, grouped by surface
+│                 (shell, live, graph, laps, device, console, scan, alerts)
+├── constants/    GATT UUIDs + telemetry key map
+├── hooks/        screen models and store selectors
+├── lib/          pure logic and lookup tables (link, overlays, tiles, alerts…)
+├── navigation/   root stack, tab navigator, Device stack
+├── screens/      layout only
+├── services/     BLE, alert feeds and cues, GPS, timer, sim
+├── stores/       Zustand stores
+├── strings.ts    every user-facing string (the copy deck)
+└── theme/        ui-tokens + sensor unit helpers
 ```
 
 ---
@@ -102,22 +98,30 @@ UUIDs and the compact telemetry key map are mirrored in
 
 ### UUIDs
 
-| Constant            | UUID                                   |
-| ------------------- | -------------------------------------- |
-| `BLE_SERVICE_UUID`  | `4fa0b6a0-0000-0000-0000-000000000001` |
-| `BLE_CHAR_TELE`     | `4fa0b6a0-0000-0000-0000-000000000002` |
-| `BLE_CHAR_STATUS`   | `4fa0b6a0-0000-0000-0000-000000000003` |
-| `BLE_CHAR_SETTINGS` | `4fa0b6a0-0000-0000-0000-000000000004` |
-| `BLE_CHAR_CMD`      | `4fa0b6a0-0000-0000-0000-000000000005` |
+| Constant               | UUID                                   |
+| ---------------------- | -------------------------------------- |
+| `BLE_SERVICE_UUID`     | `4fa0b6a0-0000-0000-0000-000000000001` |
+| `BLE_CHAR_TELE`        | `4fa0b6a0-0000-0000-0000-000000000002` |
+| `BLE_CHAR_STATUS`      | `4fa0b6a0-0000-0000-0000-000000000003` |
+| `BLE_CHAR_SETTINGS`    | `4fa0b6a0-0000-0000-0000-000000000004` |
+| `BLE_CHAR_CMD`         | `4fa0b6a0-0000-0000-0000-000000000005` |
+| `BLE_CHAR_TIMER_CMD`   | `4fa0b6a0-0000-0000-0000-000000000006` |
+| `BLE_CHAR_TIMER_STATE` | `4fa0b6a0-0000-0000-0000-000000000007` |
+| `BLE_CHAR_TIMER_LAP`   | `4fa0b6a0-0000-0000-0000-000000000008` |
+| `BLE_CHAR_ALERT`       | `4fa0b6a0-0000-0000-0000-000000000009` |
 
 Device-name filter on scan: `CANShift`.
 
 ### Characteristics
 
-- `BLE_CHAR_TELE` — read + notify; compact telemetry JSON pushed at ~10 Hz
-- `BLE_CHAR_STATUS` — read + notify; firmware version, CAN health, day/night
-- `BLE_CHAR_SETTINGS` — read/write; brightness, sleep, rotation
-- `BLE_CHAR_CMD` — write; command channel (`set_day_night`, `start_calibration`, …)
+- `BLE_CHAR_TELE` — notify; the binary telemetry frame from `@canshift/core`
+- `BLE_CHAR_STATUS` — read + notify; firmware version, CAN health
+- `BLE_CHAR_SETTINGS` — read/write; dash brightness (10–100)
+- `BLE_CHAR_CMD` — write; command channel (`ack_alert`, `track_state`, console commands)
+- `BLE_CHAR_TIMER_*` — the dash-synced lap timer
+- `BLE_CHAR_ALERT` — read + notify; the binary alert frame from `@canshift/core`
+  (`decodeAlertFrame`). Without it (older firmware) the phone decides alerts
+  from core's default danger bands.
 
 ### Telemetry key map
 
@@ -141,10 +145,7 @@ Full map (matches firmware `addSignalIfValid()` calls):
 | `bat` | Battery          | V    |
 | `mi`  | Active MAP index | —    |
 
-`mi` (active MAP index, read at `src/components/DashTopBar.tsx`) is not in
-`SIGNAL_META` because it has no display label/unit — `DashTopBar` consumes
-it directly. A 500 ms watchdog tick marks data stale after 2 s without a
-notification.
+`mi` (active MAP index) has no display label or unit and is not shown.
 
 ### Service shape
 
@@ -173,28 +174,10 @@ Tunables (module-level constants in `ble.service.ts`):
 The last-connected device id is persisted in `expo-secure-store` at the key
 `canshift.lastBleDeviceId` (`src/services/last-device.ts`). On startup the
 app calls `tryReconnectLastDevice()`; the `useReconnectStore` exposes
-`isReconnecting`, `attempt`, `maxAttempts`, and `deviceId` so `ScanScreen`
-can render "Reconnecting to dashboard… (n/m)" while the loop runs.
+`isReconnecting`, `attempt`, `maxAttempts`, and `deviceId` so the reconnecting
+banner can show "Values are paused. Try n of m." while the loop runs.
 Reconnect is cancelled on user-initiated scan, manual disconnect, or after
 the attempt cap is reached.
-
----
-
-## Day/night & touch calibration
-
-`SettingsScreen` prefers the explicit, idempotent command:
-
-```ts
-await BleService.sendCmd("set_day_night", { day: target }); // preferred (#288)
-```
-
-`toggle_day_night` is still accepted by current firmware but is **not**
-emitted by the app — sending both would defeat the idempotency guarantee
-that `set_day_night` exists to provide. Older firmware without
-`set_day_night` ignores the new command gracefully (logs a warning).
-
-Touch calibration fires `start_calibration`; the dashboard then displays
-crosshairs and waits for the user to tap each point.
 
 ---
 
@@ -251,44 +234,32 @@ Configured in `app.json > expo.plugins`:
   `modes: ["peripheral", "central"]`,
   `bluetoothAlwaysPermission` matching the iOS Info.plist string.
 - **`expo-secure-store`** — backs the last-device id persistence above.
+- **`expo-audio`** — plays the bundled critical-alert tone; configured to request
+  no microphone permission.
 
 ---
 
 ## canshift-core integration
 
-`canshift-core` is shipped as a workspace dependency since #887:
-
-```json
-"@canshift/core": "^1.0.0"
-```
-
-The `prestart` / `prebuild` / `prepare` scripts in `package.json` rebuild
-core before every mobile script (lint, typecheck, test, etc.) so consumers
-always see the latest `dist/`. Mobile currently consumes the BLE STATUS
-schema, screen-settings bounds, and design tokens from core; the local
-`src/constants/ble.ts` still owns the compact telemetry key map until the
-mobile surface gains config editing.
+`@canshift/core` comes from npm (`^10.2.0`). Mobile consumes the binary
+telemetry and alert frames, the BLE STATUS and timer schemas, the shift-light
+and sensor danger-band defaults, and the lap detector from core; the local
+`src/constants/ble.ts` owns the compact telemetry key map.
 
 ---
 
 ## Contributing & issues
 
 Please read the org overview at [github.com/CANShift](https://github.com/CANShift) and
-[CLAUDE.md](../CLAUDE.md) before opening a PR. Branch naming:
+[CLAUDE.md](CLAUDE.md) before opening a PR. Branch naming:
 `type/short-description` (e.g. `feat/mobile-graph-pinning`). Conventional
 commit subjects only — no body, no co-author lines.
 
-Mobile-only PRs do **not** bump the studio version — mobile ships
-separately (TestFlight / Play Store) and is not part of the studio release
-artifact.
-
 Bugs, feature requests, and tech-debt notes go to
-[GitHub Issues](https://github.com/tburkhalterr/CANShift/issues).
-Please tag with `scope:mobile` plus the appropriate `type:` and
-`priority:` labels.
+[GitHub Issues](https://github.com/CANShift/canshift-mobile/issues).
 
 ---
 
 ## License
 
-The project license lives in the root [LICENSE](../LICENSE) file.
+The project license lives in the [LICENSE](LICENSE) file.

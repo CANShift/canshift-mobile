@@ -35,6 +35,3 @@ const LINKS_THAT_KEEP_AWAKE: ReadonlySet<Link> = new Set<Link>([
 
 export const keepsScreenAwake = (link: Link): boolean =>
   LINKS_THAT_KEEP_AWAKE.has(link);
-
-export const isLinkedToData = (link: Link): boolean =>
-  link === "connected" || link === "demo";

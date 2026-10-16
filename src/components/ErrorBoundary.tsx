@@ -1,21 +1,23 @@
 import React from "react";
-import { Text, View } from "react-native";
-import { Button } from "./ui";
+import { StyleSheet, Text, View } from "react-native";
 import { log } from "../stores/log.store";
+import { STRINGS } from "../strings";
+import { TouchTarget, UiColors } from "../theme/ui-tokens";
+import { BigButton } from "./buttons/BigButton";
 
 interface Props {
   children: React.ReactNode;
 }
 
 interface State {
-  error: Error | null;
+  crashed: boolean;
 }
 
 export class ErrorBoundary extends React.Component<Props, State> {
-  state: State = { error: null };
+  state: State = { crashed: false };
 
-  static getDerivedStateFromError(error: Error): State {
-    return { error };
+  static getDerivedStateFromError(): State {
+    return { crashed: true };
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo): void {
@@ -24,23 +26,34 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   reset = (): void => {
-    this.setState({ error: null });
+    this.setState({ crashed: false });
   };
 
   render(): React.ReactNode {
-    const { error } = this.state;
-    if (error === null) return this.props.children;
-
+    if (!this.state.crashed) return this.props.children;
     return (
-      <View className="flex-1 items-center justify-center bg-bg px-6">
-        <Text className="mb-2 text-2xl font-semibold text-text">
-          Something went wrong
-        </Text>
-        <Text className="mb-6 text-center text-text-dim">{error.message}</Text>
-        <Button onPress={this.reset}>
-          <Text className="text-primary-foreground">Reconnect</Text>
-        </Button>
+      <View style={styles.screen}>
+        <Text style={styles.title}>{STRINGS.crash.title}</Text>
+        <Text style={styles.body}>{STRINGS.crash.body}</Text>
+        <BigButton
+          label={STRINGS.crash.retry}
+          tone="primary"
+          height={TouchTarget.driving}
+          onPress={this.reset}
+        />
       </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    padding: 24,
+    gap: 16,
+    justifyContent: "center",
+    backgroundColor: UiColors.bg,
+  },
+  title: { fontSize: 26, fontWeight: "700", color: UiColors.text },
+  body: { fontSize: 17, lineHeight: 25, color: UiColors.textSecondary },
+});

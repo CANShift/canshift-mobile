@@ -25,10 +25,7 @@ const NO_BAND: SensorDangerBand = { below: null, above: null };
 
 export type Onsets = Partial<Record<AlertSource, number>>;
 
-export const crossedLimit = (
-  key: SignalKey,
-  value: number,
-): AlertLimit | null => {
+const crossedLimit = (key: SignalKey, value: number): AlertLimit | null => {
   const kind = signalKeyToSensorKind(key);
   if (kind === undefined) return null;
   const band = sensorDefaultDangerBand(kind);
