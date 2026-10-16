@@ -23,23 +23,20 @@ export interface ActiveCriticalAlert {
   rows: CriticalAlertRow[];
 }
 
-const useSkippedKeys = (includeAcknowledged: boolean): Set<SignalKey> => {
+const useSkippedKeys = (): Set<SignalKey> => {
   const mutedKeys = useCriticalAlertStore((s) => s.mutedKeys);
   const acknowledgedKeys = useCriticalAlertStore((s) => s.acknowledgedKeys);
   return useMemo(
-    () =>
-      new Set(
-        includeAcknowledged ? [...mutedKeys, ...acknowledgedKeys] : mutedKeys,
-      ),
-    [includeAcknowledged, mutedKeys, acknowledgedKeys],
+    () => new Set([...mutedKeys, ...acknowledgedKeys]),
+    [mutedKeys, acknowledgedKeys],
   );
 };
 
-const useLiveAlert = (includeAcknowledged: boolean): CriticalAlert | null => {
+const useLiveAlert = (): CriticalAlert | null => {
   const values = useSignalsStore((s) => s.values);
   const lastAt = useSignalsStore((s) => s.lastAt);
   const isLive = useSignalsIsLive();
-  const skipped = useSkippedKeys(includeAcknowledged);
+  const skipped = useSkippedKeys();
   if (!isLive) return null;
   return selectCriticalAlert(freshValues(values, lastAt, Date.now()), skipped);
 };
@@ -58,11 +55,8 @@ const useForgetRecoveredAcknowledgements = (): void => {
 
 const useHoldingAlert = (): CriticalAlert | null => {
   useForgetRecoveredAcknowledgements();
-  return useLiveAlert(true);
+  return useLiveAlert();
 };
-
-export const useCriticalAlertKey = (): SignalKey | null =>
-  useLiveAlert(false)?.key ?? null;
 
 export const useCriticalAlertHolds = (): boolean => useHoldingAlert() !== null;
 

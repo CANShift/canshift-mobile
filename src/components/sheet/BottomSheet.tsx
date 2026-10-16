@@ -9,6 +9,8 @@ const SHEET_PADDING = 20;
 export interface BottomSheetProps {
   visible: boolean;
   title: string;
+  subtitle?: string;
+  accessory?: ReactNode;
   onClose: () => void;
   children: ReactNode;
 }
@@ -16,6 +18,8 @@ export interface BottomSheetProps {
 export const BottomSheet = ({
   visible,
   title,
+  subtitle,
+  accessory,
   onClose,
   children,
 }: BottomSheetProps) => {
@@ -42,9 +46,17 @@ export const BottomSheet = ({
           ]}
           accessibilityViewIsModal
         >
-          <Text style={styles.title} accessibilityRole="header">
-            {title}
-          </Text>
+          <View style={styles.head}>
+            <View style={styles.titles}>
+              <Text style={styles.title} accessibilityRole="header">
+                {title}
+              </Text>
+              {subtitle === undefined ? null : (
+                <Text style={styles.subtitle}>{subtitle}</Text>
+              )}
+            </View>
+            {accessory}
+          </View>
           {children}
         </View>
       </View>
@@ -64,5 +76,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: UiColors.border,
   },
+  head: { flexDirection: "row", alignItems: "center", gap: 12 },
+  titles: { flex: 1, gap: 2 },
   title: { fontSize: TITLE_SIZE, fontWeight: "700", color: UiColors.text },
+  subtitle: { fontSize: 14, color: UiColors.textMuted },
 });
