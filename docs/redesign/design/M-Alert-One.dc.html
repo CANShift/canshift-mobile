@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Critical alert, one</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+        </style>
+      </helmet>
+      <div
+        role="alertdialog"
+        aria-labelledby="a1"
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #d63333;
+          color: #ffffff;
+          font-family:
+            -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, system-ui,
+            sans-serif;
+          box-sizing: border-box;
+          padding: 24px 20px 36px;
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        "
+      >
+        <div style="display: flex; align-items: center; gap: 10px">
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#FFFFFF"
+            stroke-width="2.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"></path>
+          </svg>
+          <span
+            style="
+              flex: 1;
+              font-size: 15px;
+              font-weight: 800;
+              letter-spacing: 0.1em;
+            "
+            >CRITICAL ALERT</span
+          >
+          <span style="font-size: 15px; font-weight: 600">from the dash</span>
+        </div>
+
+        <h1
+          id="a1"
+          style="
+            margin: 28px 0 0;
+            font-size: 42px;
+            line-height: 1.05;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+          "
+        >
+          OIL PRESSURE LOW
+        </h1>
+        <div style="display: flex; align-items: baseline; gap: 10px">
+          <span
+            style="
+              font-family: ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+              font-size: 132px;
+              font-weight: 800;
+              line-height: 1;
+            "
+            >0.8</span
+          >
+          <span style="font-size: 32px; font-weight: 700">bar</span>
+        </div>
+        <div style="font-size: 22px; font-weight: 600">
+          Limit: below 1.0 bar
+        </div>
+
+        <div
+          style="
+            margin-top: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 14px;
+            padding: 4px 16px;
+            display: flex;
+            flex-direction: column;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              height: 48px;
+              border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+              font-size: 18px;
+            "
+          >
+            <span>RPM</span
+            ><span
+              style="
+                font-family:
+                  ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                font-weight: 700;
+              "
+              >4200</span
+            >
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              height: 48px;
+              border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+              font-size: 18px;
+            "
+          >
+            <span>Oil temp</span
+            ><span
+              style="
+                font-family:
+                  ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                font-weight: 700;
+              "
+              >112 °C</span
+            >
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              height: 48px;
+              font-size: 18px;
+            "
+          >
+            <span>Since</span
+            ><span
+              style="
+                font-family:
+                  ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                font-weight: 700;
+              "
+              >0:12</span
+            >
+          </div>
+        </div>
+
+        <div
+          style="
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+          "
+        >
+          <button
+            style="
+              height: 96px;
+              border-radius: 16px;
+              background: #ffffff;
+              color: #0e0f11;
+              border: 0;
+              font: inherit;
+              font-size: 26px;
+              font-weight: 800;
+            "
+          >
+            Acknowledge
+          </button>
+          <button
+            style="
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              gap: 10px;
+              height: 64px;
+              border-radius: 14px;
+              background: transparent;
+              color: #ffffff;
+              border: 2px solid rgba(255, 255, 255, 0.85);
+              font: inherit;
+              font-size: 18px;
+              font-weight: 700;
+            "
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path
+                d="M6 8a6 6 0 0 1 10-4.5M18 11v3l2 3H8M3 3l18 18M10 20a2 2 0 0 0 4 0"
+              ></path></svg
+            >Mute for this session
+          </button>
+        </div>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":390,"height":844}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          return {};
+        }
+      }
+    </script>
+  </body>
+</html>

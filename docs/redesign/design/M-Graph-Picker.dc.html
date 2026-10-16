@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Graph, signal picker</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family:
+            -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, system-ui,
+            sans-serif;
+        "
+      >
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 390px;
+            height: 56px;
+          "
+        >
+          <dc-import
+            name="MHeader"
+            conn="connected"
+            hint-size="390px,56px"
+          ></dc-import>
+        </div>
+        <div
+          style="
+            position: absolute;
+            left: 16px;
+            top: 70px;
+            font-size: 26px;
+            font-weight: 700;
+          "
+        >
+          Graph
+        </div>
+        <div
+          aria-hidden="true"
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 56px;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.65);
+          "
+        ></div>
+
+        <section
+          role="dialog"
+          aria-labelledby="pk"
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 150px;
+            bottom: 0;
+            background: #16181b;
+            border-top: 1px solid #2b2f35;
+            border-radius: 16px 16px 0 0;
+            box-sizing: border-box;
+            padding: 10px 16px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+          "
+        >
+          <div
+            aria-hidden="true"
+            style="
+              align-self: center;
+              width: 36px;
+              height: 4px;
+              border-radius: 2px;
+              background: #3a3f46;
+            "
+          ></div>
+          <div style="display: flex; align-items: center; gap: 12px">
+            <div
+              style="flex: 1; display: flex; flex-direction: column; gap: 2px"
+            >
+              <h2 id="pk" style="margin: 0; font-size: 22px">Choose signals</h2>
+              <span style="font-size: 14px; color: #a0a6ad"
+                >3 of 4 selected · up to 4 at once</span
+              >
+            </div>
+            <button
+              style="
+                height: 48px;
+                padding: 0 20px;
+                border-radius: 12px;
+                background: #f2f3f5;
+                color: #0e0f11;
+                border: 0;
+                font: inherit;
+                font-size: 16px;
+                font-weight: 700;
+              "
+            >
+              Done
+            </button>
+          </div>
+          <label
+            style="
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              height: 48px;
+              padding: 0 14px;
+              border-radius: 12px;
+              background: #0e0f11;
+              border: 1px solid #2b2f35;
+            "
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#A0A6AD"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="7"></circle>
+              <path d="M20 20l-4-4"></path>
+            </svg>
+            <input
+              placeholder="Search signals"
+              aria-label="Search signals"
+              style="
+                flex: 1;
+                min-width: 0;
+                height: 44px;
+                background: transparent;
+                border: 0;
+                color: #f2f3f5;
+                font-size: 16px;
+                font-family: inherit;
+              "
+            />
+          </label>
+          <div
+            style="
+              flex: 1;
+              min-height: 0;
+              overflow: hidden;
+              display: flex;
+              flex-direction: column;
+              border-radius: 12px;
+              background: #0e0f11;
+              border: 1px solid #2b2f35;
+            "
+          >
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="9">
+              <button
+                role="checkbox"
+                aria-checked="{{r.checked}}"
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 14px;
+                  min-height: 56px;
+                  padding: 0 14px;
+                  background: transparent;
+                  border: 0;
+                  border-bottom: 1px solid #23262b;
+                  color: #f2f3f5;
+                  font: inherit;
+                  text-align: left;
+                "
+              >
+                <span
+                  style="width: 26px; height: 26px; border-radius: 7px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; background: {{r.boxBg}}; border: {{r.boxBorder}}"
+                  ><sc-if value="{{r.on}}" hint-placeholder-val="{{ false }}"
+                    ><svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#0E0F11"
+                      stroke-width="3"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M5 12l5 5L20 7"></path></svg></sc-if
+                ></span>
+                <span style="flex: 1; font-size: 16px">{{r.name}}</span>
+                <span
+                  style="
+                    font-family:
+                      ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                    font-size: 15px;
+                    color: #a0a6ad;
+                  "
+                  >{{r.value}}</span
+                >
+                <span
+                  style="width: 18px; height: 4px; border-radius: 2px; background: {{r.swatch}}"
+                ></span>
+              </button>
+            </sc-for>
+          </div>
+        </section>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":390,"height":844}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          const list = [
+            ['Engine speed', '6120 rpm', '#F2F3F5'],
+            ['Oil pressure', '4.6 bar', '#4DA3FF'],
+            ['Coolant temperature', '98 °C', '#B78CFF'],
+            ['Oil temperature', '112 °C', null],
+            ['Vehicle speed', '142 km/h', null],
+            ['Air/fuel ratio', '12.9', null],
+            ['Battery voltage', '13.9 V', null],
+            ['Fuel pressure', '3.0 bar', null],
+            ['Throttle position', '86 %', null]
+          ];
+          return {
+            rows: list.map(([name, value, swatch]) => ({
+              name, value,
+              on: !!swatch,
+              checked: swatch ? 'true' : 'false',
+              swatch: swatch || 'transparent',
+              boxBg: swatch ? '#F2F3F5' : 'transparent',
+              boxBorder: swatch ? '0' : '2px solid #3A3F46'
+            }))
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

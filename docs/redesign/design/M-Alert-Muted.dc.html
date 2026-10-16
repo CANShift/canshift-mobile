@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Critical alert, muted</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family:
+            -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, system-ui,
+            sans-serif;
+        "
+      >
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 390px;
+            height: 56px;
+          "
+        >
+          <dc-import
+            name="MHeader"
+            conn="connected"
+            hint-size="390px,56px"
+          ></dc-import>
+        </div>
+
+        <div
+          role="alert"
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 56px;
+            height: 68px;
+            box-sizing: border-box;
+            padding: 0 8px 0 14px;
+            background: #d63333;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          "
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#FFFFFF"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            style="flex: none"
+          >
+            <path
+              d="M6 8a6 6 0 0 1 10-4.5M18 11v3l2 3H8M3 3l18 18M10 20a2 2 0 0 0 4 0"
+            ></path>
+          </svg>
+          <div
+            style="flex: 1; min-width: 0; display: flex; flex-direction: column"
+          >
+            <span style="font-size: 16px; font-weight: 800"
+              >Oil pressure low ·
+              <span
+                style="
+                  font-family:
+                    ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                "
+                >0.8</span
+              >
+              bar</span
+            >
+            <span style="font-size: 13px; font-weight: 600"
+              >Muted for this session · still active</span
+            >
+          </div>
+          <button
+            style="
+              height: 48px;
+              padding: 0 14px;
+              border-radius: 10px;
+              background: #ffffff;
+              color: #0e0f11;
+              border: 0;
+              font: inherit;
+              font-size: 15px;
+              font-weight: 800;
+            "
+          >
+            Unmute
+          </button>
+        </div>
+
+        <main
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 124px;
+            bottom: 84px;
+            box-sizing: border-box;
+            padding: 14px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+          "
+        >
+          <div
+            role="group"
+            aria-label="Timer"
+            style="
+              display: grid;
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 12px;
+              padding: 3px;
+            "
+          >
+            <button
+              aria-pressed="true"
+              style="
+                height: 50px;
+                border-radius: 9px;
+                background: #f2f3f5;
+                color: #0e0f11;
+                border: 0;
+                font: inherit;
+                font-size: 16px;
+                font-weight: 700;
+              "
+            >
+              GPS timing
+            </button>
+            <button
+              aria-pressed="false"
+              style="
+                height: 50px;
+                border-radius: 9px;
+                background: transparent;
+                color: #c9cdd2;
+                border: 0;
+                font: inherit;
+                font-size: 16px;
+              "
+            >
+              Dash timer
+            </button>
+          </div>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              padding-top: 4px;
+            "
+          >
+            <span
+              style="
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                height: 28px;
+                padding: 0 10px;
+                border-radius: 6px;
+                background: #123826;
+                color: #b8f2d3;
+                font-size: 13px;
+                font-weight: 800;
+                letter-spacing: 0.06em;
+              "
+              ><span
+                style="
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 4px;
+                  background: #3dd68c;
+                "
+              ></span
+              >TRACK MODE</span
+            >
+            <span style="font-size: 18px; font-weight: 700">Lap 5</span>
+          </div>
+          <div
+            style="
+              font-family: ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+              font-size: 78px;
+              font-weight: 700;
+              line-height: 1.05;
+            "
+          >
+            0:38.20
+          </div>
+          <div style="font-size: 15px; line-height: 1.5; color: #a0a6ad">
+            The alert won’t take over the screen or make a sound again this
+            session. The red strip stays while the problem lasts. A new alert
+            still shows full screen.
+          </div>
+          <button
+            style="
+              margin-top: auto;
+              height: 60px;
+              border-radius: 14px;
+              background: transparent;
+              color: #f2f3f5;
+              border: 1.5px solid #3a3f46;
+              font: inherit;
+              font-size: 18px;
+              font-weight: 600;
+            "
+          >
+            Stop track mode
+          </button>
+        </main>
+
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 390px;
+            height: 84px;
+          "
+        >
+          <dc-import
+            name="MTabBar"
+            active="laps"
+            hint-size="390px,84px"
+          ></dc-import>
+        </div>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":390,"height":844}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          return {};
+        }
+      }
+    </script>
+  </body>
+</html>

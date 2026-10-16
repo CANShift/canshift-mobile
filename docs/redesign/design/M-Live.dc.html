@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Live, normal</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family:
+            -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, system-ui,
+            sans-serif;
+        "
+      >
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 390px;
+            height: 56px;
+          "
+        >
+          <dc-import
+            name="MHeader"
+            conn="connected"
+            hint-size="390px,56px"
+          ></dc-import>
+        </div>
+
+        <div
+          aria-label="Shift light"
+          style="
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            top: 66px;
+            height: 22px;
+            display: flex;
+            gap: 4px;
+          "
+        >
+          <sc-for list="{{lights}}" as="l" hint-placeholder-count="12"
+            ><span
+              style="flex: 1; border-radius: 3px; background: {{l.c}}"
+            ></span
+          ></sc-for>
+        </div>
+
+        <div
+          style="
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            top: 100px;
+            bottom: 140px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-rows: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+          "
+        >
+          <sc-for list="{{tiles}}" as="t" hint-placeholder-count="8">
+            <div
+              style="border-radius: 14px; box-sizing: border-box; padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; background: {{t.bg}}; border: {{t.border}}"
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  gap: 6px;
+                "
+              >
+                <span
+                  style="font-size: 14px; font-weight: 700; letter-spacing: 0.06em; color: {{t.labelColor}}"
+                  >{{t.label}}</span
+                >
+                <span
+                  style="font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: {{t.tagColor}}"
+                  >{{t.tag}}</span
+                >
+              </div>
+              <div style="display: flex; align-items: baseline; gap: 6px">
+                <span
+                  style="font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 48px; font-weight: 700; line-height: 1; color: {{t.valueColor}}"
+                  >{{t.value}}</span
+                >
+                <span style="font-size: 16px; color: #a0a6ad">{{t.unit}}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 84px;
+            height: 56px;
+            box-sizing: border-box;
+            padding: 0 8px 0 16px;
+            border-top: 1px solid #23262b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          "
+        >
+          <span
+            style="width: 8px; height: 8px; border-radius: 4px; background: {{footDot}}"
+          ></span>
+          <span style="flex: 1; font-size: 14px; color: #c9cdd2"
+            >{{footText}}</span
+          >
+          <button
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              height: 44px;
+              padding: 0 14px;
+              border-radius: 10px;
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              color: #f2f3f5;
+              font: inherit;
+              font-size: 15px;
+            "
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="4"></circle>
+              <path
+                d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
+              ></path></svg
+            >Display
+          </button>
+        </div>
+
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 390px;
+            height: 84px;
+          "
+        >
+          <dc-import
+            name="MTabBar"
+            active="live"
+            hint-size="390px,84px"
+          ></dc-import>
+        </div>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":390,"height":844}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          const S = {
+            normal:  { bg: '#16181B', border: '1px solid #2B2F35', labelColor: '#A0A6AD', valueColor: '#F2F3F5', tagColor: '#A0A6AD' },
+            warning: { bg: '#2A1C0A', border: '2px solid #FF8800', labelColor: '#FFC27A', valueColor: '#FF8800', tagColor: '#FFC27A', tag: 'WARNING' },
+            danger:  { bg: '#2A1010', border: '2px solid #FF4747', labelColor: '#FFB3B3', valueColor: '#FF6B6B', tagColor: '#FFB3B3', tag: 'DANGER' },
+            stale:   { bg: '#0E0F11', border: '1.5px dashed #3A3F46', labelColor: '#8A9097', valueColor: '#6B7178', tagColor: '#A0A6AD' }
+          };
+          const rows = [
+            ['RPM', '3450', 'rpm', 'normal'],
+            ['SPEED', '84', 'km/h', 'normal'],
+            ['WATER', '92', '°C', 'normal'],
+            ['OIL P', '3.8', 'bar', 'normal'],
+            ['OIL T', '104', '°C', 'normal'],
+            ['AFR', '14.2', '', 'normal'],
+            ['BATT', '13.8', 'V', 'normal'],
+            ['FUEL P', '3.0', 'bar', 'normal']
+          ];
+          const lit = 5;
+          const lights = Array.from({ length: 12 }, (_, i) => ({
+            c: i >= lit ? '#1E2125' : i < 6 ? '#3DD68C' : i < 9 ? '#FF8800' : '#FF4747'
+          }));
+          return {
+            lights,
+            tiles: rows.map(([label, value, unit, st, tag]) => {
+              const s = S[st];
+              return { label, value, unit, tag: tag ?? s.tag ?? '', ...s };
+            }),
+            footDot: '#3DD68C',
+            footText: 'Live · 20 updates/s'
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

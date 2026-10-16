@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dash timer, ready</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family:
+            -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, system-ui,
+            sans-serif;
+        "
+      >
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 390px;
+            height: 56px;
+          "
+        >
+          <dc-import
+            name="MHeader"
+            conn="connected"
+            hint-size="390px,56px"
+          ></dc-import>
+        </div>
+
+        <main
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 56px;
+            bottom: 84px;
+            box-sizing: border-box;
+            padding: 14px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+          "
+        >
+          <div
+            role="group"
+            aria-label="Timer"
+            style="
+              display: grid;
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 12px;
+              padding: 3px;
+            "
+          >
+            <button
+              aria-pressed="false"
+              style="
+                height: 50px;
+                border-radius: 9px;
+                background: transparent;
+                color: #c9cdd2;
+                border: 0;
+                font: inherit;
+                font-size: 16px;
+              "
+            >
+              GPS timing
+            </button>
+            <button
+              aria-pressed="true"
+              style="
+                height: 50px;
+                border-radius: 9px;
+                background: #f2f3f5;
+                color: #0e0f11;
+                border: 0;
+                font: inherit;
+                font-size: 16px;
+                font-weight: 700;
+              "
+            >
+              Dash timer
+            </button>
+          </div>
+
+          <div
+            style="display: flex; flex-wrap: wrap; gap: 8px; padding-top: 6px"
+          >
+            <span
+              style="
+                display: inline-flex;
+                align-items: center;
+                height: 30px;
+                padding: 0 12px;
+                border-radius: 6px;
+                background: #1e2125;
+                color: #f2f3f5;
+                font-size: 13px;
+                font-weight: 800;
+                letter-spacing: 0.06em;
+              "
+              >READY</span
+            >
+            <span
+              style="
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                height: 30px;
+                padding: 0 12px;
+                border-radius: 6px;
+                border: 1.5px solid #3dd68c;
+                color: #3dd68c;
+                font-size: 13px;
+                font-weight: 800;
+                letter-spacing: 0.06em;
+                box-sizing: border-box;
+              "
+              ><svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"></path>
+                <path
+                  d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"
+                ></path></svg
+              >SYNCED WITH DASH</span
+            >
+          </div>
+          <div
+            style="
+              font-family: ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+              font-size: 78px;
+              font-weight: 700;
+              line-height: 1.05;
+              color: #8a9097;
+            "
+          >
+            0:00.00
+          </div>
+          <div style="font-size: 15px; color: #a0a6ad">
+            The dash shows the same timer.
+          </div>
+
+          <div
+            style="
+              flex: 1;
+              min-height: 0;
+              border: 1px dashed #3a3f46;
+              border-radius: 14px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 16px;
+              color: #a0a6ad;
+            "
+          >
+            No laps yet
+          </div>
+
+          <button
+            style="
+              height: 88px;
+              border-radius: 16px;
+              background: #d63333;
+              color: #ffffff;
+              border: 0;
+              font: inherit;
+              font-size: 22px;
+              font-weight: 700;
+            "
+          >
+            Start
+          </button>
+        </main>
+
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 390px;
+            height: 84px;
+          "
+        >
+          <dc-import
+            name="MTabBar"
+            active="laps"
+            hint-size="390px,84px"
+          ></dc-import>
+        </div>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":390,"height":844}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          return {};
+        }
+      }
+    </script>
+  </body>
+</html>

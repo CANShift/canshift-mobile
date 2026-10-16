@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Mobile navigation and rules</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+          a {
+            color: #ff6b6b;
+          }
+          a:hover {
+            color: #ff8f8f;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 1440px;
+          min-height: 1200px;
+          box-sizing: border-box;
+          padding: 64px;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family:
+            -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, system-ui,
+            sans-serif;
+          display: flex;
+          flex-direction: column;
+          gap: 36px;
+        "
+      >
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <div
+            style="
+              font-size: 14px;
+              font-weight: 600;
+              letter-spacing: 0.08em;
+              text-transform: uppercase;
+              color: #ff4747;
+            "
+          >
+            CANShift Mobile · redesign
+          </div>
+          <h1 style="margin: 0; font-size: 44px; line-height: 1.1">
+            Read it at arm’s length.<br />Nothing to think about while driving.
+          </h1>
+          <div
+            style="
+              font-size: 17px;
+              color: #a0a6ad;
+              max-width: 900px;
+              line-height: 1.5;
+            "
+          >
+            Same tokens, words and safety cues as the Tuner. Every feature is
+            kept. Four tabs, one pushed screen (Console), and overlays that
+            always win in a fixed order.
+          </div>
+        </div>
+
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 20px;
+          "
+        >
+          <section
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 24px;
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+            "
+          >
+            <div style="display: flex; align-items: center; gap: 10px">
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#FF4747"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3.3 17a9 9 0 1 1 17.4 0"></path>
+                <path d="M12 14l4-4"></path>
+              </svg>
+              <h2 style="margin: 0; font-size: 22px">Live</h2>
+            </div>
+            <div style="font-size: 14px; color: #a0a6ad">was Dash</div>
+            <ul
+              style="
+                margin: 0;
+                padding-left: 18px;
+                font-size: 15px;
+                line-height: 1.5;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+              "
+            >
+              <li>Shift light bar</li>
+              <li>Value tiles: normal, warning, danger, stale</li>
+              <li>Link footer</li>
+              <li>Display sheet: brightness, keep screen on</li>
+            </ul>
+          </section>
+          <section
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 24px;
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+            "
+          >
+            <div style="display: flex; align-items: center; gap: 10px">
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#FF4747"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3 3v18h18"></path>
+                <path d="M7 15l4-4 3 3 5-6"></path>
+              </svg>
+              <h2 style="margin: 0; font-size: 22px">Graph</h2>
+            </div>
+            <div style="font-size: 14px; color: #a0a6ad">same name</div>
+            <ul
+              style="
+                margin: 0;
+                padding-left: 18px;
+                font-size: 15px;
+                line-height: 1.5;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+              "
+            >
+              <li>Live chart</li>
+              <li>Signal strip + picker sheet</li>
+              <li>30 s · 1 min · 2 min</li>
+              <li>Pause / Resume · Clear · Export</li>
+            </ul>
+          </section>
+          <section
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 24px;
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+            "
+          >
+            <div style="display: flex; align-items: center; gap: 10px">
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#FF4747"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="14" r="7"></circle>
+                <path d="M12 10v4l2 2M10 3h4"></path>
+              </svg>
+              <h2 style="margin: 0; font-size: 22px">Laps</h2>
+            </div>
+            <div style="font-size: 14px; color: #a0a6ad">was Track</div>
+            <ul
+              style="
+                margin: 0;
+                padding-left: 18px;
+                font-size: 15px;
+                line-height: 1.5;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+              "
+            >
+              <li>Switch: <b>GPS timing</b> · <b>Dash timer</b></li>
+              <li>GPS: fix, line, track mode, chrono, stats, laps</li>
+              <li>Dash timer: Start, Pause, Resume, Reset, Capture lap</li>
+              <li>Synced with dash / Phone only</li>
+            </ul>
+          </section>
+          <section
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 24px;
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+            "
+          >
+            <div style="display: flex; align-items: center; gap: 10px">
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#FF4747"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"></path>
+                <circle cx="16" cy="6" r="2"></circle>
+                <circle cx="10" cy="12" r="2"></circle>
+                <circle cx="18" cy="18" r="2"></circle>
+              </svg>
+              <h2 style="margin: 0; font-size: 22px">Device</h2>
+            </div>
+            <div style="font-size: 14px; color: #a0a6ad">same name</div>
+            <ul
+              style="
+                margin: 0;
+                padding-left: 18px;
+                font-size: 15px;
+                line-height: 1.5;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+              "
+            >
+              <li>Connection: Disconnect / Reconnect</li>
+              <li>Telemetry logging</li>
+              <li>Dash and app info</li>
+              <li>Console › Log · Send · CAN</li>
+              <li>Demo mode · End demo</li>
+            </ul>
+          </section>
+        </div>
+
+        <div
+          style="
+            font-size: 16px;
+            line-height: 1.5;
+            color: #c9cdd2;
+            background: #16181b;
+            border: 1px solid #2b2f35;
+            border-radius: 14px;
+            padding: 20px 24px;
+          "
+        >
+          <b style="color: #f2f3f5">Why four tabs:</b> each one is a different
+          moment — driving, looking back, timing, setup — so they stay separate.
+          Two renames: <b style="color: #f2f3f5">Dash → Live</b> so it isn’t
+          confused with the dash itself, and
+          <b style="color: #f2f3f5">Track → Laps</b> because it says what you
+          get. Before connecting, the app is one Scan screen (with Demo mode and
+          App info); no tabs until a dash is linked.
+        </div>
+
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+          "
+        >
+          <section
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 24px;
+              display: flex;
+              flex-direction: column;
+              gap: 14px;
+            "
+          >
+            <h2 style="margin: 0; font-size: 20px">
+              What wins — overlays, top first
+            </h2>
+            <ol
+              style="
+                margin: 0;
+                padding-left: 22px;
+                font-size: 15px;
+                line-height: 1.55;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+              "
+            >
+              <li>
+                <b>Critical alert</b> — full screen, solid red. Every active
+                alert is listed; acknowledging one never hides another.
+              </li>
+              <li>
+                <b>Reconnect failed</b> — dialog: Try again · Scan for dashes.
+              </li>
+              <li>
+                <b>Reconnecting banner</b> — under the header, with Cancel (back
+                to Scan). Values turn stale.
+              </li>
+              <li>
+                <b>Acknowledged / muted alerts</b> — red strip under the header
+                while the problem lasts.
+              </li>
+              <li><b>Phone battery low</b> — orange banner, dismissable.</li>
+            </ol>
+            <div style="font-size: 14px; color: #a0a6ad">
+              Landscape on the mount: the tab bar becomes a left rail; overlays
+              behave the same.
+            </div>
+          </section>
+          <section
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 24px;
+              display: flex;
+              flex-direction: column;
+              gap: 14px;
+            "
+          >
+            <h2 style="margin: 0; font-size: 20px">How a value looks</h2>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 10px;
+              "
+            >
+              <div
+                style="
+                  background: #0e0f11;
+                  border: 1px solid #2b2f35;
+                  border-radius: 12px;
+                  padding: 12px;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 4px;
+                "
+              >
+                <span
+                  style="
+                    font-size: 12px;
+                    font-weight: 700;
+                    letter-spacing: 0.06em;
+                    color: #a0a6ad;
+                  "
+                  >OIL P</span
+                ><span
+                  style="
+                    font-family:
+                      ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                    font-size: 30px;
+                    font-weight: 700;
+                  "
+                  >3.8</span
+                ><span style="font-size: 12px; color: #a0a6ad">Live</span>
+              </div>
+              <div
+                style="
+                  background: #2a1c0a;
+                  border: 2px solid #ff8800;
+                  border-radius: 12px;
+                  padding: 11px;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 4px;
+                "
+              >
+                <span
+                  style="
+                    font-size: 12px;
+                    font-weight: 700;
+                    letter-spacing: 0.06em;
+                    color: #ffc27a;
+                  "
+                  >OIL T</span
+                ><span
+                  style="
+                    font-family:
+                      ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                    font-size: 30px;
+                    font-weight: 700;
+                    color: #ff8800;
+                  "
+                  >112</span
+                ><span style="font-size: 12px; color: #ffc27a">Warning</span>
+              </div>
+              <div
+                style="
+                  background: #2a1010;
+                  border: 2px solid #ff4747;
+                  border-radius: 12px;
+                  padding: 11px;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 4px;
+                "
+              >
+                <span
+                  style="
+                    font-size: 12px;
+                    font-weight: 700;
+                    letter-spacing: 0.06em;
+                    color: #ffb3b3;
+                  "
+                  >WATER</span
+                ><span
+                  style="
+                    font-family:
+                      ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                    font-size: 30px;
+                    font-weight: 700;
+                    color: #ff6b6b;
+                  "
+                  >118</span
+                ><span style="font-size: 12px; color: #ffb3b3">Danger</span>
+              </div>
+              <div
+                style="
+                  background: #0e0f11;
+                  border: 1.5px dashed #3a3f46;
+                  border-radius: 12px;
+                  padding: 11px;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 4px;
+                "
+              >
+                <span
+                  style="
+                    font-size: 12px;
+                    font-weight: 700;
+                    letter-spacing: 0.06em;
+                    color: #8a9097;
+                  "
+                  >AFR</span
+                ><span
+                  style="
+                    font-family:
+                      ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                    font-size: 30px;
+                    font-weight: 700;
+                    color: #6b7178;
+                  "
+                  >14.2</span
+                ><span style="font-size: 12px; color: #a0a6ad">8 s ago</span>
+              </div>
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 12px 14px;
+                border-radius: 10px;
+                background: #d63333;
+                color: #ffffff;
+                font-size: 15px;
+                font-weight: 600;
+              "
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#FFFFFF"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"></path></svg
+              >Full-screen alert — solid red + frame icon. Never used for a
+              tile.
+            </div>
+            <div style="font-size: 14px; color: #a0a6ad; line-height: 1.5">
+              The state is always written in words (Warning, Danger, “8 s ago”),
+              not shown by colour alone. Stale values turn grey with a dashed
+              edge and their age — they never keep looking live.
+            </div>
+          </section>
+        </div>
+
+        <section
+          style="
+            background: #16181b;
+            border: 1px solid #2b2f35;
+            border-radius: 14px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+          "
+        >
+          <h2 style="margin: 0; font-size: 20px">Glance rules</h2>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(4, minmax(0, 1fr));
+              gap: 16px;
+              font-size: 15px;
+              line-height: 1.5;
+              color: #c9cdd2;
+            "
+          >
+            <div>
+              <b style="color: #f2f3f5">Numbers</b><br />Monospace, 44 px+ on
+              Live, 72 px+ for the lap chrono.
+            </div>
+            <div>
+              <b style="color: #f2f3f5">Targets</b><br />44 px minimum; 56 px on
+              driving screens; 88 px for Capture lap and Acknowledge (gloves).
+            </div>
+            <div>
+              <b style="color: #f2f3f5">Words</b><br />Same as the Tuner:
+              Connected / Reconnecting… / Not connected. Say what happened, then
+              what to do.
+            </div>
+            <div>
+              <b style="color: #f2f3f5">Contrast</b><br />Text on dark ≥ 4.5:1;
+              muted grey only for secondary info.
+            </div>
+          </div>
+        </section>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":1440,"height":1200}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          return {};
+        }
+      }
+    </script>
+  </body>
+</html>

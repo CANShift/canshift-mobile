@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Live, no data</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family:
+            -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, system-ui,
+            sans-serif;
+        "
+      >
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 390px;
+            height: 56px;
+          "
+        >
+          <dc-import
+            name="MHeader"
+            conn="connected"
+            hint-size="390px,56px"
+          ></dc-import>
+        </div>
+
+        <div
+          role="status"
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 56px;
+            height: 64px;
+            box-sizing: border-box;
+            padding: 0 16px;
+            background: #2a1c0a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          "
+        >
+          <span
+            style="
+              flex: none;
+              display: inline-flex;
+              align-items: center;
+              height: 28px;
+              padding: 0 10px;
+              border-radius: 6px;
+              background: #ff8800;
+              color: #0e0f11;
+              font-size: 13px;
+              font-weight: 800;
+              letter-spacing: 0.06em;
+            "
+            >NO DATA</span
+          >
+          <span style="font-size: 14px; line-height: 1.35; color: #ffc27a"
+            >Nothing from the dash for 6 s. Values below are the last ones
+            received.</span
+          >
+        </div>
+
+        <div
+          aria-label="Shift light, no data"
+          style="
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            top: 130px;
+            height: 14px;
+            display: flex;
+            gap: 4px;
+          "
+        >
+          <sc-for list="{{lights}}" as="l" hint-placeholder-count="12"
+            ><span
+              style="flex: 1; border-radius: 3px; background: #1e2125"
+            ></span
+          ></sc-for>
+        </div>
+
+        <div
+          style="
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            top: 154px;
+            bottom: 140px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-rows: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+          "
+        >
+          <sc-for list="{{tiles}}" as="t" hint-placeholder-count="8">
+            <div
+              style="border-radius: 14px; box-sizing: border-box; padding: 10px 14px; display: flex; flex-direction: column; justify-content: space-between; background: {{t.bg}}; border: {{t.border}}"
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  gap: 6px;
+                "
+              >
+                <span
+                  style="font-size: 14px; font-weight: 700; letter-spacing: 0.06em; color: {{t.labelColor}}"
+                  >{{t.label}}</span
+                >
+                <span
+                  style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: {{t.tagColor}}"
+                  ><svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M12 7v5l3 2"></path></svg
+                  >{{t.tag}}</span
+                >
+              </div>
+              <div style="display: flex; align-items: baseline; gap: 6px">
+                <span
+                  style="font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 44px; font-weight: 700; line-height: 1; color: {{t.valueColor}}"
+                  >{{t.value}}</span
+                >
+                <span style="font-size: 16px; color: #6b7178">{{t.unit}}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 84px;
+            height: 56px;
+            box-sizing: border-box;
+            padding: 0 8px 0 16px;
+            border-top: 1px solid #23262b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          "
+        >
+          <span
+            style="
+              width: 8px;
+              height: 8px;
+              border-radius: 4px;
+              border: 2px solid #a0a6ad;
+              box-sizing: border-box;
+            "
+          ></span>
+          <span style="flex: 1; font-size: 14px; color: #c9cdd2"
+            >Linked, but no data · last update 6 s ago</span
+          >
+          <button
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              height: 44px;
+              padding: 0 14px;
+              border-radius: 10px;
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              color: #f2f3f5;
+              font: inherit;
+              font-size: 15px;
+            "
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="4"></circle>
+              <path
+                d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
+              ></path></svg
+            >Display
+          </button>
+        </div>
+
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 390px;
+            height: 84px;
+          "
+        >
+          <dc-import
+            name="MTabBar"
+            active="live"
+            hint-size="390px,84px"
+          ></dc-import>
+        </div>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":390,"height":844}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          const stale = { bg: '#0E0F11', border: '1.5px dashed #3A3F46', labelColor: '#8A9097', valueColor: '#6B7178', tagColor: '#A0A6AD' };
+          const rows = [
+            ['RPM', '3450', 'rpm', '6 s ago'],
+            ['SPEED', '84', 'km/h', '6 s ago'],
+            ['WATER', '92', '°C', '6 s ago'],
+            ['OIL P', '3.8', 'bar', '6 s ago'],
+            ['OIL T', '104', '°C', '6 s ago'],
+            ['AFR', '14.2', '', '6 s ago'],
+            ['BATT', '13.8', 'V', '6 s ago'],
+            ['FUEL P', '—', '', 'No data']
+          ];
+          return {
+            lights: Array.from({ length: 12 }, () => ({})),
+            tiles: rows.map(([label, value, unit, tag]) => ({ ...stale, label, value, unit, tag }))
+          };
+        }
+      }
+    </script>
+  </body>
+</html>
