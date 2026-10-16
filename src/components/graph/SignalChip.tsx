@@ -2,6 +2,8 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { STRINGS } from "../../strings";
 import { TouchTarget, UiColors, UiFonts } from "../../theme/ui-tokens";
 import { Glyph } from "../icons/Glyph";
+import { SeriesSwatch } from "./SeriesSwatch";
+import type { SeriesStyle } from "../../lib/graph-config";
 
 const CHIP_HEIGHT = TouchTarget.min;
 const REMOVE_SIZE = 36;
@@ -9,7 +11,7 @@ const REMOVE_SIZE = 36;
 export interface SignalChipProps {
   name: string;
   value: string;
-  color: string;
+  series: SeriesStyle;
   hasValue: boolean;
   onRemove: () => void;
 }
@@ -17,12 +19,12 @@ export interface SignalChipProps {
 export const SignalChip = ({
   name,
   value,
-  color,
+  series,
   hasValue,
   onRemove,
 }: SignalChipProps) => (
   <View style={styles.chip}>
-    <View style={[styles.swatch, { backgroundColor: color }]} />
+    <SeriesSwatch series={series} />
     <Text style={styles.name}>{name}</Text>
     <Text style={[styles.value, hasValue ? null : styles.noValue]}>
       {value}
@@ -51,7 +53,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
-  swatch: { width: 14, height: 4, borderRadius: 2 },
   name: { fontSize: 14, color: UiColors.text },
   value: {
     fontSize: 14,

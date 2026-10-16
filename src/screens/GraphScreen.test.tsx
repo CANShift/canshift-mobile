@@ -77,15 +77,13 @@ describe("Graph screen", () => {
     ).toBeNull();
   });
 
-  it("caps the picker at four signals", async () => {
+  it("adds a fifth signal from the picker", async () => {
     const view = await renderGraph();
     await press(view, STRINGS.graph.addSignal);
-    expect(view.getByText(STRINGS.graph.pickerCount(3, 4))).toBeTruthy();
+    expect(view.getByText(STRINGS.graph.pickerCount(3))).toBeTruthy();
     await press(view, "Oil Temp");
-    expect(view.getByText(STRINGS.graph.pickerCount(4, 4))).toBeTruthy();
-    expect(
-      view.getByLabelText("Battery").props.accessibilityState,
-    ).toMatchObject({ disabled: true });
+    await press(view, "Battery");
+    expect(view.getByText(STRINGS.graph.pickerCount(5))).toBeTruthy();
   });
 
   it("shows PAUSED while paused", async () => {

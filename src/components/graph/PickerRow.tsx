@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { TouchTarget, UiColors, UiFonts } from "../../theme/ui-tokens";
 import { Glyph } from "../icons/Glyph";
+import { SeriesSwatch } from "./SeriesSwatch";
+import type { SeriesStyle } from "../../lib/graph-config";
 
 const BOX = 26;
 
@@ -8,8 +10,7 @@ export interface PickerRowProps {
   name: string;
   value: string;
   checked: boolean;
-  disabled: boolean;
-  swatch: string | null;
+  swatch: SeriesStyle | null;
   onPress: () => void;
 }
 
@@ -17,16 +18,14 @@ export const PickerRow = ({
   name,
   value,
   checked,
-  disabled,
   swatch,
   onPress,
 }: PickerRowProps) => (
   <Pressable
-    style={[styles.row, disabled ? styles.disabled : null]}
+    style={styles.row}
     onPress={onPress}
-    disabled={disabled}
     accessibilityRole="checkbox"
-    accessibilityState={{ checked, disabled }}
+    accessibilityState={{ checked }}
     accessibilityLabel={name}
   >
     <View style={[styles.box, checked ? styles.boxOn : styles.boxOff]}>
@@ -36,9 +35,9 @@ export const PickerRow = ({
     </View>
     <Text style={styles.name}>{name}</Text>
     <Text style={styles.value}>{value}</Text>
-    <View
-      style={[styles.swatch, { backgroundColor: swatch ?? "transparent" }]}
-    />
+    <View style={styles.swatch}>
+      {swatch === null ? null : <SeriesSwatch series={swatch} />}
+    </View>
   </Pressable>
 );
 
@@ -52,7 +51,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 14,
   },
-  disabled: { opacity: 0.4 },
   box: {
     width: BOX,
     height: BOX,
@@ -68,5 +66,5 @@ const styles = StyleSheet.create({
     fontFamily: UiFonts.numeric,
     color: UiColors.textMuted,
   },
-  swatch: { width: 18, height: 4, borderRadius: 2 },
+  swatch: { width: 18, height: 4 },
 });

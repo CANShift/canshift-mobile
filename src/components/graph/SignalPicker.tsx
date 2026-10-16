@@ -4,7 +4,7 @@ import { STRINGS } from "../../strings";
 import { UiColors, UiRadius } from "../../theme/ui-tokens";
 import type { SignalValues } from "../../stores/telemetry.store";
 import { formatNumber } from "../../lib/graph-math";
-import { MAX_GRAPH_SIGNALS, seriesStyle } from "../../lib/graph-config";
+import { seriesStyle } from "../../lib/graph-config";
 import type { GraphSelection } from "../../hooks/use-graph-selection";
 import { BottomSheet } from "../sheet/BottomSheet";
 import { SheetDoneButton } from "../sheet/SheetDoneButton";
@@ -19,7 +19,6 @@ export interface SignalPickerProps {
 }
 
 export const SignalPicker = ({ selection, latest }: SignalPickerProps) => {
-  const full = selection.signals.length >= MAX_GRAPH_SIGNALS;
   const rowFor = (key: SignalKey) => {
     const index = selection.signals.indexOf(key);
     return (
@@ -28,8 +27,7 @@ export const SignalPicker = ({ selection, latest }: SignalPickerProps) => {
         name={SIGNAL_META[key].label}
         value={formatNumber(key, latest[key])}
         checked={index >= 0}
-        disabled={full && index < 0}
-        swatch={index >= 0 ? seriesStyle(index).color : null}
+        swatch={index >= 0 ? seriesStyle(index) : null}
         onPress={() => {
           selection.toggle(key);
         }}
@@ -40,10 +38,7 @@ export const SignalPicker = ({ selection, latest }: SignalPickerProps) => {
     <BottomSheet
       visible={selection.pickerOpen}
       title={STRINGS.graph.pickerTitle}
-      subtitle={STRINGS.graph.pickerCount(
-        selection.signals.length,
-        MAX_GRAPH_SIGNALS,
-      )}
+      subtitle={STRINGS.graph.pickerCount(selection.signals.length)}
       accessory={
         <SheetDoneButton
           label={STRINGS.graph.done}

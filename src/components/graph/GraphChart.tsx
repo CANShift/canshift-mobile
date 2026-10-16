@@ -17,7 +17,6 @@ const VIEW_W = 334;
 const VIEW_H = 300;
 const GRID_ROWS = [0.25, 0.5, 0.75];
 const TRACE_WIDTH = 2.5;
-const DASH = "6 4";
 const NO_DASH = "0";
 
 export interface GraphChartProps {
@@ -82,7 +81,7 @@ export const GraphChart = ({ series, signals, window }: GraphChartProps) => (
               stroke={style.color}
               strokeWidth={TRACE_WIDTH}
               strokeLinejoin="round"
-              strokeDasharray={style.dashed ? DASH : NO_DASH}
+              strokeDasharray={style.dash ?? NO_DASH}
             />
           );
         })}

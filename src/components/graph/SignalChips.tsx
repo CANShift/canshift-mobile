@@ -30,7 +30,7 @@ export const SignalChips = ({
         name={SIGNAL_META[key].label}
         value={chipValue(key, latest)}
         hasValue={latest[key] !== undefined}
-        color={seriesStyle(index).color}
+        series={seriesStyle(index)}
         onRemove={() => {
           onRemove(key);
         }}
