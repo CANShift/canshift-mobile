@@ -4,10 +4,13 @@ import { pushSample, type SignalValues } from "./telemetry.store";
 
 export type TelemetryPayload = Partial<Record<SignalKey, number>>;
 
+export type SignalStamps = Partial<Record<SignalKey, number>>;
+
 export const DISPLAY_FLUSH_MS = 33;
 
 interface SignalsState {
   values: TelemetryPayload;
+  lastAt: SignalStamps;
   lastUpdateMs: number;
   isLive: boolean;
   staleSinceMs: number;
@@ -27,6 +30,9 @@ const dropPendingFlush = (): void => {
   pendingPayload = null;
 };
 
+const stampsFor = (payload: TelemetryPayload, nowMs: number): SignalStamps =>
+  Object.fromEntries(Object.keys(payload).map((key) => [key, nowMs]));
+
 const definedValues = (payload: TelemetryPayload): SignalValues => {
   const defined: SignalValues = {};
   for (const [k, v] of Object.entries(payload)) {
@@ -37,13 +43,16 @@ const definedValues = (payload: TelemetryPayload): SignalValues => {
 
 export const useSignalsStore = create<SignalsState>()((set, get) => ({
   values: {},
+  lastAt: {},
   lastUpdateMs: 0,
   isLive: false,
   staleSinceMs: 0,
 
   ingest: (payload) => {
-    pushSample(definedValues(payload));
-    pendingPayload = { ...pendingPayload, ...payload };
+    const defined = definedValues(payload);
+    if (Object.keys(defined).length === 0) return;
+    pushSample(defined);
+    pendingPayload = { ...pendingPayload, ...defined };
     if (flushTimer !== null) return;
     flushTimer = setTimeout(() => {
       const flushed = pendingPayload ?? {};
@@ -54,9 +63,11 @@ export const useSignalsStore = create<SignalsState>()((set, get) => ({
   },
 
   update: (payload) => {
+    const nowMs = Date.now();
     set((s) => ({
       values: { ...s.values, ...payload },
-      lastUpdateMs: Date.now(),
+      lastAt: { ...s.lastAt, ...stampsFor(payload, nowMs) },
+      lastUpdateMs: nowMs,
       isLive: true,
       staleSinceMs: 0,
     }));
@@ -72,7 +83,7 @@ export const useSignalsStore = create<SignalsState>()((set, get) => ({
 
   clearHeld: () => {
     dropPendingFlush();
-    set({ values: {} });
+    set({ values: {}, lastAt: {} });
   },
 }));
 

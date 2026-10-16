@@ -1,4 +1,5 @@
 import React from "react";
+import { StyleSheet, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import {
   createNativeStackNavigator,
@@ -8,6 +9,8 @@ import ScanScreen from "../screens/ScanScreen";
 import DeviceScreen from "../screens/DeviceScreen";
 import LogScreen from "../screens/LogScreen";
 import ConnectedNavigator from "./ConnectedNavigator";
+import { navigationRef } from "./navigation-ref";
+import { OverlayHost } from "../components/shell/OverlayHost";
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export type RootStackParamList = {
@@ -21,30 +24,37 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const Navigation = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{ headerShown: false }}
-        initialRouteName="Scan"
-      >
-        <Stack.Screen name="Scan" component={ScanScreen} />
-        <Stack.Screen name="Connected" component={ConnectedNavigator} />
-        <Stack.Screen name="Device">
-          {({
-            navigation,
-          }: NativeStackScreenProps<RootStackParamList, "Device">) => (
-            <DeviceScreen navigation={navigation} showBack />
-          )}
-        </Stack.Screen>
-        <Stack.Screen name="Console">
-          {({
-            navigation,
-          }: NativeStackScreenProps<RootStackParamList, "Console">) => (
-            <LogScreen onBack={navigation.goBack} />
-          )}
-        </Stack.Screen>
-      </Stack.Navigator>
+    <NavigationContainer ref={navigationRef}>
+      <View style={styles.root}>
+        <Stack.Navigator
+          screenOptions={{ headerShown: false }}
+          initialRouteName="Scan"
+        >
+          <Stack.Screen name="Scan" component={ScanScreen} />
+          <Stack.Screen name="Connected" component={ConnectedNavigator} />
+          <Stack.Screen name="Device">
+            {({
+              navigation,
+            }: NativeStackScreenProps<RootStackParamList, "Device">) => (
+              <DeviceScreen navigation={navigation} showBack />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="Console">
+            {({
+              navigation,
+            }: NativeStackScreenProps<RootStackParamList, "Console">) => (
+              <LogScreen onBack={navigation.goBack} />
+            )}
+          </Stack.Screen>
+        </Stack.Navigator>
+        <OverlayHost />
+      </View>
     </NavigationContainer>
   );
 };
+
+const styles = StyleSheet.create({
+  root: { flex: 1 },
+});
 
 export default Navigation;

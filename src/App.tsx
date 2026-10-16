@@ -16,6 +16,7 @@ import {
 import Navigation from "./navigation";
 import { Toaster } from "@/components/ui";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { KeepAwakeWhileLinked } from "@/components/shell/KeepAwakeWhileLinked";
 import { useBleForegroundReconnect } from "@/hooks/use-ble-foreground-reconnect";
 import { usePhoneBatteryGuard } from "@/hooks/use-phone-battery-guard";
 import { useAppSettingsStore } from "@/stores/app-settings.store";
@@ -52,6 +53,7 @@ const App = () => {
   return (
     <SafeAreaProvider>
       <StatusBar style="light" />
+      <KeepAwakeWhileLinked />
       <ErrorBoundary>
         <Navigation />
       </ErrorBoundary>

@@ -45,6 +45,11 @@ export const bleErrorMessage = (err: BleConnectionError): BleErrorMessage => {
             ? "CANShift needs nearby devices permission. Open app settings to grant it."
             : "CANShift needs Bluetooth access to find your dashboard.",
       };
+    case "telemetry-version":
+      return {
+        title: "Update needed",
+        body: "The dash sends live data in a format this app can’t read. Update the app or the dash firmware.",
+      };
     case "unknown":
       return { title: "Connection failed", body: err.message };
     default: {

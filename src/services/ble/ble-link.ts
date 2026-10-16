@@ -9,6 +9,7 @@ import { log } from "../../stores/log.store";
 import { useDeviceStore } from "../../stores/device.store";
 import { useSignalsStore } from "../../stores/signals.store";
 import { useTimerStore } from "../../stores/timer.store";
+import { SIGNAL_STALE_MS } from "../../lib/signal-staleness";
 import type { ToastShowParams } from "../../components/ui/toast";
 import type { GattQueue } from "./ble-gatt-queue";
 import {
@@ -26,7 +27,6 @@ import {
 } from "./ble-payload-handlers";
 
 const STALENESS_CHECK_INTERVAL_MS = 250;
-const STALENESS_THRESHOLD_MS = 500;
 
 export interface LinkCallbacks {
   onLinkLost: (deviceId: string) => void;
@@ -218,11 +218,14 @@ export class DeviceLink implements MonitorHost {
 
   startStalenessTimer(): void {
     this.stopStalenessTimer();
+    const startedAtMs = Date.now();
     this.stalenessTimer = setInterval(() => {
-      const { lastUpdateMs, isLive } = useSignalsStore.getState();
-      if (isLive && Date.now() - lastUpdateMs > STALENESS_THRESHOLD_MS) {
-        useSignalsStore.getState().markStale();
-      }
+      const { lastUpdateMs, staleSinceMs, markStale } =
+        useSignalsStore.getState();
+      const lastSeenMs = Math.max(lastUpdateMs, startedAtMs);
+      if (staleSinceMs > 0 || Date.now() - lastSeenMs <= SIGNAL_STALE_MS)
+        return;
+      markStale();
     }, STALENESS_CHECK_INTERVAL_MS);
   }
 
