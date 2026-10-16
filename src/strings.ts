@@ -64,6 +64,15 @@ export const STRINGS = {
     reconnectFailedBody: "The dash may be off or out of range.",
     tryAgain: "Try again",
     scanForDashes: "Scan for dashes",
+    permissionHint: "Next, iOS asks for permission. Choose Allow.",
+    scanningHint: "Keep the phone close to the dash. This takes a few seconds.",
+    searchFinished: (found: number): string =>
+      `Search finished · ${String(found)} found`,
+    deniedPath: "Settings › CANShift › Bluetooth",
+    reconnectingHint:
+      "We’re trying your last dash first. Cancel to pick another one.",
+    connectingTo: (name: string): string => `Connecting to ${name}`,
+    dashDetail: (tag: string, signal: string): string => `${tag} · ${signal}`,
   },
   banners: {
     reconnectingTitle: "Reconnecting to the dash…",
