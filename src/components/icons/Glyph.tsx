@@ -16,7 +16,9 @@ export type GlyphName =
   | "back"
   | "chevron"
   | "info"
-  | "bluetooth";
+  | "bluetooth"
+  | "frame"
+  | "mute";
 
 const STROKES: Record<GlyphName, readonly string[]> = {
   pause: [],
@@ -41,6 +43,8 @@ const STROKES: Record<GlyphName, readonly string[]> = {
   chevron: ["M9 6l6 6-6 6"],
   info: ["M12 11v6M12 7.5v.5"],
   bluetooth: ["M7 7l10 10-5 4V3l5 4L7 17"],
+  frame: ["M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"],
+  mute: ["M6 8a6 6 0 0 1 10-4.5M18 11v3l2 3H8M3 3l18 18M10 20a2 2 0 0 0 4 0"],
 };
 
 const FILLS: Record<GlyphName, readonly string[]> = {
@@ -64,6 +68,8 @@ const FILLS: Record<GlyphName, readonly string[]> = {
   chevron: [],
   info: [],
   bluetooth: [],
+  frame: [],
+  mute: [],
 };
 
 interface GlyphCircle {

@@ -180,6 +180,7 @@ export class BleService {
 
       await this.link.seedStatus(device);
       await this.link.seedTimer(device);
+      await this.link.seedAlert(device);
 
       setDevice(deviceId, device.name ?? BLE_DEVICE_NAME);
       useDeviceStore.getState().setMode("ble");
