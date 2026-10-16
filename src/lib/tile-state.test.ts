@@ -1,12 +1,19 @@
 import { sensorDefaultDangerBand } from "@canshift/core";
-import { LIVE_TILES, type LiveTileSpec } from "./live-tiles";
+import {
+  LIVE_PAGES,
+  TILES,
+  TILES_PER_PAGE,
+  type LiveTileSpec,
+} from "./live-tiles";
 import { NO_VALUE, tileModel, tileState } from "./tile-state";
 import { SIGNAL_STALE_MS } from "./signal-staleness";
 
 const NOW = 1_000_000;
 
 const tile = (signal: string): LiveTileSpec => {
-  const spec = LIVE_TILES.find((candidate) => candidate.signal === signal);
+  const spec = Object.values(TILES).find(
+    (candidate) => candidate.signal === signal,
+  );
   if (spec === undefined) throw new Error(`no tile for ${signal}`);
   return spec;
 };
@@ -73,7 +80,27 @@ describe("tile state", () => {
     expect(model.accessibilityLabel).toBe("Oil pressure, 3.8 bar");
   });
 
-  it("shows eight tiles", () => {
-    expect(LIVE_TILES).toHaveLength(8);
+  it("writes the gear as the dash does", () => {
+    const model = tileModel(TILES.gear, {
+      value: 0,
+      lastAt: NOW,
+      paused: false,
+      nowMs: NOW,
+    });
+    expect(model.text).toBe("N");
+    expect(model.accessibilityLabel).toBe("Gear, N");
+  });
+
+  it("keeps every dash page and fits each one in the grid", () => {
+    expect(LIVE_PAGES.map((page) => page.name)).toEqual([
+      "Overview",
+      "Street",
+      "Track",
+      "Engine",
+      "Tuning",
+    ]);
+    for (const page of LIVE_PAGES) {
+      expect(page.tiles.length).toBeLessThanOrEqual(TILES_PER_PAGE);
+    }
   });
 });

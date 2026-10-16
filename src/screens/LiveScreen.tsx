@@ -2,17 +2,22 @@ import { StyleSheet, View } from "react-native";
 import { UiColors } from "../theme/ui-tokens";
 import { useLiveScreen } from "../hooks/use-live-screen";
 import ShiftLight from "../components/live/ShiftLight";
-import { LiveGrid } from "../components/live/LiveGrid";
+import { LivePager } from "../components/live/LivePager";
+import { PageChips } from "../components/live/PageChips";
+import { useLivePager } from "../hooks/use-live-pager";
 import { LinkFooter } from "../components/live/LinkFooter";
 import { DisplaySheet } from "../components/live/DisplaySheet";
 
 const LiveScreen = () => {
   const live = useLiveScreen();
+  const pager = useLivePager();
   return (
     <View style={styles.screen}>
       <View style={styles.body}>
         <ShiftLight rpm={live.rpm} height={live.layout.shiftLightHeight} />
-        <LiveGrid
+        <PageChips page={pager.page} onSelect={pager.select} />
+        <LivePager
+          pager={pager}
           columns={live.layout.columns}
           paused={live.paused}
           nowMs={live.nowMs}

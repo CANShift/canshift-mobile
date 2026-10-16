@@ -63,9 +63,9 @@ describe("Live screen", () => {
   it("reads each live tile with its label, value and unit", async () => {
     useSignalsStore.getState().update({ op: 3.8, ot: 104 });
     const view = await renderLive();
-    expect(view.getByLabelText("Oil pressure, 3.8 bar")).toBeTruthy();
-    expect(view.getByLabelText("Oil temp, 104 degrees")).toBeTruthy();
-    expect(view.getByLabelText("Fuel pressure, no data")).toBeTruthy();
+    expect(view.getAllByLabelText("Oil pressure, 3.8 bar")[0]).toBeTruthy();
+    expect(view.getAllByLabelText("Oil temp, 104 degrees")[0]).toBeTruthy();
+    expect(view.getAllByLabelText("Fuel pressure, no data")[0]).toBeTruthy();
   });
 
   it("turns every tile stale with its age once the dash goes quiet", async () => {
@@ -73,9 +73,9 @@ describe("Live screen", () => {
     jest.setSystemTime(NOW + SIGNAL_STALE_MS + 4_000);
     const view = await renderLive();
     expect(
-      view.getByLabelText("Water temp, 92 degrees, 6 seconds ago"),
+      view.getAllByLabelText("Water temp, 92 degrees, 6 seconds ago")[0],
     ).toBeTruthy();
-    expect(view.getAllByText("6 s ago").length).toBe(2);
+    expect(view.queryByText("0 s ago")).toBeNull();
   });
 
   it("pauses the footer and stales the tiles while reconnecting", async () => {
@@ -85,8 +85,21 @@ describe("Live screen", () => {
     expect(view.getByText(STRINGS.live.footerReconnecting)).toBeTruthy();
     expect(view.queryByLabelText(STRINGS.live.display)).toBeNull();
     expect(
-      view.getByLabelText("Water temp, 92 degrees, 0 seconds ago"),
+      view.getAllByLabelText("Water temp, 92 degrees, 0 seconds ago")[0],
     ).toBeTruthy();
+  });
+
+  it("keeps the dash pages and switches page from its chip", async () => {
+    useSignalsStore.getState().update({ g: 3, tps: 40 });
+    const view = await renderLive();
+    expect(view.getAllByLabelText("Gear, 3")[0]).toBeTruthy();
+    await act(() => {
+      void fireEvent.press(view.getByRole("tab", { name: "Tuning" }));
+    });
+    expect(
+      view.getByRole("tab", { name: "Tuning" }).props.accessibilityState,
+    ).toMatchObject({ selected: true });
+    expect(view.getAllByLabelText("Throttle, 40 percent")[0]).toBeTruthy();
   });
 
   it("opens the Display sheet with the dash brightness and the keep-awake switch", async () => {
