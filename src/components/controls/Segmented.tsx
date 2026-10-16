@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { TouchTarget, UiColors, UiRadius } from "../../theme/ui-tokens";
 
+const OPTION_HIT_SLOP = { top: 6, bottom: 6 };
+
 export interface SegmentedOption<T extends string | number> {
   value: T;
   label: string;
@@ -39,6 +41,7 @@ export const Segmented = <T extends string | number>({
           onPress={() => {
             onChange(option.value);
           }}
+          hitSlop={OPTION_HIT_SLOP}
           accessibilityRole="tab"
           accessibilityState={{ selected }}
           accessibilityLabel={option.label}

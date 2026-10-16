@@ -8,6 +8,7 @@ import { useAlertViews } from "../../hooks/use-alerts";
 import { Glyph, type GlyphName } from "../icons/Glyph";
 
 const STRIP_HEIGHT = 68;
+const ACTION_HIT_SLOP = { top: 4, bottom: 4 };
 
 interface StripLook {
   glyph: GlyphName;
@@ -53,6 +54,7 @@ const StripRow = ({ item }: { item: AlertStripItem }) => {
       </View>
       <Pressable
         style={styles.action}
+        hitSlop={ACTION_HIT_SLOP}
         onPress={() => {
           look.onAction(item);
         }}
