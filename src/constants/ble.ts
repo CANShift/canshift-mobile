@@ -18,6 +18,8 @@ export const BLE_CHAR_TIMER_STATE =
 export const BLE_CHAR_TIMER_LAP =
   "4fa0b6a0-0000-0000-0000-000000000008" as const;
 
+export const BLE_CHAR_ALERT = "4fa0b6a0-0000-0000-0000-000000000009" as const;
+
 export const BLE_DEVICE_NAME = "CANShift" as const;
 
 export const BLE_PREFERRED_MTU = 247;

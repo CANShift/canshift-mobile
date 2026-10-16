@@ -18,7 +18,7 @@
     "lint:pre-commit": "lint-staged"
   },
   "dependencies": {
-    "@canshift/core": "^10.1.1",
+    "@canshift/core": "^10.2.0",
     "@expo-google-fonts/archivo": "0.4.2",
     "@expo-google-fonts/jetbrains-mono": "^0.4.1",
     "@react-native-community/slider": "5.2.1",
@@ -29,10 +29,12 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "expo": "~54.0.35",
+    "expo-audio": "~1.1.1",
     "expo-battery": "~10.0.8",
     "expo-constants": "~18.0.13",
     "expo-file-system": "~19.0.23",
     "expo-font": "~14.0.12",
+    "expo-haptics": "~15.0.8",
     "expo-keep-awake": "~15.0.8",
     "expo-location": "~19.0.8",
     "expo-secure-store": "~15.0.8",

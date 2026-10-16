@@ -9,6 +9,8 @@ import { useReconnectStore } from "../../stores/reconnect.store";
 import { useSignalsStore } from "../../stores/signals.store";
 import { usePhoneBatteryStore } from "../../stores/phone-battery.store";
 import { STRINGS } from "../../strings";
+import { useAlertsStore } from "../../stores/alerts.store";
+import { entryFromDash } from "../../lib/alert-model";
 
 const PORTRAIT = { width: 390, height: 844, scale: 3, fontScale: 1 };
 const LANDSCAPE = { width: 844, height: 390, scale: 3, fontScale: 1 };
@@ -54,6 +56,12 @@ const initial = {
 describe("connected shell", () => {
   beforeEach(() => {
     mockWindow = PORTRAIT;
+    useAlertsStore.setState({
+      feed: "local",
+      active: [],
+      acknowledged: [],
+      muted: [],
+    });
     useDeviceStore.setState(initial.device, true);
     useReconnectStore.setState(initial.reconnect, true);
     useSignalsStore.setState(initial.signals, true);
@@ -107,6 +115,29 @@ describe("connected shell", () => {
     expect(view.getByText("Values are paused. Try 2 of 5.")).toBeTruthy();
     expect(view.queryByText(STRINGS.banners.noDataTag)).toBeNull();
     expect(view.getByText(STRINGS.link.reconnecting)).toBeTruthy();
+  });
+
+  it("puts the acknowledged alert strip ahead of NO DATA on every tab", async () => {
+    useSignalsStore.setState({ staleSinceMs: Date.now(), isLive: false });
+    useAlertsStore.setState({
+      feed: "dash",
+      active: [
+        entryFromDash({
+          source: "oil_pressure",
+          signal: "oil_press_bar",
+          value: 0.8,
+          limit: { value: 1, direction: "below" },
+          acknowledged: true,
+          displayed: true,
+          activeSeconds: 4,
+        }),
+      ],
+      acknowledged: [],
+      muted: [],
+    });
+    const view = await renderShell();
+    expect(view.getByText(STRINGS.alert.stripAcknowledgedActive)).toBeTruthy();
+    expect(view.queryByText(STRINGS.banners.noDataTag)).toBeNull();
   });
 
   it("dismisses the battery banner until the next threshold", async () => {

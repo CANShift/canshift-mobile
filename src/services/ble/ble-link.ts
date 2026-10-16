@@ -4,12 +4,14 @@ import {
   BLE_CHAR_STATUS,
   BLE_CHAR_TIMER_STATE,
   BLE_CHAR_TIMER_LAP,
+  BLE_CHAR_ALERT,
 } from "../../constants/ble";
 import { log } from "../../stores/log.store";
 import { useDeviceStore } from "../../stores/device.store";
 import { useSignalsStore } from "../../stores/signals.store";
 import { useTimerStore } from "../../stores/timer.store";
 import { SIGNAL_STALE_MS } from "../../lib/signal-staleness";
+import { fallBackToLocalAlerts, handleAlertFrame } from "../alert-feeds";
 import type { ToastShowParams } from "../../components/ui/toast";
 import type { GattQueue } from "./ble-gatt-queue";
 import {
@@ -57,6 +59,7 @@ export class DeviceLink implements MonitorHost {
   private statusSub: Subscription | null = null;
   private timerStateSub: Subscription | null = null;
   private timerLapSub: Subscription | null = null;
+  private alertSub: Subscription | null = null;
   private disconnectSub: Subscription | null = null;
 
   constructor(
@@ -98,6 +101,16 @@ export class DeviceLink implements MonitorHost {
     );
   }
 
+  seedAlert(device: Device): Promise<void> {
+    return seedCharacteristic(
+      this,
+      device,
+      BLE_CHAR_ALERT,
+      "alert",
+      handleAlertFrame,
+    );
+  }
+
   bind(device: Device): void {
     this.device = device;
     this.bindLinkMonitor(
@@ -136,6 +149,7 @@ export class DeviceLink implements MonitorHost {
         this.timerLapSub = sub;
       },
     );
+    this.bindAlertMonitor(device);
     this.disconnectSub = device.onDisconnected(() => {
       this.teardown();
       this.callbacks.onDisconnected(device.id);
@@ -188,6 +202,29 @@ export class DeviceLink implements MonitorHost {
     );
   }
 
+  private bindAlertMonitor(device: Device): void {
+    attachMonitor(
+      this,
+      {
+        device,
+        characteristic: BLE_CHAR_ALERT,
+        label: "alert",
+        handle: handleAlertFrame,
+        assign: (sub) => {
+          this.alertSub = sub;
+        },
+        onLost: () => {
+          log(
+            "warn",
+            "BLE: no alert stream from this dash, the phone decides alerts itself",
+          );
+          fallBackToLocalAlerts();
+        },
+      },
+      0,
+    );
+  }
+
   private handleLinkLost(device: Device, label: string): void {
     if (this.device !== device) return;
     log(
@@ -214,6 +251,7 @@ export class DeviceLink implements MonitorHost {
     useSignalsStore.getState().markStale();
     useDeviceStore.getState().disconnect();
     useTimerStore.getState().clearDeviceSync();
+    fallBackToLocalAlerts();
   }
 
   startStalenessTimer(): void {
@@ -245,6 +283,8 @@ export class DeviceLink implements MonitorHost {
     this.timerStateSub = null;
     this.timerLapSub?.remove();
     this.timerLapSub = null;
+    this.alertSub?.remove();
+    this.alertSub = null;
     this.disconnectSub?.remove();
     this.disconnectSub = null;
   }

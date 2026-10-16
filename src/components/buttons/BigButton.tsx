@@ -2,7 +2,8 @@ import { Pressable, StyleSheet, Text } from "react-native";
 import { UiColors, UiRadius } from "../../theme/ui-tokens";
 import { Glyph, type GlyphName } from "../icons/Glyph";
 
-export type BigButtonTone = "primary" | "light" | "outline" | "dangerOutline";
+export type BigButtonTone =
+  "primary" | "light" | "outline" | "dangerOutline" | "onAlert";
 
 interface BigLook {
   background: string;
@@ -30,6 +31,11 @@ const LOOKS: Record<BigButtonTone, BigLook> = {
     background: "transparent",
     borderColor: UiColors.borderStrong,
     color: UiColors.dangerValue,
+  },
+  onAlert: {
+    background: "transparent",
+    borderColor: UiColors.alertOutline,
+    color: UiColors.onPrimary,
   },
 };
 

@@ -4,6 +4,7 @@ const QUIET: OverlayInputs = {
   alertHolds: false,
   reconnectFailed: false,
   reconnecting: false,
+  alertStrip: false,
   linkProblem: false,
   noData: false,
   batteryLow: false,
@@ -13,6 +14,7 @@ const ALL_RAISED: OverlayInputs = {
   alertHolds: true,
   reconnectFailed: true,
   reconnecting: true,
+  alertStrip: true,
   linkProblem: true,
   noData: true,
   batteryLow: true,
@@ -35,6 +37,7 @@ describe("resolveOverlays", () => {
 
   it.each([
     [{ ...ALL_RAISED }, "reconnecting"],
+    [{ ...QUIET, alertStrip: true, noData: true }, "alertStrip"],
     [{ ...QUIET, linkProblem: true, noData: true }, "linkProblem"],
     [{ ...QUIET, noData: true, batteryLow: true }, "noData"],
     [{ ...QUIET, batteryLow: true }, "batteryLow"],

@@ -1,12 +1,18 @@
 export type Takeover = "criticalAlert" | "reconnectFailed" | "none";
 
 export type Banner =
-  "reconnecting" | "linkProblem" | "noData" | "batteryLow" | "none";
+  | "reconnecting"
+  | "alertStrip"
+  | "linkProblem"
+  | "noData"
+  | "batteryLow"
+  | "none";
 
 export interface OverlayInputs {
   alertHolds: boolean;
   reconnectFailed: boolean;
   reconnecting: boolean;
+  alertStrip: boolean;
   linkProblem: boolean;
   noData: boolean;
   batteryLow: boolean;
@@ -26,6 +32,7 @@ const TAKEOVER_ORDER: readonly Rule<Exclude<Takeover, "none">>[] = [
 
 const BANNER_ORDER: readonly Rule<Exclude<Banner, "none">>[] = [
   ["reconnecting", "reconnecting"],
+  ["alertStrip", "alertStrip"],
   ["linkProblem", "linkProblem"],
   ["noData", "noData"],
   ["batteryLow", "batteryLow"],

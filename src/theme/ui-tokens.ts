@@ -27,6 +27,10 @@ export const UiColors = {
   success: "#3DD68C",
   successBg: "#123826",
   successText: "#B8F2D3",
+  alertOutline: "#FFFFFFD9",
+  alertPanel: "#00000038",
+  alertRule: "#FFFFFF33",
+  alertPillText: "#B01E1E",
 } as const;
 
 export const ChartSeriesColors = [

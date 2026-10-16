@@ -22,6 +22,7 @@ import { usePhoneBatteryGuard } from "@/hooks/use-phone-battery-guard";
 import { useAppSettingsStore } from "@/stores/app-settings.store";
 import { log } from "@/stores/log.store";
 import { hydrateTimerSessions } from "@/stores/timer-sessions.store";
+import { startAlertServices } from "@/services/alert-services";
 import { markFirstScreenReady } from "./diag/cold-start";
 
 const App = () => {
@@ -35,6 +36,7 @@ const App = () => {
   });
   useBleForegroundReconnect();
   usePhoneBatteryGuard();
+  useEffect(() => startAlertServices(), []);
   useEffect(() => {
     void useAppSettingsStore.getState().hydrate();
     void hydrateTimerSessions();

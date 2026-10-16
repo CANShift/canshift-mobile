@@ -257,6 +257,15 @@ export const STRINGS = {
     sentAt: (time: string): string => `Sent · ${time}`,
   },
   alert: {
+    kicker: "CRITICAL ALERT",
+    fromDash: "from the dash",
+    stripLine: (title: string, value: string): string => `${title} · ${value}`,
+    stripAcknowledgedActive: "Acknowledged · still active",
+    stripMutedActive: "Muted for this session · still active",
+    muteAll: "Mute all for this session",
+    sinceTime: (time: string): string => `Since ${time}`,
+    limitUnknown: "Out of the safe range",
+    cueFailed: "The phone couldn’t play the alert sound.",
     title: (signal: string, side: "HIGH" | "LOW"): string =>
       `${signal.toUpperCase()} ${side}`,
     limitBelow: (limit: string): string => `Limit: below ${limit}`,
