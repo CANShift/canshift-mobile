@@ -15,7 +15,6 @@ export const parseTelemetry = (bytes: Uint8Array): TelemetrySample | null => {
 
 export interface DeviceScreenSettings {
   brightness: number;
-  sleep: number;
 }
 
 export const parseDeviceSettings = (
@@ -23,9 +22,8 @@ export const parseDeviceSettings = (
 ): DeviceScreenSettings | null => {
   const parsed = tryParseJson(raw);
   if (!parsed.ok || !isPlainObject(parsed.value)) return null;
-  const { brightness, sleep } = parsed.value;
+  const { brightness } = parsed.value;
   if (typeof brightness !== "number" || !Number.isFinite(brightness))
     return null;
-  if (typeof sleep !== "number" || !Number.isFinite(sleep)) return null;
-  return { brightness, sleep };
+  return { brightness };
 };

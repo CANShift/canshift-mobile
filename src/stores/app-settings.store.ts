@@ -15,6 +15,7 @@ const STORAGE_KEY = "canshift.mobile.appSettings";
 const settingsSchema = z.object({
   telemetryBufferSize: z.literal(TELEMETRY_BUFFER_OPTIONS),
   reconnectBehavior: z.enum(["auto", "off"]),
+  keepScreenOn: z.boolean().default(true),
 });
 
 export type AppSettings = z.infer<typeof settingsSchema>;
@@ -22,6 +23,7 @@ export type AppSettings = z.infer<typeof settingsSchema>;
 const DEFAULT_SETTINGS: AppSettings = {
   telemetryBufferSize: 3000,
   reconnectBehavior: "auto",
+  keepScreenOn: true,
 };
 
 const readPersisted = async (): Promise<AppSettings | null> => {
@@ -52,11 +54,13 @@ interface AppSettingsState extends AppSettings {
   hydrate: () => Promise<void>;
   setTelemetryBufferSize: (size: TelemetryBufferSize) => void;
   setReconnectBehavior: (behavior: ReconnectBehavior) => void;
+  setKeepScreenOn: (keepScreenOn: boolean) => void;
 }
 
 const snapshot = (state: AppSettings): AppSettings => ({
   telemetryBufferSize: state.telemetryBufferSize,
   reconnectBehavior: state.reconnectBehavior,
+  keepScreenOn: state.keepScreenOn,
 });
 
 export const useAppSettingsStore = create<AppSettingsState>()((set, get) => {
@@ -88,6 +92,9 @@ export const useAppSettingsStore = create<AppSettingsState>()((set, get) => {
     },
     setReconnectBehavior: (reconnectBehavior) => {
       update({ reconnectBehavior });
+    },
+    setKeepScreenOn: (keepScreenOn) => {
+      update({ keepScreenOn });
     },
   };
 });

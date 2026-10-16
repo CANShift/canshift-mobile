@@ -1,7 +1,7 @@
 import { useWindowDimensions } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import DashScreen from "../screens/DashScreen";
+import LiveScreen from "../screens/LiveScreen";
 import GraphScreen from "../screens/GraphScreen";
 import TrackScreen from "../screens/TrackScreen";
 import DeviceScreen from "../screens/DeviceScreen";
@@ -36,9 +36,7 @@ const ConnectedNavigator = ({ navigation }: Props) => {
         sceneStyle: { backgroundColor: UiColors.bg },
       }}
     >
-      <Tab.Screen name="Live">
-        {() => <DashScreen navigation={navigation} />}
-      </Tab.Screen>
+      <Tab.Screen name="Live" component={LiveScreen} />
       <Tab.Screen name="Graph" component={GraphScreen} />
       <Tab.Screen name="Laps" component={TrackScreen} />
       <Tab.Screen name="Device">

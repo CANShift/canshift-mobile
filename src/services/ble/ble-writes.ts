@@ -14,7 +14,6 @@ import type { GattQueue } from "./ble-gatt-queue";
 
 export interface DeviceSettings {
   brightness: number;
-  sleep: number;
 }
 
 export type CmdPayload = Record<string, boolean | number | string>;

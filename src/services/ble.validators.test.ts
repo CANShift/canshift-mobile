@@ -3,12 +3,9 @@ import { encodeTelemetryFrame } from "@canshift/core";
 import { parseDeviceSettings, parseTelemetry } from "./ble.validators";
 
 describe("parseDeviceSettings", () => {
-  it("extracts brightness and sleep, tolerating extra wire fields", () => {
-    expect(
-      parseDeviceSettings('{"brightness":80,"sleep":30,"rotation":180}'),
-    ).toEqual({
+  it("reads the brightness the firmware sends, tolerating extra wire fields", () => {
+    expect(parseDeviceSettings('{"brightness":80,"rotation":180}')).toEqual({
       brightness: 80,
-      sleep: 30,
     });
   });
 
@@ -18,11 +15,10 @@ describe("parseDeviceSettings", () => {
     expect(parseDeviceSettings("[]")).toBeNull();
   });
 
-  it("returns null when brightness or sleep is missing or non-finite", () => {
-    expect(parseDeviceSettings('{"brightness":80}')).toBeNull();
-    expect(parseDeviceSettings('{"sleep":30}')).toBeNull();
-    expect(parseDeviceSettings('{"brightness":"80","sleep":30}')).toBeNull();
-    expect(parseDeviceSettings('{"brightness":null,"sleep":30}')).toBeNull();
+  it("returns null when brightness is missing or non-finite", () => {
+    expect(parseDeviceSettings("{}")).toBeNull();
+    expect(parseDeviceSettings('{"brightness":"80"}')).toBeNull();
+    expect(parseDeviceSettings('{"brightness":null}')).toBeNull();
   });
 });
 

@@ -21,6 +21,7 @@ interface SignalsState {
   clearHeld: () => void;
 }
 
+let frameCount = 0;
 let pendingPayload: TelemetryPayload | null = null;
 let flushTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -51,6 +52,7 @@ export const useSignalsStore = create<SignalsState>()((set, get) => ({
   ingest: (payload) => {
     const defined = definedValues(payload);
     if (Object.keys(defined).length === 0) return;
+    frameCount++;
     pushSample(defined);
     pendingPayload = { ...pendingPayload, ...defined };
     if (flushTimer !== null) return;
@@ -86,6 +88,8 @@ export const useSignalsStore = create<SignalsState>()((set, get) => ({
     set({ values: {}, lastAt: {} });
   },
 }));
+
+export const getFrameCount = (): number => frameCount;
 
 export const useSignalValue = (key: SignalKey): number | undefined => {
   return useSignalsStore((s) => s.values[key]);
