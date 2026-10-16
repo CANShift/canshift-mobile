@@ -29,20 +29,35 @@ describe("criticalAlertControl", () => {
     connectDevice();
     criticalAlertControl.acknowledge("op");
     expect(mockSendCmd).toHaveBeenCalledWith(ALERT_ACK_CMD, { signal: "op" });
-    expect(useCriticalAlertStore.getState().acknowledgedKey).toBe("op");
+    expect(useCriticalAlertStore.getState().acknowledgedKeys).toEqual(["op"]);
+  });
+
+  it("names the command the dash dispatches", () => {
+    connectDevice();
+    criticalAlertControl.acknowledge("op");
+    expect(mockSendCmd).toHaveBeenCalledWith("ack_alert", { signal: "op" });
+  });
+
+  it("keeps every acknowledged signal", () => {
+    criticalAlertControl.acknowledge("op");
+    criticalAlertControl.acknowledge("ct");
+    expect(useCriticalAlertStore.getState().acknowledgedKeys).toEqual([
+      "op",
+      "ct",
+    ]);
   });
 
   it("acknowledges locally when no device drives the alert", () => {
     criticalAlertControl.acknowledge("ct");
     expect(mockSendCmd).not.toHaveBeenCalled();
-    expect(useCriticalAlertStore.getState().acknowledgedKey).toBe("ct");
+    expect(useCriticalAlertStore.getState().acknowledgedKeys).toEqual(["ct"]);
   });
 
   it("keeps the local acknowledgement when the write fails", () => {
     connectDevice();
     mockSendCmd.mockReturnValueOnce(Promise.reject(new Error("gatt")));
     criticalAlertControl.acknowledge("op");
-    expect(useCriticalAlertStore.getState().acknowledgedKey).toBe("op");
+    expect(useCriticalAlertStore.getState().acknowledgedKeys).toEqual(["op"]);
   });
 
   it("mutes the signal for this session without telling the dash", () => {
@@ -50,7 +65,7 @@ describe("criticalAlertControl", () => {
     criticalAlertControl.mute("ot");
     expect(mockSendCmd).not.toHaveBeenCalled();
     expect(useCriticalAlertStore.getState().mutedKeys).toEqual(["ot"]);
-    expect(useCriticalAlertStore.getState().acknowledgedKey).toBeNull();
+    expect(useCriticalAlertStore.getState().acknowledgedKeys).toEqual([]);
   });
 
   it("drops the mute list when the session resets", () => {

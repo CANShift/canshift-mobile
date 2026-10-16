@@ -3,6 +3,7 @@ import { useSignalsStore, useSignalsIsLive } from "../stores/signals.store";
 import { useCriticalAlertStore } from "../stores/critical-alert.store";
 import {
   selectCriticalAlert,
+  trippedCriticalKeys,
   criticalAlertName,
   criticalAlertRows,
   criticalAlertThreshold,
@@ -21,32 +22,43 @@ export interface ActiveCriticalAlert {
   rows: CriticalAlertRow[];
 }
 
-const useRaisedAlert = (): CriticalAlert | null => {
+const useSkippedKeys = (includeAcknowledged: boolean): Set<SignalKey> => {
+  const mutedKeys = useCriticalAlertStore((s) => s.mutedKeys);
+  const acknowledgedKeys = useCriticalAlertStore((s) => s.acknowledgedKeys);
+  return useMemo(
+    () =>
+      new Set(
+        includeAcknowledged ? [...mutedKeys, ...acknowledgedKeys] : mutedKeys,
+      ),
+    [includeAcknowledged, mutedKeys, acknowledgedKeys],
+  );
+};
+
+const useLiveAlert = (includeAcknowledged: boolean): CriticalAlert | null => {
   const values = useSignalsStore((s) => s.values);
   const isLive = useSignalsIsLive();
-  const mutedKeys = useCriticalAlertStore((s) => s.mutedKeys);
-  const muted = useMemo(() => new Set(mutedKeys), [mutedKeys]);
+  const skipped = useSkippedKeys(includeAcknowledged);
   if (!isLive) return null;
-  return selectCriticalAlert(values, muted);
+  return selectCriticalAlert(values, skipped);
+};
+
+const useForgetRecoveredAcknowledgements = (): void => {
+  const values = useSignalsStore((s) => s.values);
+  const isLive = useSignalsIsLive();
+  const retainTripped = useCriticalAlertStore((s) => s.retainTripped);
+
+  useEffect(() => {
+    retainTripped(isLive ? trippedCriticalKeys(values) : []);
+  }, [values, isLive, retainTripped]);
 };
 
 const useHoldingAlert = (): CriticalAlert | null => {
-  const raised = useRaisedAlert();
-  const acknowledgedKey = useCriticalAlertStore((s) => s.acknowledgedKey);
-  const clearAcknowledged = useCriticalAlertStore((s) => s.clearAcknowledged);
-  const raisedKey = raised?.key ?? null;
-
-  useEffect(() => {
-    if (acknowledgedKey !== null && raisedKey !== acknowledgedKey) {
-      clearAcknowledged();
-    }
-  }, [raisedKey, acknowledgedKey, clearAcknowledged]);
-
-  return raised !== null && raised.key !== acknowledgedKey ? raised : null;
+  useForgetRecoveredAcknowledgements();
+  return useLiveAlert(true);
 };
 
 export const useCriticalAlertKey = (): SignalKey | null =>
-  useRaisedAlert()?.key ?? null;
+  useLiveAlert(false)?.key ?? null;
 
 export const useCriticalAlertHolds = (): boolean => useHoldingAlert() !== null;
 

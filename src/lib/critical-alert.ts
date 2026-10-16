@@ -23,15 +23,29 @@ export interface CriticalAlertRow {
 
 export const selectCriticalAlert = (
   values: TelemetryPayload,
-  muted: ReadonlySet<SignalKey>,
+  skipped: ReadonlySet<SignalKey>,
 ): CriticalAlert | null => {
   for (const key of CRITICAL_SIGNALS) {
-    if (muted.has(key)) continue;
+    if (skipped.has(key)) continue;
     const value = values[key];
     if (value === undefined) continue;
     if (isSignalInDanger(key, value)) return { key, value };
   }
   return null;
+};
+
+export const trippedCriticalKeys = (values: TelemetryPayload): SignalKey[] =>
+  CRITICAL_SIGNALS.filter((key) => {
+    const value = values[key];
+    return value !== undefined && isSignalInDanger(key, value);
+  });
+
+export const retainAcknowledged = (
+  acknowledged: readonly SignalKey[],
+  tripped: readonly SignalKey[],
+): readonly SignalKey[] => {
+  const kept = acknowledged.filter((key) => tripped.includes(key));
+  return kept.length === acknowledged.length ? acknowledged : kept;
 };
 
 const withUnit = (key: SignalKey, text: string): string => {

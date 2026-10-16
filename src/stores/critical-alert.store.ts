@@ -1,33 +1,40 @@
 import { create } from "zustand";
 import { type SignalKey } from "../constants/ble";
+import { retainAcknowledged } from "../lib/critical-alert";
 
 interface CriticalAlertState {
   mutedKeys: SignalKey[];
-  acknowledgedKey: SignalKey | null;
+  acknowledgedKeys: readonly SignalKey[];
   mute: (key: SignalKey) => void;
   acknowledge: (key: SignalKey) => void;
-  clearAcknowledged: () => void;
+  retainTripped: (tripped: readonly SignalKey[]) => void;
   reset: () => void;
 }
 
 export const useCriticalAlertStore = create<CriticalAlertState>()((set) => ({
   mutedKeys: [],
-  acknowledgedKey: null,
+  acknowledgedKeys: [],
   mute: (key) => {
     set((s) => ({
       mutedKeys: s.mutedKeys.includes(key)
         ? s.mutedKeys
         : [...s.mutedKeys, key],
-      acknowledgedKey: null,
+      acknowledgedKeys: s.acknowledgedKeys.filter((k) => k !== key),
     }));
   },
   acknowledge: (key) => {
-    set({ acknowledgedKey: key });
+    set((s) => ({
+      acknowledgedKeys: s.acknowledgedKeys.includes(key)
+        ? s.acknowledgedKeys
+        : [...s.acknowledgedKeys, key],
+    }));
   },
-  clearAcknowledged: () => {
-    set({ acknowledgedKey: null });
+  retainTripped: (tripped) => {
+    set((s) => ({
+      acknowledgedKeys: retainAcknowledged(s.acknowledgedKeys, tripped),
+    }));
   },
   reset: () => {
-    set({ mutedKeys: [], acknowledgedKey: null });
+    set({ mutedKeys: [], acknowledgedKeys: [] });
   },
 }));

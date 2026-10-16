@@ -5,7 +5,7 @@ import { useCriticalAlertStore } from "../stores/critical-alert.store";
 import { errText } from "../lib/error-text";
 import type { SignalKey } from "../constants/ble";
 
-export const ALERT_ACK_CMD = "alert_ack";
+export const ALERT_ACK_CMD = "ack_alert";
 
 const isDeviceDriven = (): boolean => {
   const { connectionState, mode } = useDeviceStore.getState();
