@@ -1,24 +1,6 @@
 import { STRINGS } from "../strings";
 import { NO_VALUE } from "./tile-state";
 
-const CONNECTING = "CONNECTING";
-
-export type DeviceRowState = "connecting" | "signal" | "unadvertised";
-
-export interface DeviceRowStatus {
-  state: DeviceRowState;
-  detail: string | null;
-}
-
-export const deviceRowStatus = (
-  rssi: number | null,
-  connecting: boolean,
-): DeviceRowStatus => {
-  if (connecting) return { state: "connecting", detail: CONNECTING };
-  if (rssi === null) return { state: "unadvertised", detail: null };
-  return { state: "signal", detail: `${String(rssi)} dBm` };
-};
-
 export const firmwareLabel = (
   isSim: boolean,
   connected: boolean,

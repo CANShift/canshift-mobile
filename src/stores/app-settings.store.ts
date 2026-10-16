@@ -16,6 +16,7 @@ const settingsSchema = z.object({
   telemetryBufferSize: z.literal(TELEMETRY_BUFFER_OPTIONS),
   reconnectBehavior: z.enum(["auto", "off"]),
   keepScreenOn: z.boolean().default(true),
+  blePromptSeen: z.boolean().default(false),
 });
 
 export type AppSettings = z.infer<typeof settingsSchema>;
@@ -24,6 +25,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   telemetryBufferSize: 3000,
   reconnectBehavior: "auto",
   keepScreenOn: true,
+  blePromptSeen: false,
 };
 
 const readPersisted = async (): Promise<AppSettings | null> => {
@@ -55,12 +57,14 @@ interface AppSettingsState extends AppSettings {
   setTelemetryBufferSize: (size: TelemetryBufferSize) => void;
   setReconnectBehavior: (behavior: ReconnectBehavior) => void;
   setKeepScreenOn: (keepScreenOn: boolean) => void;
+  markBlePromptSeen: () => void;
 }
 
 const snapshot = (state: AppSettings): AppSettings => ({
   telemetryBufferSize: state.telemetryBufferSize,
   reconnectBehavior: state.reconnectBehavior,
   keepScreenOn: state.keepScreenOn,
+  blePromptSeen: state.blePromptSeen,
 });
 
 export const useAppSettingsStore = create<AppSettingsState>()((set, get) => {
@@ -95,6 +99,9 @@ export const useAppSettingsStore = create<AppSettingsState>()((set, get) => {
     },
     setKeepScreenOn: (keepScreenOn) => {
       update({ keepScreenOn });
+    },
+    markBlePromptSeen: () => {
+      update({ blePromptSeen: true });
     },
   };
 });

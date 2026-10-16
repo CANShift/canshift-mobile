@@ -7,24 +7,33 @@ import { bleErrorMessage } from "../services/ble-error-message";
 import { blePermissionMessage } from "../services/ble-permission-message";
 import { getLastDevice } from "../services/last-device";
 import { orderByLastPaired } from "../lib/device-order";
-import type { BlePermissionPlatform } from "../components/BlePermissionDialog";
+import { reportDashFailure } from "../lib/report-dash-failure";
 
 const SCAN_TIMEOUT_MS = 10000;
 
-export type ScanStatus = "searching" | "no-results" | "idle";
-
-interface DeviceScanOptions {
-  onUnauthorized: (platform: BlePermissionPlatform) => void;
-  onConnected: () => void;
+export interface DeviceScan {
+  devices: readonly ScanResult[];
+  lastPairedId: string | null;
+  scanning: boolean;
+  hasScanned: boolean;
+  denied: boolean;
+  connecting: ScanResult | null;
+  startScan: () => Promise<void>;
+  stopScan: () => void;
+  connectTo: (device: ScanResult) => Promise<void>;
+  cancelConnect: () => Promise<void>;
 }
 
-export const useDeviceScan = ({
-  onUnauthorized,
-  onConnected,
-}: DeviceScanOptions) => {
+const addDevice = (devices: ScanResult[], device: ScanResult): ScanResult[] =>
+  devices.some((known) => known.id === device.id)
+    ? devices
+    : [...devices, device];
+
+export const useDeviceScan = (onConnected: () => void): DeviceScan => {
   const [scanning, setScanning] = useState(false);
   const [hasScanned, setHasScanned] = useState(false);
-  const [connectingId, setConnectingId] = useState<string | null>(null);
+  const [denied, setDenied] = useState(false);
+  const [connecting, setConnecting] = useState<ScanResult | null>(null);
   const [devices, setDevices] = useState<ScanResult[]>([]);
   const [lastPairedId, setLastPairedId] = useState<string | null>(null);
 
@@ -32,80 +41,81 @@ export const useDeviceScan = ({
     void getLastDevice().then(setLastPairedId);
   }, []);
 
-  const surfaceError = useCallback(
-    (err: unknown): void => {
-      const mapped = mapBleError(err);
-      if (mapped.kind === "permission-denied") {
-        onUnauthorized(mapped.platform);
-        return;
-      }
-      const { title, body } = bleErrorMessage(mapped);
+  const surfaceError = useCallback((err: unknown): void => {
+    const mapped = mapBleError(err);
+    if (mapped.kind === "permission-denied") {
+      setDenied(true);
+      return;
+    }
+    const { title, body } = bleErrorMessage(mapped);
+    Alert.alert(title, body);
+  }, []);
+
+  const runScan = useCallback(async () => {
+    const state = await BleService.getBlePermissionState();
+    if (state.kind === "unauthorized") {
+      setDenied(true);
+      return;
+    }
+    if (state.kind !== "ok") {
+      const { title, body } = blePermissionMessage(state.kind);
       Alert.alert(title, body);
-    },
-    [onUnauthorized],
-  );
+      return;
+    }
+    setDenied(false);
+    await BleService.scan((device) => {
+      setDevices((prev) => addDevice(prev, device));
+    }, SCAN_TIMEOUT_MS);
+    setHasScanned(true);
+  }, []);
 
   const startScan = useCallback(async () => {
     setDevices([]);
     setScanning(true);
     try {
-      const state = await BleService.getBlePermissionState();
-      if (state.kind === "unauthorized") {
-        onUnauthorized(state.platform);
-        return;
-      }
-      if (state.kind !== "ok") {
-        const { title, body } = blePermissionMessage(state.kind);
-        Alert.alert(title, body);
-        return;
-      }
-      await BleService.scan((device) => {
-        setDevices((prev) =>
-          prev.find((d) => d.id === device.id) ? prev : [...prev, device],
-        );
-      }, SCAN_TIMEOUT_MS);
-      setHasScanned(true);
+      await runScan();
     } catch (err) {
       surfaceError(err);
     } finally {
       setScanning(false);
     }
-  }, [onUnauthorized, surfaceError]);
-
-  const stopScan = useCallback(() => {
-    BleService.stopScan();
-  }, []);
+  }, [runScan, surfaceError]);
 
   const connectTo = useCallback(
     async (device: ScanResult) => {
       BleService.stopScan();
-      setConnectingId(device.id);
+      setConnecting(device);
       try {
         await BleService.connect(device.id);
         onConnected();
       } catch (err) {
         surfaceError(err);
       } finally {
-        setConnectingId(null);
+        setConnecting(null);
       }
     },
     [onConnected, surfaceError],
   );
 
-  const status: ScanStatus = scanning
-    ? "searching"
-    : hasScanned && devices.length === 0
-      ? "no-results"
-      : "idle";
+  const cancelConnect = useCallback(async () => {
+    setConnecting(null);
+    try {
+      await BleService.disconnect();
+    } catch (err) {
+      reportDashFailure("Cancel connect", err);
+    }
+  }, []);
 
   return {
     devices: orderByLastPaired(devices, lastPairedId),
+    lastPairedId,
     scanning,
     hasScanned,
-    connectingId,
-    status,
+    denied,
+    connecting,
     startScan,
-    stopScan,
+    stopScan: BleService.stopScan,
     connectTo,
+    cancelConnect,
   };
 };
