@@ -5,7 +5,9 @@ import {
   criticalAlertRows,
   criticalAlertThreshold,
   criticalAlertValue,
+  retainAcknowledged,
   selectCriticalAlert,
+  trippedCriticalKeys,
 } from "./critical-alert";
 
 const CT_MAX = sensorDefaultDangerBand("coolant_temp").above ?? 0;
@@ -54,11 +56,42 @@ describe("selectCriticalAlert", () => {
     ).toEqual({ key: "ct", value: ctTrip });
   });
 
+  it("shows a later signal while an acknowledged one stays tripped", () => {
+    expect(
+      selectCriticalAlert({ op: opTrip, ct: ctTrip }, new Set(["op"])),
+    ).toEqual({ key: "ct", value: ctTrip });
+  });
+
   it("prioritises oil pressure over coolant when both are tripped", () => {
     expect(selectCriticalAlert({ op: opTrip, ct: ctTrip }, none)).toEqual({
       key: "op",
       value: opTrip,
     });
+  });
+});
+
+describe("trippedCriticalKeys", () => {
+  it("lists every tripped critical signal in priority order", () => {
+    expect(trippedCriticalKeys({ ct: ctTrip, op: opTrip })).toEqual([
+      "op",
+      "ct",
+    ]);
+  });
+
+  it("skips signals that are in range or missing", () => {
+    expect(trippedCriticalKeys({ ct: ctSafe, op: opTrip })).toEqual(["op"]);
+    expect(trippedCriticalKeys({})).toEqual([]);
+  });
+});
+
+describe("retainAcknowledged", () => {
+  it("forgets a signal once it leaves danger", () => {
+    expect(retainAcknowledged(["op", "ct"], ["ct"])).toEqual(["ct"]);
+  });
+
+  it("keeps the same list when nothing recovered", () => {
+    const acknowledged = ["op"] as const;
+    expect(retainAcknowledged(acknowledged, ["op", "ct"])).toBe(acknowledged);
   });
 });
 

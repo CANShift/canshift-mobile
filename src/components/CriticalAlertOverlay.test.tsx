@@ -24,6 +24,8 @@ const metrics = {
 
 const OP_LIMIT = sensorDefaultDangerBand("oil_press").below ?? 0;
 const OP_TRIP = OP_LIMIT - 0.5;
+const OP_SAFE = OP_LIMIT + 1;
+const CT_TRIP = (sensorDefaultDangerBand("coolant_temp").above ?? 0) + 5;
 
 const initialSignals = useSignalsStore.getState();
 const initialDevice = useDeviceStore.getState();
@@ -93,6 +95,33 @@ describe("CriticalAlertOverlay", () => {
     await press(view, "Acknowledge");
     expect(mockSendCmd).toHaveBeenCalledWith(ALERT_ACK_CMD, { signal: "op" });
     expect(view.queryByText("OIL PRESSURE")).toBeNull();
+  });
+
+  it("still raises coolant after oil pressure was acknowledged", async () => {
+    raiseFromDash();
+    const view = await renderOverlay();
+    await press(view, "Acknowledge");
+    await act(() => {
+      useSignalsStore.setState({ values: { op: OP_TRIP, ct: CT_TRIP } });
+      return Promise.resolve();
+    });
+    expect(view.getByText("COOLANT")).toBeTruthy();
+    expect(view.queryByText("OIL PRESSURE")).toBeNull();
+  });
+
+  it("raises oil pressure again after it recovers and re-trips", async () => {
+    raiseFromDash();
+    const view = await renderOverlay();
+    await press(view, "Acknowledge");
+    await act(() => {
+      useSignalsStore.setState({ values: { op: OP_SAFE } });
+      return Promise.resolve();
+    });
+    await act(() => {
+      useSignalsStore.setState({ values: { op: OP_TRIP } });
+      return Promise.resolve();
+    });
+    expect(view.getByText("OIL PRESSURE")).toBeTruthy();
   });
 
   it("keeps a muted signal quiet for the rest of the session", async () => {
