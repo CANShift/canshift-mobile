@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Critical alert, acknowledged</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family:
+            -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, system-ui,
+            sans-serif;
+        "
+      >
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 390px;
+            height: 56px;
+          "
+        >
+          <dc-import
+            name="MHeader"
+            conn="connected"
+            hint-size="390px,56px"
+          ></dc-import>
+        </div>
+
+        <div
+          role="alert"
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 56px;
+            height: 68px;
+            box-sizing: border-box;
+            padding: 0 8px 0 14px;
+            background: #d63333;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          "
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#FFFFFF"
+            stroke-width="2.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            style="flex: none"
+          >
+            <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"></path>
+          </svg>
+          <div
+            style="flex: 1; min-width: 0; display: flex; flex-direction: column"
+          >
+            <span style="font-size: 16px; font-weight: 800"
+              >Oil pressure low ·
+              <span
+                style="
+                  font-family:
+                    ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                "
+                >0.8</span
+              >
+              bar</span
+            >
+            <span style="font-size: 13px; font-weight: 600"
+              >Acknowledged · still active</span
+            >
+          </div>
+          <button
+            style="
+              height: 48px;
+              padding: 0 16px;
+              border-radius: 10px;
+              background: #ffffff;
+              color: #0e0f11;
+              border: 0;
+              font: inherit;
+              font-size: 15px;
+              font-weight: 800;
+            "
+          >
+            Show
+          </button>
+        </div>
+
+        <div
+          aria-label="Shift light"
+          style="
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            top: 136px;
+            height: 18px;
+            display: flex;
+            gap: 4px;
+          "
+        >
+          <sc-for list="{{lights}}" as="l" hint-placeholder-count="12"
+            ><span
+              style="flex: 1; border-radius: 3px; background: {{l.c}}"
+            ></span
+          ></sc-for>
+        </div>
+
+        <div
+          style="
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            top: 164px;
+            bottom: 140px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-rows: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+          "
+        >
+          <sc-for list="{{tiles}}" as="t" hint-placeholder-count="8">
+            <div
+              style="border-radius: 14px; box-sizing: border-box; padding: 10px 14px; display: flex; flex-direction: column; justify-content: space-between; background: {{t.bg}}; border: {{t.border}}"
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  gap: 6px;
+                "
+              >
+                <span
+                  style="font-size: 14px; font-weight: 700; letter-spacing: 0.06em; color: {{t.labelColor}}"
+                  >{{t.label}}</span
+                >
+                <span
+                  style="font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: {{t.tagColor}}"
+                  >{{t.tag}}</span
+                >
+              </div>
+              <div style="display: flex; align-items: baseline; gap: 6px">
+                <span
+                  style="font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 44px; font-weight: 700; line-height: 1; color: {{t.valueColor}}"
+                  >{{t.value}}</span
+                >
+                <span style="font-size: 16px; color: #a0a6ad">{{t.unit}}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 84px;
+            height: 56px;
+            box-sizing: border-box;
+            padding: 0 8px 0 16px;
+            border-top: 1px solid #23262b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          "
+        >
+          <span
+            style="
+              width: 8px;
+              height: 8px;
+              border-radius: 4px;
+              background: #3dd68c;
+            "
+          ></span>
+          <span style="flex: 1; font-size: 14px; color: #c9cdd2"
+            >Live · 20 updates/s</span
+          >
+          <button
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              height: 44px;
+              padding: 0 14px;
+              border-radius: 10px;
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              color: #f2f3f5;
+              font: inherit;
+              font-size: 15px;
+            "
+          >
+            Display
+          </button>
+        </div>
+
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 390px;
+            height: 84px;
+          "
+        >
+          <dc-import
+            name="MTabBar"
+            active="live"
+            hint-size="390px,84px"
+          ></dc-import>
+        </div>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":390,"height":844}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          const S = {
+            normal:  { bg: '#16181B', border: '1px solid #2B2F35', labelColor: '#A0A6AD', valueColor: '#F2F3F5', tagColor: '#A0A6AD', tag: '' },
+            danger:  { bg: '#2A1010', border: '2px solid #FF4747', labelColor: '#FFB3B3', valueColor: '#FF6B6B', tagColor: '#FFB3B3', tag: 'DANGER' }
+          };
+          const rows = [
+            ['RPM', '2100', 'rpm', 'normal'],
+            ['SPEED', '46', 'km/h', 'normal'],
+            ['WATER', '96', '°C', 'normal'],
+            ['OIL P', '0.8', 'bar', 'danger'],
+            ['OIL T', '110', '°C', 'normal'],
+            ['AFR', '14.6', '', 'normal'],
+            ['BATT', '13.8', 'V', 'normal'],
+            ['FUEL P', '3.0', 'bar', 'normal']
+          ];
+          return {
+            lights: Array.from({ length: 12 }, (_, i) => ({ c: i < 2 ? '#3DD68C' : '#1E2125' })),
+            tiles: rows.map(([label, value, unit, st]) => ({ label, value, unit, ...S[st] }))
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Device, logging</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family:
+            -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, system-ui,
+            sans-serif;
+        "
+      >
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 390px;
+            height: 56px;
+          "
+        >
+          <dc-import
+            name="MHeader"
+            conn="connected"
+            badge="logging"
+            hint-size="390px,56px"
+          ></dc-import>
+        </div>
+
+        <main
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 56px;
+            bottom: 84px;
+            overflow: hidden;
+            box-sizing: border-box;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+          "
+        >
+          <h1 style="margin: 0; font-size: 26px">Device</h1>
+
+          <section
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 16px;
+              display: flex;
+              align-items: center;
+              gap: 12px;
+            "
+          >
+            <div
+              style="flex: 1; display: flex; flex-direction: column; gap: 4px"
+            >
+              <span
+                style="
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 8px;
+                  font-size: 18px;
+                  font-weight: 700;
+                "
+                ><span
+                  style="
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 5px;
+                    background: #3dd68c;
+                  "
+                ></span
+                >Connected</span
+              >
+              <span style="font-size: 14px; color: #a0a6ad"
+                >CANShift-4F2A · Bluetooth</span
+              >
+            </div>
+            <button
+              style="
+                height: 52px;
+                padding: 0 16px;
+                border-radius: 12px;
+                background: transparent;
+                color: #f2f3f5;
+                border: 1px solid #2b2f35;
+                font: inherit;
+                font-size: 16px;
+              "
+            >
+              Disconnect
+            </button>
+          </section>
+
+          <section
+            style="
+              background: #2a1010;
+              border: 2px solid #ff4747;
+              border-radius: 14px;
+              padding: 16px;
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+            "
+          >
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              "
+            >
+              <span
+                style="
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 8px;
+                  font-size: 15px;
+                  font-weight: 800;
+                  letter-spacing: 0.06em;
+                  color: #ffb3b3;
+                "
+                ><span
+                  style="
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 5px;
+                    background: #ff4747;
+                  "
+                ></span
+                >LOGGING</span
+              >
+              <span
+                style="
+                  font-family:
+                    ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                  font-size: 22px;
+                  font-weight: 700;
+                "
+                >04:12</span
+              >
+            </div>
+            <div
+              aria-hidden="true"
+              style="
+                height: 10px;
+                border-radius: 5px;
+                background: #4a1c1c;
+                overflow: hidden;
+              "
+            >
+              <div style="width: 40%; height: 10px; background: #ff4747"></div>
+            </div>
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                font-size: 14px;
+                color: #ffb3b3;
+              "
+            >
+              <span>3.2 MB of 8 MB used</span><span>about 6 min left</span>
+            </div>
+            <span style="font-size: 14px; color: #c9cdd2"
+              >Logging stops when the buffer is full.</span
+            >
+            <button
+              style="
+                height: 60px;
+                border-radius: 12px;
+                background: #f2f3f5;
+                color: #0e0f11;
+                border: 0;
+                font: inherit;
+                font-size: 18px;
+                font-weight: 800;
+              "
+            >
+              Stop logging now
+            </button>
+          </section>
+
+          <a
+            href="#"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              min-height: 56px;
+              padding: 0 16px;
+              border-radius: 14px;
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              color: #f2f3f5;
+              text-decoration: none;
+              font-size: 17px;
+            "
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#A0A6AD"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 17l6-5-6-5M12 19h8"></path>
+            </svg>
+            <span style="flex: 1">Console</span>
+            <span style="font-size: 14px; color: #a0a6ad"
+              >Log · Send · CAN</span
+            >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#6B7178"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M9 6l6 6-6 6"></path>
+            </svg>
+          </a>
+
+          <section
+            style="
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 4px 16px;
+              display: flex;
+              flex-direction: column;
+            "
+          >
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                height: 40px;
+                border-bottom: 1px solid #23262b;
+                font-size: 15px;
+              "
+            >
+              <span style="color: #a0a6ad">Dash name</span
+              ><span>CANShift-4F2A</span>
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                height: 40px;
+                border-bottom: 1px solid #23262b;
+                font-size: 15px;
+              "
+            >
+              <span style="color: #a0a6ad">Firmware</span
+              ><span
+                style="
+                  font-family:
+                    ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                "
+                >2.5.0</span
+              >
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                height: 40px;
+                font-size: 15px;
+              "
+            >
+              <span style="color: #a0a6ad">Dash battery</span
+              ><span
+                style="
+                  font-family:
+                    ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                "
+                >13.9 V</span
+              >
+            </div>
+          </section>
+        </main>
+
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 390px;
+            height: 84px;
+          "
+        >
+          <dc-import
+            name="MTabBar"
+            active="device"
+            hint-size="390px,84px"
+          ></dc-import>
+        </div>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":390,"height":844}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          return {};
+        }
+      }
+    </script>
+  </body>
+</html>

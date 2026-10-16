@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Scan, scanning</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family:
+            -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, system-ui,
+            sans-serif;
+        "
+      >
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 390px;
+            height: 56px;
+          "
+        >
+          <dc-import
+            name="MHeader"
+            conn="scanning"
+            dash=""
+            hint-size="390px,56px"
+          ></dc-import>
+        </div>
+        <a
+          href="#"
+          aria-label="App info"
+          style="
+            position: absolute;
+            right: 8px;
+            top: 6px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #c9cdd2;
+          "
+          ><svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 11v6M12 7.5v.5"></path></svg
+        ></a>
+
+        <main
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 56px;
+            bottom: 0;
+            box-sizing: border-box;
+            padding: 40px 24px 48px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+          "
+        >
+          <h1 style="margin: 0; font-size: 32px">Looking for dashes…</h1>
+          <div
+            aria-hidden="true"
+            style="
+              align-self: center;
+              position: relative;
+              width: 240px;
+              height: 240px;
+              margin-top: 16px;
+            "
+          >
+            <div
+              style="
+                position: absolute;
+                inset: 0;
+                border-radius: 120px;
+                border: 1.5px solid #23262b;
+              "
+            ></div>
+            <div
+              style="
+                position: absolute;
+                inset: 40px;
+                border-radius: 80px;
+                border: 1.5px solid #2b2f35;
+              "
+            ></div>
+            <div
+              style="
+                position: absolute;
+                inset: 80px;
+                border-radius: 40px;
+                border: 2px solid #ff4747;
+              "
+            ></div>
+            <div
+              style="
+                position: absolute;
+                left: 108px;
+                top: 108px;
+                width: 24px;
+                height: 24px;
+                border-radius: 12px;
+                background: #ff4747;
+              "
+            ></div>
+          </div>
+          <div
+            style="
+              font-size: 17px;
+              line-height: 1.5;
+              color: #c9cdd2;
+              text-align: center;
+            "
+          >
+            Keep the phone close to the dash.<br />This takes a few seconds.
+          </div>
+          <button
+            style="
+              margin-top: auto;
+              height: 56px;
+              border-radius: 12px;
+              background: transparent;
+              color: #f2f3f5;
+              border: 1px solid #2b2f35;
+              font: inherit;
+              font-size: 17px;
+            "
+          >
+            Stop scanning
+          </button>
+        </main>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":390,"height":844}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          return {};
+        }
+      }
+    </script>
+  </body>
+</html>

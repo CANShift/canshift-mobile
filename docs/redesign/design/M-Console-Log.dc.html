@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Console, Log</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family:
+            -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, system-ui,
+            sans-serif;
+        "
+      >
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 390px;
+            height: 56px;
+          "
+        >
+          <dc-import
+            name="MHeader"
+            conn="connected"
+            hint-size="390px,56px"
+          ></dc-import>
+        </div>
+
+        <main
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 56px;
+            bottom: 84px;
+            box-sizing: border-box;
+            padding: 4px 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+          "
+        >
+          <div style="display: flex; align-items: center; gap: 4px">
+            <a
+              href="#"
+              style="
+                display: inline-flex;
+                align-items: center;
+                gap: 2px;
+                height: 44px;
+                padding-right: 8px;
+                color: #c9cdd2;
+                text-decoration: none;
+                font-size: 16px;
+              "
+              ><svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M15 6l-6 6 6 6"></path></svg
+              >Device</a
+            >
+            <h1 style="margin: 0 0 0 auto; font-size: 20px">Console</h1>
+          </div>
+          <div
+            role="tablist"
+            style="
+              display: grid;
+              grid-template-columns: repeat(3, minmax(0, 1fr));
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 12px;
+              padding: 3px;
+            "
+          >
+            <button
+              role="tab"
+              aria-selected="true"
+              style="
+                height: 44px;
+                border-radius: 9px;
+                background: #f2f3f5;
+                color: #0e0f11;
+                border: 0;
+                font: inherit;
+                font-size: 16px;
+                font-weight: 700;
+              "
+            >
+              Log
+            </button>
+            <button
+              role="tab"
+              aria-selected="false"
+              style="
+                height: 44px;
+                border-radius: 9px;
+                background: transparent;
+                color: #c9cdd2;
+                border: 0;
+                font: inherit;
+                font-size: 16px;
+              "
+            >
+              Send
+            </button>
+            <button
+              role="tab"
+              aria-selected="false"
+              style="
+                height: 44px;
+                border-radius: 9px;
+                background: transparent;
+                color: #c9cdd2;
+                border: 0;
+                font: inherit;
+                font-size: 16px;
+              "
+            >
+              CAN
+            </button>
+          </div>
+
+          <div style="display: flex; gap: 8px">
+            <button
+              style="
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                height: 44px;
+                padding: 0 14px;
+                border-radius: 10px;
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                color: #f2f3f5;
+                font: inherit;
+                font-size: 15px;
+              "
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <rect x="6" y="5" width="4" height="14" rx="1"></rect>
+                <rect x="14" y="5" width="4" height="14" rx="1"></rect></svg
+              >Pause
+            </button>
+            <label
+              style="
+                flex: 1;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                height: 44px;
+                padding: 0 12px;
+                border-radius: 10px;
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                box-sizing: border-box;
+              "
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#A0A6AD"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3 5h18l-7 8v6l-4 2v-8z"></path>
+              </svg>
+              <input
+                placeholder="Filter"
+                aria-label="Filter log"
+                style="
+                  flex: 1;
+                  min-width: 0;
+                  background: transparent;
+                  border: 0;
+                  color: #f2f3f5;
+                  font-size: 15px;
+                  font-family: inherit;
+                "
+              />
+            </label>
+          </div>
+          <div role="group" aria-label="Level" style="display: flex; gap: 6px">
+            <button
+              aria-pressed="true"
+              style="
+                height: 36px;
+                padding: 0 12px;
+                border-radius: 18px;
+                background: #f2f3f5;
+                color: #0e0f11;
+                border: 0;
+                font: inherit;
+                font-size: 14px;
+                font-weight: 700;
+              "
+            >
+              All
+            </button>
+            <button
+              aria-pressed="false"
+              style="
+                height: 36px;
+                padding: 0 12px;
+                border-radius: 18px;
+                background: transparent;
+                color: #c9cdd2;
+                border: 1px solid #2b2f35;
+                font: inherit;
+                font-size: 14px;
+              "
+            >
+              Info
+            </button>
+            <button
+              aria-pressed="false"
+              style="
+                height: 36px;
+                padding: 0 12px;
+                border-radius: 18px;
+                background: transparent;
+                color: #c9cdd2;
+                border: 1px solid #2b2f35;
+                font: inherit;
+                font-size: 14px;
+              "
+            >
+              Warnings
+            </button>
+            <button
+              aria-pressed="false"
+              style="
+                height: 36px;
+                padding: 0 12px;
+                border-radius: 18px;
+                background: transparent;
+                color: #c9cdd2;
+                border: 1px solid #2b2f35;
+                font: inherit;
+                font-size: 14px;
+              "
+            >
+              Errors
+            </button>
+          </div>
+
+          <div
+            style="
+              flex: 1;
+              min-height: 0;
+              overflow: hidden;
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 12px;
+              padding: 6px 0;
+              display: flex;
+              flex-direction: column;
+              font-family: ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+              font-size: 13px;
+              line-height: 1.4;
+            "
+          >
+            <sc-for list="{{lines}}" as="l" hint-placeholder-count="12">
+              <div style="display: flex; gap: 8px; padding: 5px 12px">
+                <span style="color: #8a9097; flex: none">{{l.t}}</span>
+                <span
+                  style="flex: none; width: 40px; font-weight: 700; color: {{l.c}}"
+                  >{{l.lvl}}</span
+                >
+                <span style="color: #e2e4e7; overflow-wrap: anywhere"
+                  >{{l.msg}}</span
+                >
+              </div>
+            </sc-for>
+          </div>
+        </main>
+
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 390px;
+            height: 84px;
+          "
+        >
+          <dc-import
+            name="MTabBar"
+            active="device"
+            hint-size="390px,84px"
+          ></dc-import>
+        </div>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":390,"height":844}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          const C = { INFO: '#A0A6AD', WARN: '#FF8800', ERR: '#FF6B6B' };
+          const rows = [
+            ['14:31:02', 'INFO', 'BLE link up, MTU 247'],
+            ['14:31:02', 'INFO', 'Config v7 loaded, 3 pages'],
+            ['14:31:05', 'INFO', 'CAN 500 kbit/s, 412 frames/s'],
+            ['14:32:40', 'WARN', 'Oil temp above warning (112 °C)'],
+            ['14:33:11', 'INFO', 'Lap captured: 1:12.04'],
+            ['14:33:58', 'WARN', 'Fuel pressure: no frames for 2 s'],
+            ['14:34:01', 'INFO', 'Fuel pressure back'],
+            ['14:35:20', 'ERR', 'Frame 0x3E8 bad length, ignored'],
+            ['14:35:44', 'INFO', 'Logging started'],
+            ['14:36:12', 'INFO', 'Brightness set to 80 %'],
+            ['14:36:30', 'WARN', 'BLE signal weak (−86 dBm)'],
+            ['14:36:31', 'INFO', 'BLE signal OK']
+          ];
+          return { lines: rows.map(([t, lvl, msg]) => ({ t, lvl, msg, c: C[lvl] })) };
+        }
+      }
+    </script>
+  </body>
+</html>

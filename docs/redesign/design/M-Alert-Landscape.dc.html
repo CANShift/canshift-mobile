@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Critical alert, landscape</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+        </style>
+      </helmet>
+      <div
+        role="alertdialog"
+        aria-labelledby="al"
+        style="
+          width: 844px;
+          height: 390px;
+          position: relative;
+          overflow: hidden;
+          background: #d63333;
+          color: #ffffff;
+          font-family:
+            -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, system-ui,
+            sans-serif;
+          box-sizing: border-box;
+          padding: 20px 28px;
+          display: grid;
+          grid-template-columns: 1.15fr 1fr;
+          gap: 28px;
+        "
+      >
+        <div
+          style="display: flex; flex-direction: column; gap: 8px; min-width: 0"
+        >
+          <div style="display: flex; align-items: center; gap: 10px">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#FFFFFF"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"></path>
+            </svg>
+            <span
+              style="font-size: 14px; font-weight: 800; letter-spacing: 0.1em"
+              >CRITICAL ALERT</span
+            >
+          </div>
+          <h1
+            id="al"
+            style="
+              margin: 6px 0 0;
+              font-size: 36px;
+              line-height: 1.05;
+              font-weight: 800;
+            "
+          >
+            OIL PRESSURE LOW
+          </h1>
+          <div style="display: flex; align-items: baseline; gap: 10px">
+            <span
+              style="
+                font-family:
+                  ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                font-size: 120px;
+                font-weight: 800;
+                line-height: 1;
+              "
+              >0.8</span
+            >
+            <span style="font-size: 30px; font-weight: 700">bar</span>
+          </div>
+          <div style="font-size: 20px; font-weight: 600">
+            Limit: below 1.0 bar
+          </div>
+          <div
+            style="margin-top: auto; display: flex; gap: 18px; font-size: 16px"
+          >
+            <span
+              >RPM
+              <b
+                style="
+                  font-family:
+                    ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                "
+                >4200</b
+              ></span
+            ><span
+              >Oil temp
+              <b
+                style="
+                  font-family:
+                    ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                "
+                >112 °C</b
+              ></span
+            ><span
+              >Since
+              <b
+                style="
+                  font-family:
+                    ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                "
+                >0:12</b
+              ></span
+            >
+          </div>
+        </div>
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 12px;
+          "
+        >
+          <button
+            style="
+              height: 120px;
+              border-radius: 18px;
+              background: #ffffff;
+              color: #0e0f11;
+              border: 0;
+              font: inherit;
+              font-size: 28px;
+              font-weight: 800;
+            "
+          >
+            Acknowledge
+          </button>
+          <button
+            style="
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              gap: 10px;
+              height: 72px;
+              border-radius: 14px;
+              background: transparent;
+              color: #ffffff;
+              border: 2px solid rgba(255, 255, 255, 0.85);
+              font: inherit;
+              font-size: 18px;
+              font-weight: 700;
+            "
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path
+                d="M6 8a6 6 0 0 1 10-4.5M18 11v3l2 3H8M3 3l18 18M10 20a2 2 0 0 0 4 0"
+              ></path></svg
+            >Mute for this session
+          </button>
+        </div>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":844,"height":390}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          return {};
+        }
+      }
+    </script>
+  </body>
+</html>

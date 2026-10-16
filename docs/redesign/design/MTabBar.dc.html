@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Mobile tab bar</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+        </style>
+      </helmet>
+      <nav
+        aria-label="Main"
+        style="
+          width: 390px;
+          height: 84px;
+          box-sizing: border-box;
+          padding-bottom: 20px;
+          background: #16181b;
+          border-top: 1px solid #2b2f35;
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          font-family:
+            -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, system-ui,
+            sans-serif;
+        "
+      >
+        <a
+          href="#"
+          style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; font-size: 13px; font-weight: {{w1}}; color: {{t1}}"
+          ><svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="{{i1}}"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M3.3 17a9 9 0 1 1 17.4 0"></path>
+            <path d="M12 14l4-4"></path></svg
+          >Live</a
+        >
+        <a
+          href="#"
+          style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; font-size: 13px; font-weight: {{w2}}; color: {{t2}}"
+          ><svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="{{i2}}"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M3 3v18h18"></path>
+            <path d="M7 15l4-4 3 3 5-6"></path></svg
+          >Graph</a
+        >
+        <a
+          href="#"
+          style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; font-size: 13px; font-weight: {{w3}}; color: {{t3}}"
+          ><svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="{{i3}}"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="14" r="7"></circle>
+            <path d="M12 10v4l2 2M10 3h4"></path></svg
+          >Laps</a
+        >
+        <a
+          href="#"
+          style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; font-size: 13px; font-weight: {{w4}}; color: {{t4}}"
+          ><svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="{{i4}}"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"></path>
+            <circle cx="16" cy="6" r="2"></circle>
+            <circle cx="10" cy="12" r="2"></circle>
+            <circle cx="18" cy="18" r="2"></circle></svg
+          >Device</a
+        >
+      </nav>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"active":{"editor":"enum","options":["live","graph","laps","device"],"default":"live"},"$preview":{"width":390,"height":84}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          const a = this.props.active ?? 'live';
+          const keys = ['live', 'graph', 'laps', 'device'];
+          const out = {};
+          keys.forEach((k, i) => {
+            const on = a === k;
+            out['t' + (i + 1)] = on ? '#F2F3F5' : '#A0A6AD';
+            out['i' + (i + 1)] = on ? '#FF4747' : '#A0A6AD';
+            out['w' + (i + 1)] = on ? 700 : 500;
+          });
+          return out;
+        }
+      }
+    </script>
+  </body>
+</html>

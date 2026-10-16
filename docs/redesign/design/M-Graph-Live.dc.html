@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Graph, live</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family:
+            -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, system-ui,
+            sans-serif;
+        "
+      >
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 390px;
+            height: 56px;
+          "
+        >
+          <dc-import
+            name="MHeader"
+            conn="connected"
+            hint-size="390px,56px"
+          ></dc-import>
+        </div>
+
+        <main
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 56px;
+            bottom: 84px;
+            box-sizing: border-box;
+            padding: 14px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+            "
+          >
+            <h1 style="margin: 0; font-size: 26px">Graph</h1>
+            <div
+              role="group"
+              aria-label="Time window"
+              style="
+                display: flex;
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 10px;
+                padding: 2px;
+              "
+            >
+              <button
+                aria-pressed="false"
+                style="
+                  height: 44px;
+                  padding: 0 12px;
+                  border-radius: 8px;
+                  background: transparent;
+                  color: #c9cdd2;
+                  border: 0;
+                  font: inherit;
+                  font-size: 15px;
+                "
+              >
+                30 s
+              </button>
+              <button
+                aria-pressed="true"
+                style="
+                  height: 44px;
+                  padding: 0 12px;
+                  border-radius: 8px;
+                  background: #f2f3f5;
+                  color: #0e0f11;
+                  border: 0;
+                  font: inherit;
+                  font-size: 15px;
+                  font-weight: 700;
+                "
+              >
+                1 min
+              </button>
+              <button
+                aria-pressed="false"
+                style="
+                  height: 44px;
+                  padding: 0 12px;
+                  border-radius: 8px;
+                  background: transparent;
+                  color: #c9cdd2;
+                  border: 0;
+                  font: inherit;
+                  font-size: 15px;
+                "
+              >
+                2 min
+              </button>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <sc-for list="{{signals}}" as="s" hint-placeholder-count="3">
+              <span
+                style="
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 8px;
+                  height: 44px;
+                  padding: 0 4px 0 12px;
+                  border-radius: 22px;
+                  background: #16181b;
+                  border: 1px solid #2b2f35;
+                  font-size: 14px;
+                "
+              >
+                <span
+                  style="width: 14px; height: 4px; border-radius: 2px; background: {{s.color}}"
+                ></span>
+                <span>{{s.name}}</span>
+                <span
+                  style="
+                    font-family:
+                      ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                    font-weight: 700;
+                  "
+                  >{{s.value}}</span
+                >
+                <button
+                  aria-label="Remove {{s.name}}"
+                  style="
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 18px;
+                    background: transparent;
+                    border: 0;
+                    color: #a0a6ad;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M6 6l12 12M18 6L6 18"></path>
+                  </svg>
+                </button>
+              </span>
+            </sc-for>
+            <button
+              style="
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                height: 44px;
+                padding: 0 14px;
+                border-radius: 22px;
+                background: transparent;
+                border: 1px dashed #3a3f46;
+                color: #f2f3f5;
+                font: inherit;
+                font-size: 14px;
+              "
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 5v14M5 12h14"></path></svg
+              >Add signal
+            </button>
+          </div>
+
+          <figure
+            style="
+              margin: 0;
+              flex: 1;
+              min-height: 0;
+              background: #16181b;
+              border: 1px solid #2b2f35;
+              border-radius: 14px;
+              padding: 12px 12px 8px;
+              box-sizing: border-box;
+              display: flex;
+              flex-direction: column;
+              gap: 6px;
+            "
+          >
+            <svg
+              role="img"
+              aria-label="Live chart of engine speed, oil pressure and coolant over the last minute"
+              width="100%"
+              height="100%"
+              viewBox="0 0 334 300"
+              preserveAspectRatio="none"
+              style="flex: 1; min-height: 0"
+            >
+              <line
+                x1="0"
+                y1="75"
+                x2="334"
+                y2="75"
+                stroke="#23262B"
+                stroke-width="1"
+              ></line>
+              <line
+                x1="0"
+                y1="150"
+                x2="334"
+                y2="150"
+                stroke="#23262B"
+                stroke-width="1"
+              ></line>
+              <line
+                x1="0"
+                y1="225"
+                x2="334"
+                y2="225"
+                stroke="#23262B"
+                stroke-width="1"
+              ></line>
+              <line
+                x1="167"
+                y1="0"
+                x2="167"
+                y2="300"
+                stroke="#23262B"
+                stroke-width="1"
+              ></line>
+              <polyline
+                points="{{p1}}"
+                fill="none"
+                stroke="#F2F3F5"
+                stroke-width="2.5"
+                stroke-linejoin="round"
+              ></polyline>
+              <polyline
+                points="{{p2}}"
+                fill="none"
+                stroke="#4DA3FF"
+                stroke-width="2.5"
+                stroke-linejoin="round"
+              ></polyline>
+              <polyline
+                points="{{p3}}"
+                fill="none"
+                stroke="#B78CFF"
+                stroke-width="2.5"
+                stroke-linejoin="round"
+                stroke-dasharray="6 4"
+              ></polyline>
+            </svg>
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                font-size: 12px;
+                color: #a0a6ad;
+              "
+            >
+              <span>−60 s</span><span>−30 s</span><span>now</span>
+            </div>
+          </figure>
+
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(3, minmax(0, 1fr));
+              gap: 8px;
+            "
+          >
+            <button
+              style="
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                height: 56px;
+                border-radius: 12px;
+                background: #f2f3f5;
+                color: #0e0f11;
+                border: 0;
+                font: inherit;
+                font-size: 16px;
+                font-weight: 700;
+              "
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <rect x="6" y="5" width="4" height="14" rx="1"></rect>
+                <rect x="14" y="5" width="4" height="14" rx="1"></rect></svg
+              >Pause
+            </button>
+            <button
+              style="
+                height: 56px;
+                border-radius: 12px;
+                background: #16181b;
+                color: #f2f3f5;
+                border: 1px solid #2b2f35;
+                font: inherit;
+                font-size: 16px;
+              "
+            >
+              Clear
+            </button>
+            <button
+              style="
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                height: 56px;
+                border-radius: 12px;
+                background: #16181b;
+                color: #f2f3f5;
+                border: 1px solid #2b2f35;
+                font: inherit;
+                font-size: 16px;
+              "
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 16V4M7 9l5-5 5 5M4 20h16"></path></svg
+              >Export
+            </button>
+          </div>
+        </main>
+
+        <div
+          style="
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 390px;
+            height: 84px;
+          "
+        >
+          <dc-import
+            name="MTabBar"
+            active="graph"
+            hint-size="390px,84px"
+          ></dc-import>
+        </div>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":390,"height":844}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          const line = (f) => Array.from({ length: 61 }, (_, i) => {
+            const x = (i / 60) * 334;
+            return x.toFixed(1) + ',' + f(i).toFixed(1);
+          }).join(' ');
+          return {
+            signals: [
+              { name: 'RPM', value: '6120', color: '#F2F3F5' },
+              { name: 'Oil P', value: '4.6 bar', color: '#4DA3FF' },
+              { name: 'Water', value: '98 °C', color: '#B78CFF' }
+            ],
+            p1: line((i) => 160 - 110 * Math.abs(Math.sin(i / 7)) + 6 * Math.sin(i * 1.7)),
+            p2: line((i) => 190 - 60 * Math.abs(Math.sin(i / 7 + 0.3)) + 4 * Math.cos(i * 1.3)),
+            p3: line((i) => 250 - i * 0.6 + 3 * Math.sin(i / 3))
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

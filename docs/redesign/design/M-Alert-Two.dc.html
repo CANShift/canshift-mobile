@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Critical alert, two at once</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+        </style>
+      </helmet>
+      <div
+        role="alertdialog"
+        aria-label="2 critical alerts"
+        style="
+          width: 390px;
+          height: 844px;
+          position: relative;
+          overflow: hidden;
+          background: #d63333;
+          color: #ffffff;
+          font-family:
+            -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, system-ui,
+            sans-serif;
+          box-sizing: border-box;
+          padding: 24px 16px 36px;
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        "
+      >
+        <div
+          style="display: flex; align-items: center; gap: 10px; padding: 0 4px"
+        >
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#FFFFFF"
+            stroke-width="2.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"></path>
+          </svg>
+          <span
+            style="
+              flex: 1;
+              font-size: 15px;
+              font-weight: 800;
+              letter-spacing: 0.1em;
+            "
+            >CRITICAL ALERT</span
+          >
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              height: 30px;
+              padding: 0 12px;
+              border-radius: 15px;
+              background: #ffffff;
+              color: #b01e1e;
+              font-size: 15px;
+              font-weight: 800;
+            "
+            >2 alerts</span
+          >
+        </div>
+
+        <sc-for list="{{alerts}}" as="a" hint-placeholder-count="2">
+          <section
+            style="
+              background: rgba(0, 0, 0, 0.22);
+              border-radius: 16px;
+              padding: 16px;
+              display: flex;
+              flex-direction: column;
+              gap: 8px;
+            "
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+                gap: 8px;
+              "
+            >
+              <h2
+                style="
+                  margin: 0;
+                  font-size: 24px;
+                  font-weight: 800;
+                  line-height: 1.1;
+                "
+              >
+                {{a.title}}
+              </h2>
+              <span
+                style="font-size: 14px; font-weight: 600; white-space: nowrap"
+                >{{a.since}}</span
+              >
+            </div>
+            <div style="display: flex; align-items: baseline; gap: 8px">
+              <span
+                style="
+                  font-family:
+                    ui-monospace, &quot;SF Mono&quot;, Menlo, monospace;
+                  font-size: 72px;
+                  font-weight: 800;
+                  line-height: 1;
+                "
+                >{{a.value}}</span
+              >
+              <span style="font-size: 24px; font-weight: 700">{{a.unit}}</span>
+            </div>
+            <div style="font-size: 17px; font-weight: 600">{{a.limit}}</div>
+            <div style="font-size: 15px; opacity: 0.92">{{a.context}}</div>
+            <button
+              style="
+                margin-top: 4px;
+                height: 76px;
+                border-radius: 14px;
+                background: #ffffff;
+                color: #0e0f11;
+                border: 0;
+                font: inherit;
+                font-size: 22px;
+                font-weight: 800;
+              "
+            >
+              Acknowledge
+            </button>
+          </section>
+        </sc-for>
+
+        <button
+          style="
+            margin-top: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            height: 64px;
+            border-radius: 14px;
+            background: transparent;
+            color: #ffffff;
+            border: 2px solid rgba(255, 255, 255, 0.85);
+            font: inherit;
+            font-size: 18px;
+            font-weight: 700;
+          "
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path
+              d="M6 8a6 6 0 0 1 10-4.5M18 11v3l2 3H8M3 3l18 18M10 20a2 2 0 0 0 4 0"
+            ></path></svg
+          >Mute all for this session
+        </button>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":390,"height":844}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          return {
+            alerts: [
+              { title: 'COOLANT HOT', since: 'Since 0:03', value: '121', unit: '°C', limit: 'Limit: above 118 °C', context: 'RPM 4200 · Oil temp 114 °C' },
+              { title: 'OIL PRESSURE LOW', since: 'Since 0:12', value: '0.8', unit: 'bar', limit: 'Limit: below 1.0 bar', context: 'RPM 4200 · Oil temp 114 °C' }
+            ]
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

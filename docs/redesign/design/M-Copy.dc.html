@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Mobile copy deck</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <style>
+          body {
+            margin: 0;
+          }
+        </style>
+      </helmet>
+      <div
+        style="
+          width: 1440px;
+          min-height: 1400px;
+          box-sizing: border-box;
+          padding: 64px;
+          background: #0e0f11;
+          color: #f2f3f5;
+          font-family:
+            -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, system-ui,
+            sans-serif;
+          display: flex;
+          flex-direction: column;
+          gap: 28px;
+        "
+      >
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <div
+            style="
+              font-size: 14px;
+              font-weight: 600;
+              letter-spacing: 0.08em;
+              text-transform: uppercase;
+              color: #ff4747;
+            "
+          >
+            Copy deck · Mobile · English
+          </div>
+          <h1 style="margin: 0; font-size: 40px">
+            Every label, button and message
+          </h1>
+          <div style="font-size: 16px; color: #a0a6ad">
+            Same rules as the Tuner: say what happened, then what to do. Never a
+            raw code. {Braces} are filled in. Short tile labels stay in
+            capitals, as on the dash.
+          </div>
+        </div>
+
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+            align-items: start;
+          "
+        >
+          <div style="display: flex; flex-direction: column; gap: 20px">
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 22px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                font-size: 14px;
+                line-height: 1.45;
+              "
+            >
+              <h2 style="margin: 0 0 4px; font-size: 18px; color: #ff4747">
+                Everywhere
+              </h2>
+              <div><b>Tabs</b> · Live · Graph · Laps · Device</div>
+              <div>
+                <b>Link</b> · Connected · Reconnecting… · Not connected ·
+                Searching… · Demo
+              </div>
+              <div><b>Badges</b> · LOGGING · DEMO</div>
+              <div><b>Stale value</b> · “{8} s ago” · “No data”</div>
+              <div>
+                <b>Generic error</b> · “Something went wrong talking to the
+                dash. Try again.”
+              </div>
+            </section>
+
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 22px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                font-size: 14px;
+                line-height: 1.45;
+              "
+            >
+              <h2 style="margin: 0 0 4px; font-size: 18px; color: #ff4747">
+                Connect
+              </h2>
+              <div>
+                <b>First run</b> · Title “Bluetooth finds your dash” · “CANShift
+                uses Bluetooth to read live data from your dash. Nothing else.”
+                · Continue (opens the iOS prompt)
+              </div>
+              <div>
+                <b>Empty</b> · Find your dash · “Turn on the dash and keep the
+                phone close.” · Scan for dashes · Try demo mode · App info
+              </div>
+              <div><b>Scanning</b> · Looking for dashes… · Stop scanning</div>
+              <div>
+                <b>Found</b> · Dashes nearby · Last used · Strong / OK / Weak
+                signal · Scan again · “Tap a dash to connect.”
+              </div>
+              <div>
+                <b>Pairing</b> · Confirm on the dash · “The dash shows a
+                four-digit code. Confirm it there.” · Waiting for the dash… ·
+                Cancel
+              </div>
+              <div>
+                <b>Pairing failed</b> · “The code wasn’t confirmed on the dash.
+                Try again.”
+              </div>
+              <div>
+                <b>Reconnect strip</b> · Reconnecting to {CANShift-4F2A}… ·
+                Cancel
+              </div>
+              <div>
+                <b>Denied</b> · Bluetooth is off for CANShift · “Allow Bluetooth
+                in Settings so the app can find your dash.” · Open Settings ·
+                Try demo mode
+              </div>
+              <div>
+                <b>Reconnect failed</b> · Couldn’t reconnect to {CANShift-4F2A}
+                · “The dash may be off or out of range.” · Try again · Scan for
+                dashes
+              </div>
+            </section>
+
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 22px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                font-size: 14px;
+                line-height: 1.45;
+              "
+            >
+              <h2 style="margin: 0 0 4px; font-size: 18px; color: #ff4747">
+                Live
+              </h2>
+              <div>
+                <b>Tile states</b> · Warning · Danger · {8} s ago · No data
+              </div>
+              <div>
+                <b>No data banner</b> · “No data from the dash for {6} s. Values
+                below are the last ones received.”
+              </div>
+              <div>
+                <b>Footer</b> · “Live · {20} updates/s” · “Paused while
+                reconnecting” · Display
+              </div>
+              <div>
+                <b>Display sheet</b> · Brightness · Keep screen on · Done
+              </div>
+            </section>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 20px">
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 22px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                font-size: 14px;
+                line-height: 1.45;
+              "
+            >
+              <h2 style="margin: 0 0 4px; font-size: 18px; color: #ff4747">
+                Graph
+              </h2>
+              <div>
+                <b>Controls</b> · 30 s · 1 min · 2 min · Pause · Resume · Clear
+                · Export
+              </div>
+              <div><b>Strip</b> · Add signal · Remove {Oil pressure}</div>
+              <div>
+                <b>Empty</b> · “No telemetry has been captured yet.” · “The
+                graph fills in as soon as the dash sends data.”
+              </div>
+              <div>
+                <b>Picker</b> · Choose signals · Search signals · “Up to {4} at
+                once” · Done
+              </div>
+              <div>
+                <b>Clear confirm</b> · “Clear the graph? The data on screen will
+                be removed.” · Clear · Cancel
+              </div>
+              <div>
+                <b>Export</b> · “Export the last {2 min} as a CSV file.” ·
+                Export · Share
+              </div>
+              <div><b>Paused tag</b> · PAUSED</div>
+            </section>
+
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 22px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                font-size: 14px;
+                line-height: 1.45;
+              "
+            >
+              <h2 style="margin: 0 0 4px; font-size: 18px; color: #ff4747">
+                Laps
+              </h2>
+              <div><b>Switch</b> · GPS timing · Dash timer</div>
+              <div>
+                <b>No fix</b> · Waiting for GPS… · “Accuracy {18} m. Needs
+                better than {5} m.” · “Move to open sky.”
+              </div>
+              <div>
+                <b>No location</b> · Location is off for CANShift · “Allow
+                location in Settings to time laps with GPS.” · Open Settings
+              </div>
+              <div>
+                <b>Line</b> · Start/finish line · Not set · Set line here ·
+                “Drive to the line, stop, then tap Set line here.” · Reset line
+                · Line set
+              </div>
+              <div>
+                <b>Track mode</b> · Start track mode · Stop track mode · “Stop
+                track mode? Laps so far are kept.”
+              </div>
+              <div>
+                <b>Running</b> · Lap {4} · Best · Last · Laps · vs best · “No
+                laps yet”
+              </div>
+              <div>
+                <b>Dash timer</b> · READY · RUNNING · PAUSED · Start · Pause ·
+                Resume · Reset · Capture lap
+              </div>
+              <div>
+                <b>Source</b> · SYNCED WITH DASH · PHONE ONLY · “The dash isn’t
+                connected, so this timer runs on the phone only.”
+              </div>
+              <div>
+                <b>Reset confirm</b> · “Reset the timer? {5} laps will be
+                removed.” · Reset · Cancel
+              </div>
+              <div>
+                <b>Can’t save</b> · “Laps can’t be saved: the phone is out of
+                storage. They stay until you close the app.”
+              </div>
+            </section>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 20px">
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 22px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                font-size: 14px;
+                line-height: 1.45;
+              "
+            >
+              <h2 style="margin: 0 0 4px; font-size: 18px; color: #ff4747">
+                Device
+              </h2>
+              <div>
+                <b>Connection</b> · Connected · Connecting… · Not connected ·
+                Searching… · Disconnect · Reconnect
+              </div>
+              <div>
+                <b>Info</b> · Dash name · Device ID · Firmware · Config version
+                · App version · Dash battery
+              </div>
+              <div>
+                <b>Logging</b> · Telemetry logging · Start logging · Stop
+                logging now · LOGGING · “{3.2} MB of {8} MB used” · “Logging
+                stops when the buffer is full.”
+              </div>
+              <div>
+                <b>Demo</b> · Demo mode · “Values are simulated. No dash is
+                connected.” · End demo
+              </div>
+              <div><b>Links</b> · Console</div>
+            </section>
+
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 22px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                font-size: 14px;
+                line-height: 1.45;
+              "
+            >
+              <h2 style="margin: 0 0 4px; font-size: 18px; color: #ff4747">
+                Console
+              </h2>
+              <div><b>Tabs</b> · Log · Send · CAN</div>
+              <div>
+                <b>Log</b> · Pause · Resume · Filter · All · Info · Warnings ·
+                Errors · Clear
+              </div>
+              <div>
+                <b>Send</b> · Command · Send · “Commands go straight to the
+                dash. Only use ones you know.” · Sent · Reply · “The dash didn’t
+                reply.”
+              </div>
+              <div>
+                <b>CAN empty</b> · “Raw CAN frames aren’t sent over Bluetooth
+                yet.” · “A future dash update will add them.”
+              </div>
+              <div>
+                <b>CAN filled</b> · ID · Data · Rate · Filter by ID · Pause
+              </div>
+            </section>
+
+            <section
+              style="
+                background: #16181b;
+                border: 2px solid #d63333;
+                border-radius: 14px;
+                padding: 22px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                font-size: 14px;
+                line-height: 1.45;
+              "
+            >
+              <h2 style="margin: 0 0 4px; font-size: 18px; color: #ff4747">
+                Critical alert
+              </h2>
+              <div>
+                <b>Titles</b> · OIL PRESSURE LOW · COOLANT HOT · {SIGNAL} HIGH /
+                LOW
+              </div>
+              <div>
+                <b>Body</b> · “Limit: below {1.0} bar” · RPM · Oil temp · Since
+              </div>
+              <div><b>Buttons</b> · Acknowledge · Mute for this session</div>
+              <div>
+                <b>Two or more</b> · “{2} alerts” · each alert has its own
+                Acknowledge
+              </div>
+              <div>
+                <b>Strip</b> · “{Oil pressure low} · {0.8} bar · Acknowledged” ·
+                “Muted for this session” · Show · Unmute
+              </div>
+              <div><b>Ended</b> · “Oil pressure is back to normal.”</div>
+            </section>
+
+            <section
+              style="
+                background: #16181b;
+                border: 1px solid #2b2f35;
+                border-radius: 14px;
+                padding: 22px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                font-size: 14px;
+                line-height: 1.45;
+              "
+            >
+              <h2 style="margin: 0 0 4px; font-size: 18px; color: #ff4747">
+                Phone
+              </h2>
+              <div>
+                <b>Battery low</b> · “Phone battery {9}%. Plug it in — alerts
+                stop if the phone turns off.” · Dismiss
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"$preview":{"width":1440,"height":1400}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          return {};
+        }
+      }
+    </script>
+  </body>
+</html>
