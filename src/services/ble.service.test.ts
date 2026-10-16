@@ -108,7 +108,7 @@ describe("BleService GATT serializer", () => {
     const service = makeService();
     service._test_setConnectedDevice(makeStubDevice(factory));
 
-    const first = service.pushSettings({ brightness: 50, sleep: 0 });
+    const first = service.pushSettings({ brightness: 50 });
     const second = service.sendCmd("ping");
 
     await flush();

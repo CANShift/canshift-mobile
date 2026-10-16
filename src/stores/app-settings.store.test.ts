@@ -29,6 +29,7 @@ const resetStore = (): void => {
   useAppSettingsStore.setState({
     telemetryBufferSize: 3000,
     reconnectBehavior: "auto",
+    keepScreenOn: true,
     hydrated: false,
   });
 };
@@ -66,6 +67,16 @@ describe("app-settings.store", () => {
     expect(s.hydrated).toBe(true);
     expect(s.telemetryBufferSize).toBe(6000);
     expect(s.reconnectBehavior).toBe("off");
+    expect(s.keepScreenOn).toBe(true);
+  });
+
+  it("persists the keep-screen-on choice", async () => {
+    useAppSettingsStore.getState().setKeepScreenOn(false);
+    await Promise.resolve();
+    const persisted = JSON.parse(
+      mockStore.get(STORAGE_KEY) ?? "{}",
+    ) as AppSettings;
+    expect(persisted.keepScreenOn).toBe(false);
   });
 
   it("falls back to defaults when nothing is persisted", async () => {

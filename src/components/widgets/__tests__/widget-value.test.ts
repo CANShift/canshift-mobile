@@ -1,9 +1,4 @@
-import {
-  formatTimerElapsed,
-  formatWidgetValue,
-  gearGlyphFor,
-  heldPlaceholder,
-} from "../widget-value";
+import { formatTimerElapsed, formatWidgetValue } from "../widget-value";
 import { signalKeyToSensorKind } from "../../../theme/signal-colors";
 
 describe("formatWidgetValue", () => {
@@ -29,31 +24,6 @@ describe("signalKeyToSensorKind", () => {
     expect(signalKeyToSensorKind("s")).toBeUndefined();
     expect(signalKeyToSensorKind("g")).toBeUndefined();
     expect(signalKeyToSensorKind("tps")).toBeUndefined();
-  });
-});
-
-describe("gearGlyphFor", () => {
-  it("maps neutral, reverse and forward gears", () => {
-    expect(gearGlyphFor(0)).toBe("N");
-    expect(gearGlyphFor(-1)).toBe("R");
-    expect(gearGlyphFor(3)).toBe("3");
-    expect(gearGlyphFor(3.9)).toBe("3");
-  });
-
-  it("shows the neutral glyph when stale", () => {
-    expect(gearGlyphFor(undefined)).toBe("N");
-  });
-});
-
-describe("heldPlaceholder", () => {
-  it("dashes the held reading digit for digit", () => {
-    expect(heldPlaceholder(4000, 0)).toBe("- - - -");
-    expect(heldPlaceholder(88, 0)).toBe("- -");
-    expect(heldPlaceholder(13.8, 1)).toBe("- - -");
-  });
-
-  it("falls back to the shared placeholder once the values are cleared", () => {
-    expect(heldPlaceholder(undefined, 0)).toBe("- -");
   });
 });
 

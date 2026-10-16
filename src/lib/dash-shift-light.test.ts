@@ -1,11 +1,11 @@
 import { SHIFT_LIGHT } from "@canshift/core";
 import {
   SHIFT_CELL_INDEXES,
-  isRedShiftCell,
+  shiftCellZone,
   shiftLitCount,
 } from "./dash-shift-light";
 
-describe("dash shift light", () => {
+describe("shift light", () => {
   it("has the core segment count", () => {
     expect(SHIFT_CELL_INDEXES).toHaveLength(SHIFT_LIGHT.segments);
   });
@@ -15,9 +15,11 @@ describe("dash shift light", () => {
     expect(shiftLitCount(8000)).toBe(SHIFT_LIGHT.segments);
   });
 
-  it("reddens only the last core red segments", () => {
-    const red = SHIFT_CELL_INDEXES.filter(isRedShiftCell);
-    expect(red).toHaveLength(SHIFT_LIGHT.defaultRedSegments);
-    expect(red[red.length - 1]).toBe(SHIFT_LIGHT.segments - 1);
+  it("splits the bar into six green, three orange and three red cells", () => {
+    const zones = SHIFT_CELL_INDEXES.map(shiftCellZone);
+    expect(zones.filter((zone) => zone === "green")).toHaveLength(6);
+    expect(zones.filter((zone) => zone === "orange")).toHaveLength(3);
+    expect(zones.filter((zone) => zone === "red")).toHaveLength(3);
+    expect(zones[zones.length - 1]).toBe("red");
   });
 });

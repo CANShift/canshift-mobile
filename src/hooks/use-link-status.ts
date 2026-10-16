@@ -35,8 +35,6 @@ const clearExpiredHold = (staleSinceMs: number, nowMs: number): void => {
   clearHeld();
 };
 
-export const useIsLinkLost = (): boolean => useLinkSource().state === "lost";
-
 export const useLinkStatus = (): LinkStatus => {
   const { state, staleSinceMs } = useLinkSource();
   const [nowMs, setNowMs] = useState(() => Date.now());

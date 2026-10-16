@@ -21,7 +21,7 @@ jest.mock("react-native/Libraries/Utilities/useWindowDimensions", () => ({
 
 const stubScreen = (label: string) => () => <Text>{label}</Text>;
 
-jest.mock("../../screens/DashScreen", () => stubScreen("live-screen"));
+jest.mock("../../screens/LiveScreen", () => stubScreen("live-screen"));
 jest.mock("../../screens/GraphScreen", () => stubScreen("graph-screen"));
 jest.mock("../../screens/TrackScreen", () => stubScreen("laps-screen"));
 jest.mock("../../screens/DeviceScreen", () => stubScreen("device-screen"));

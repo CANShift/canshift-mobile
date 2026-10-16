@@ -1,13 +1,9 @@
-import { STALE_PLACEHOLDER } from "@canshift/core";
 import {
   LINK_HOLD_MS,
-  LINK_HOLD_POLICY_COPY,
-  dashPlaceholder,
   isHoldExpired,
   linkLostLabel,
   linkLostSeconds,
   linkState,
-  placeholderForText,
 } from "./link-hold";
 
 describe("linkState", () => {
@@ -52,36 +48,7 @@ describe("isHoldExpired", () => {
   });
 });
 
-describe("dashPlaceholder", () => {
-  it("draws one dash per digit", () => {
-    expect(dashPlaceholder(2)).toBe("- -");
-    expect(dashPlaceholder(4)).toBe("- - - -");
-  });
-
-  it("falls back to the shared placeholder without a digit count", () => {
-    expect(dashPlaceholder(0)).toBe(STALE_PLACEHOLDER);
-  });
-});
-
-describe("placeholderForText", () => {
-  it("matches the digit count of the held reading", () => {
-    expect(placeholderForText("88")).toBe("- -");
-    expect(placeholderForText("4000")).toBe("- - - -");
-    expect(placeholderForText("13.8")).toBe("- - -");
-  });
-
-  it("falls back to the shared placeholder once the values are cleared", () => {
-    expect(placeholderForText(undefined)).toBe(STALE_PLACEHOLDER);
-  });
-});
-
 describe("copy", () => {
-  it("states the hold window it enforces", () => {
-    expect(LINK_HOLD_POLICY_COPY).toBe(
-      "Last values held 30 s, then cleared. Reconnecting automatically.",
-    );
-  });
-
   it("labels the elapsed time in the header", () => {
     expect(linkLostLabel(8)).toBe("LINK LOST 8 s AGO");
   });

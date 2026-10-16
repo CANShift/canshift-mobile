@@ -2,7 +2,7 @@ import { act, renderHook } from "@testing-library/react-native";
 import { useSignalsStore } from "../stores/signals.store";
 import { useDeviceStore } from "../stores/device.store";
 import { LINK_HOLD_MS } from "../lib/link-hold";
-import { useLinkStatus, useIsLinkLost } from "./use-link-status";
+import { useLinkStatus } from "./use-link-status";
 
 const signalsInitialState = useSignalsStore.getState();
 const deviceInitialState = useDeviceStore.getState();
@@ -70,17 +70,5 @@ describe("useLinkStatus", () => {
     useDeviceStore.setState({ mode: "sim" });
     const { result } = await renderHook(() => useLinkStatus());
     expect(result.current.state).toBe("live");
-  });
-});
-
-describe("useIsLinkLost", () => {
-  it("is false while frames arrive and true once they stop", async () => {
-    useSignalsStore.getState().update({ r: 4000 });
-    const live = await renderHook(() => useIsLinkLost());
-    expect(live.result.current).toBe(false);
-
-    useSignalsStore.getState().markStale();
-    const lost = await renderHook(() => useIsLinkLost());
-    expect(lost.result.current).toBe(true);
   });
 });

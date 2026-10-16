@@ -46,3 +46,9 @@ export const UiRadius = {
 export const UiFonts = {
   numeric: Platform.select({ ios: "Menlo", default: "monospace" }),
 } as const;
+
+export const TouchTarget = {
+  min: 44,
+  driving: 56,
+  glove: 88,
+} as const;
