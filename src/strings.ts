@@ -16,6 +16,11 @@ export const STRINGS = {
     scanning: "Searching…",
     demo: "Demo",
   },
+  rail: {
+    linked: "Linked",
+    retrying: "Retry…",
+    off: "Off",
+  },
   badges: {
     logging: "LOGGING",
     demo: "DEMO",
@@ -55,6 +60,7 @@ export const STRINGS = {
     openSettings: "Open Settings",
     reconnectFailedTitle: (name: string): string =>
       `Couldn’t reconnect to ${name}`,
+    theDash: "the dash",
     reconnectFailedBody: "The dash may be off or out of range.",
     tryAgain: "Try again",
     scanForDashes: "Scan for dashes",

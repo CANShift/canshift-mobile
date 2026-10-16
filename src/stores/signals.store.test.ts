@@ -37,6 +37,25 @@ describe("useSignalsStore", () => {
     expect(buffer[0]?.v).toEqual({ r: 2000, tps: 20 });
   });
 
+  it("update() stamps each signal it carries and leaves the others alone", () => {
+    useSignalsStore.getState().update({ r: 1500 });
+    const first = useSignalsStore.getState().lastAt.r;
+    useSignalsStore.getState().update({ op: 3.8 });
+    const state = useSignalsStore.getState();
+    expect(state.lastAt.r).toBe(first);
+    expect(state.lastAt.op).toBeGreaterThanOrEqual(first ?? 0);
+    expect(state.lastAt.ct).toBeUndefined();
+  });
+
+  it("ingest() drops a frame with no valid signal so it never counts as live", () => {
+    jest.useFakeTimers();
+    useSignalsStore.getState().ingest({});
+    jest.advanceTimersByTime(DISPLAY_FLUSH_MS);
+    jest.useRealTimers();
+    expect(useSignalsStore.getState().isLive).toBe(false);
+    expect(getWriteIndex()).toBe(0);
+  });
+
   it("update() handles an empty payload without throwing", () => {
     useSignalsStore.getState().update({});
     const state = useSignalsStore.getState();

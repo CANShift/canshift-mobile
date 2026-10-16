@@ -12,6 +12,7 @@ import {
   type CriticalAlertRow,
 } from "../lib/critical-alert";
 import { useSecondsSince } from "./use-seconds-since";
+import { freshValues } from "../lib/signal-staleness";
 import type { SignalKey } from "../constants/ble";
 
 export interface ActiveCriticalAlert {
@@ -36,20 +37,23 @@ const useSkippedKeys = (includeAcknowledged: boolean): Set<SignalKey> => {
 
 const useLiveAlert = (includeAcknowledged: boolean): CriticalAlert | null => {
   const values = useSignalsStore((s) => s.values);
+  const lastAt = useSignalsStore((s) => s.lastAt);
   const isLive = useSignalsIsLive();
   const skipped = useSkippedKeys(includeAcknowledged);
   if (!isLive) return null;
-  return selectCriticalAlert(values, skipped);
+  return selectCriticalAlert(freshValues(values, lastAt, Date.now()), skipped);
 };
 
 const useForgetRecoveredAcknowledgements = (): void => {
   const values = useSignalsStore((s) => s.values);
+  const lastAt = useSignalsStore((s) => s.lastAt);
   const isLive = useSignalsIsLive();
   const retainTripped = useCriticalAlertStore((s) => s.retainTripped);
 
   useEffect(() => {
-    retainTripped(isLive ? trippedCriticalKeys(values) : []);
-  }, [values, isLive, retainTripped]);
+    const fresh = freshValues(values, lastAt, Date.now());
+    retainTripped(isLive ? trippedCriticalKeys(fresh) : []);
+  }, [values, lastAt, isLive, retainTripped]);
 };
 
 const useHoldingAlert = (): CriticalAlert | null => {

@@ -11,10 +11,12 @@ interface DeviceState {
   mode: DeviceMode;
   deviceId: string | null;
   deviceName: string | null;
+  lastDashName: string | null;
   firmwareVersion: string | null;
   canHealthy: boolean;
   isDayMode: boolean | null;
   error: BleConnectionError | null;
+  linkProblem: BleConnectionError | null;
 
   setConnectionState: (s: ConnectionState) => void;
   setMode: (m: DeviceMode) => void;
@@ -22,6 +24,7 @@ interface DeviceState {
   setFirmwareStatus: (version: string, canHealthy: boolean) => void;
   setIsDayMode: (v: boolean) => void;
   setError: (err: BleConnectionError | null) => void;
+  setLinkProblem: (problem: BleConnectionError) => void;
   clearError: () => void;
   disconnect: () => void;
 }
@@ -31,10 +34,12 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
   mode: "idle",
   deviceId: null,
   deviceName: null,
+  lastDashName: null,
   firmwareVersion: null,
   canHealthy: false,
   isDayMode: null,
   error: null,
+  linkProblem: null,
 
   setConnectionState: (connectionState) => {
     set({ connectionState });
@@ -45,7 +50,13 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
   },
 
   setDevice: (deviceId, deviceName) => {
-    set({ deviceId, deviceName, connectionState: "connected", error: null });
+    set({
+      deviceId,
+      deviceName,
+      lastDashName: deviceName,
+      connectionState: "connected",
+      error: null,
+    });
   },
 
   setFirmwareStatus: (firmwareVersion, canHealthy) => {
@@ -58,6 +69,10 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
 
   setError: (error) => {
     set({ error, connectionState: "error" });
+  },
+
+  setLinkProblem: (linkProblem) => {
+    set({ linkProblem });
   },
 
   clearError: () => {
@@ -74,6 +89,7 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
       canHealthy: false,
       isDayMode: null,
       error: null,
+      linkProblem: null,
     });
   },
 }));

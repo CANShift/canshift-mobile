@@ -39,10 +39,7 @@ const renderOverlay = () =>
   );
 
 const raiseFromDash = (): void => {
-  useSignalsStore.setState({
-    values: { op: OP_TRIP, r: 5200, ot: 128 },
-    isLive: true,
-  });
+  useSignalsStore.getState().update({ op: OP_TRIP, r: 5200, ot: 128 });
 };
 
 type Rendered = Awaited<ReturnType<typeof renderOverlay>>;
@@ -70,6 +67,16 @@ describe("CriticalAlertOverlay", () => {
 
   it("stays out of the way when the dash stream is not live", async () => {
     useSignalsStore.setState({ values: { op: OP_TRIP }, isLive: false });
+    const { queryByText } = await renderOverlay();
+    expect(queryByText("OIL PRESSURE")).toBeNull();
+  });
+
+  it("ignores a frozen value the dash stopped sending", async () => {
+    useSignalsStore.setState({
+      values: { op: OP_TRIP, r: 5200 },
+      lastAt: { op: Date.now() - 5_000, r: Date.now() },
+      isLive: true,
+    });
     const { queryByText } = await renderOverlay();
     expect(queryByText("OIL PRESSURE")).toBeNull();
   });
@@ -102,7 +109,7 @@ describe("CriticalAlertOverlay", () => {
     const view = await renderOverlay();
     await press(view, "Acknowledge");
     await act(() => {
-      useSignalsStore.setState({ values: { op: OP_TRIP, ct: CT_TRIP } });
+      useSignalsStore.getState().update({ op: OP_TRIP, ct: CT_TRIP });
       return Promise.resolve();
     });
     expect(view.getByText("COOLANT")).toBeTruthy();
@@ -114,11 +121,11 @@ describe("CriticalAlertOverlay", () => {
     const view = await renderOverlay();
     await press(view, "Acknowledge");
     await act(() => {
-      useSignalsStore.setState({ values: { op: OP_SAFE } });
+      useSignalsStore.getState().update({ op: OP_SAFE });
       return Promise.resolve();
     });
     await act(() => {
-      useSignalsStore.setState({ values: { op: OP_TRIP } });
+      useSignalsStore.getState().update({ op: OP_TRIP });
       return Promise.resolve();
     });
     expect(view.getByText("OIL PRESSURE")).toBeTruthy();

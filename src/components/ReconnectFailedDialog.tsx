@@ -1,9 +1,6 @@
-import React, { useCallback } from "react";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useDeviceStore } from "../stores/device.store";
-import { useReconnectStore } from "../stores/reconnect.store";
-import * as BleService from "../services/ble.service";
-import type { RootStackParamList } from "../navigation";
+import { backToScan, retryReconnect } from "../services/session-exit";
+import { STRINGS } from "../strings";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,42 +12,29 @@ import {
   AlertDialogTitle,
 } from "./ui/alert-dialog";
 
-interface Props {
-  navigation: NativeStackNavigationProp<RootStackParamList, "Connected">;
-}
-
-const ReconnectFailedDialog = ({ navigation }: Props) => {
-  const isSim = useDeviceStore((s) => s.mode === "sim");
-  const hasError = useDeviceStore((s) => s.error !== null);
-  const isReconnecting = useReconnectStore((s) => s.isReconnecting);
-  const open = !isSim && !isReconnecting && hasError;
-
-  const backToScan = useCallback(() => {
-    useDeviceStore.getState().clearError();
-    navigation.replace("Scan");
-  }, [navigation]);
-
-  const retry = useCallback(async () => {
-    const started = await BleService.tryReconnectLastDevice();
-    if (!started) backToScan();
-  }, [backToScan]);
-
+const ReconnectFailedDialog = () => {
+  const dashName =
+    useDeviceStore((s) => s.lastDashName) ?? STRINGS.connect.theDash;
   return (
-    <AlertDialog open={open}>
+    <AlertDialog open>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Connection lost</AlertDialogTitle>
+          <AlertDialogTitle>
+            {STRINGS.connect.reconnectFailedTitle(dashName)}
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            Could not reconnect to the dashboard. Make sure it is powered on and
-            in range.
+            {STRINGS.connect.reconnectFailedBody}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onPress={backToScan}>
-            Back to scan
+            {STRINGS.connect.scanForDashes}
           </AlertDialogCancel>
-          <AlertDialogAction variant="default" onPress={() => void retry()}>
-            Retry
+          <AlertDialogAction
+            variant="default"
+            onPress={() => void retryReconnect()}
+          >
+            {STRINGS.connect.tryAgain}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
