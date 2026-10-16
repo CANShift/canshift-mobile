@@ -105,13 +105,24 @@ export const STRINGS = {
     pickerTitle: "Choose signals",
     searchSignals: "Search signals",
     pickerLimit: (max: number): string => `Up to ${String(max)} at once`,
+    pickerCount: (selected: number, max: number): string =>
+      `${String(selected)} of ${String(max)} selected · up to ${String(max)} at once`,
+    axisAgo: (seconds: number): string => `−${String(seconds)} s`,
+    axisNow: "now",
+    chartLabel: (signals: string, window: string): string =>
+      `Live chart of ${signals} over the last ${window}`,
+    timeWindow: "Time window",
     done: "Done",
-    clearConfirm: "Clear the graph? The data on screen will be removed.",
+    clearTitle: "Clear the graph?",
+    clearBody: "The data on screen will be removed.",
     cancel: "Cancel",
+    exportTitle: "Export",
     exportBody: (window: string): string =>
       `Export the last ${window} as a CSV file.`,
     share: "Share",
     paused: "PAUSED",
+    title: "Graph",
+    exportFailed: "Couldn’t export the graph. Try again.",
   },
   laps: {
     gpsTiming: "GPS timing",
