@@ -8,13 +8,18 @@ export type GraphWindow = (typeof GRAPH_WINDOWS)[number];
 
 export const DEFAULT_GRAPH_WINDOW: GraphWindow = 60;
 
-export const MAX_GRAPH_SIGNALS = ChartSeriesColors.length;
-
 export const DEFAULT_GRAPH_SIGNALS: readonly SignalKey[] = ["r", "op", "ct"];
 
 export const ALL_GRAPH_SIGNALS = Object.keys(SIGNAL_META) as SignalKey[];
 
 const DASHED_SERIES_INDEX = 2;
+const FIRST_CYCLE_DASH = "6 4";
+const CYCLE_DASHES: readonly (string | null)[] = [
+  null,
+  "2 5",
+  "10 4",
+  "8 4 2 4",
+];
 
 export const GRAPH_WINDOW_LABELS: Record<GraphWindow, string> = {
   30: STRINGS.graph.window30s,
@@ -24,12 +29,19 @@ export const GRAPH_WINDOW_LABELS: Record<GraphWindow, string> = {
 
 export interface SeriesStyle {
   color: string;
-  dashed: boolean;
+  dash: string | null;
 }
+
+const cycleDash = (index: number): string | null => {
+  const cycle = Math.floor(index / ChartSeriesColors.length);
+  if (cycle === 0)
+    return index === DASHED_SERIES_INDEX ? FIRST_CYCLE_DASH : null;
+  return CYCLE_DASHES[cycle % CYCLE_DASHES.length] ?? null;
+};
 
 export const seriesStyle = (index: number): SeriesStyle => ({
   color: ChartSeriesColors[index % ChartSeriesColors.length] ?? "",
-  dashed: index === DASHED_SERIES_INDEX,
+  dash: cycleDash(index),
 });
 
 export const axisLabels = (window: GraphWindow): readonly string[] => [
@@ -43,7 +55,6 @@ export const toggleSignal = (
   key: SignalKey,
 ): SignalKey[] => {
   if (selected.includes(key)) return selected.filter((k) => k !== key);
-  if (selected.length >= MAX_GRAPH_SIGNALS) return [...selected];
   return [...selected, key];
 };
 

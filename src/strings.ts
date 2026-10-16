@@ -105,8 +105,7 @@ export const STRINGS = {
     pickerTitle: "Choose signals",
     searchSignals: "Search signals",
     pickerLimit: (max: number): string => `Up to ${String(max)} at once`,
-    pickerCount: (selected: number, max: number): string =>
-      `${String(selected)} of ${String(max)} selected · up to ${String(max)} at once`,
+    pickerCount: (selected: number): string => `${String(selected)} selected`,
     axisAgo: (seconds: number): string => `−${String(seconds)} s`,
     axisNow: "now",
     chartLabel: (signals: string, window: string): string =>
