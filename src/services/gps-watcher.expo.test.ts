@@ -115,7 +115,14 @@ describe("expoLocationWatcher", () => {
 
     emit(buildLocation());
     expect(updates).toEqual([
-      { t: 1700, lat: 46.2, lng: 6.1, speedMs: 12.5, headingDeg: 180 },
+      {
+        t: 1700,
+        lat: 46.2,
+        lng: 6.1,
+        speedMs: 12.5,
+        headingDeg: 180,
+        accuracyM: 5,
+      },
     ]);
   });
 

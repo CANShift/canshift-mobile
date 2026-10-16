@@ -1,4 +1,4 @@
-import { useWindowDimensions } from "react-native";
+import { useIsLandscape } from "./use-is-landscape";
 
 export interface LiveLayout {
   columns: number;
@@ -17,7 +17,5 @@ const LANDSCAPE: LiveLayout = {
   shiftLightHeight: 24,
 };
 
-export const useLiveLayout = (): LiveLayout => {
-  const { width, height } = useWindowDimensions();
-  return width > height ? LANDSCAPE : PORTRAIT;
-};
+export const useLiveLayout = (): LiveLayout =>
+  useIsLandscape() ? LANDSCAPE : PORTRAIT;

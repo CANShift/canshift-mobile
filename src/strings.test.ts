@@ -16,12 +16,8 @@ describe("the copy deck", () => {
   it("counts alerts and laps in the singular and the plural", () => {
     expect(STRINGS.alert.count(1)).toBe("1 alert");
     expect(STRINGS.alert.count(2)).toBe("2 alerts");
-    expect(STRINGS.laps.resetConfirm(1)).toBe(
-      "Reset the timer? 1 lap will be removed.",
-    );
-    expect(STRINGS.laps.resetConfirm(5)).toBe(
-      "Reset the timer? 5 laps will be removed.",
-    );
+    expect(STRINGS.laps.resetBody(1)).toBe("1 lap will be removed.");
+    expect(STRINGS.laps.resetBody(5)).toBe("5 laps will be removed.");
   });
 
   it("names the signal in the alert title and the all-clear toast", () => {

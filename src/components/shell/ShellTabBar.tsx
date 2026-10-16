@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { UiColors } from "../../theme/ui-tokens";
 import { isShellTab } from "../../lib/shell-tabs";
 import { LINK_PRESENTATION } from "../../lib/link-presentation";
 import { useLink } from "../../hooks/use-link";
+import { useIsLandscape } from "../../hooks/use-is-landscape";
 import { TabButton } from "./TabButton";
 import { LinkDot } from "./LinkDot";
 
@@ -83,10 +84,8 @@ const Rail = (props: BottomTabBarProps) => (
   </View>
 );
 
-export const ShellTabBar = (props: BottomTabBarProps) => {
-  const { width, height } = useWindowDimensions();
-  return width > height ? <Rail {...props} /> : <BottomBar {...props} />;
-};
+export const ShellTabBar = (props: BottomTabBarProps) =>
+  useIsLandscape() ? <Rail {...props} /> : <BottomBar {...props} />;
 
 const styles = StyleSheet.create({
   bar: {

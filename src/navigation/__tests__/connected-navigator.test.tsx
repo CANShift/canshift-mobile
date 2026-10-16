@@ -23,7 +23,7 @@ const stubScreen = (label: string) => () => <Text>{label}</Text>;
 
 jest.mock("../../screens/LiveScreen", () => stubScreen("live-screen"));
 jest.mock("../../screens/GraphScreen", () => stubScreen("graph-screen"));
-jest.mock("../../screens/TrackScreen", () => stubScreen("laps-screen"));
+jest.mock("../../screens/LapsScreen", () => stubScreen("laps-screen"));
 jest.mock("../../screens/DeviceScreen", () => stubScreen("device-screen"));
 jest.mock("../../services/ble.service", () => ({
   cancelReconnect: jest.fn(),

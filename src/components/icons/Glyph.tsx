@@ -1,7 +1,16 @@
 import Svg, { Circle, Path } from "react-native-svg";
 
 export type GlyphName =
-  "pause" | "play" | "export" | "plus" | "close" | "check" | "search" | "chart";
+  | "pause"
+  | "play"
+  | "export"
+  | "plus"
+  | "close"
+  | "check"
+  | "search"
+  | "chart"
+  | "link"
+  | "target";
 
 const STROKES: Record<GlyphName, readonly string[]> = {
   pause: [],
@@ -12,6 +21,11 @@ const STROKES: Record<GlyphName, readonly string[]> = {
   check: ["M5 12l5 5L20 7"],
   search: ["M20 20l-4-4"],
   chart: ["M3 3v18h18", "M7 15l4-4 3 3 5-6"],
+  link: [
+    "M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1",
+    "M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1",
+  ],
+  target: ["M12 1v3M12 20v3M1 12h3M20 12h3"],
 };
 
 const FILLS: Record<GlyphName, readonly string[]> = {
@@ -27,12 +41,22 @@ const FILLS: Record<GlyphName, readonly string[]> = {
   check: [],
   search: [],
   chart: [],
+  link: [],
+  target: [],
 };
 
-const CIRCLES: Partial<
-  Record<GlyphName, { cx: number; cy: number; r: number }>
-> = {
-  search: { cx: 11, cy: 11, r: 7 },
+interface GlyphCircle {
+  cx: number;
+  cy: number;
+  r: number;
+}
+
+const CIRCLES: Partial<Record<GlyphName, readonly GlyphCircle[]>> = {
+  search: [{ cx: 11, cy: 11, r: 7 }],
+  target: [
+    { cx: 12, cy: 12, r: 4 },
+    { cx: 12, cy: 12, r: 8 },
+  ],
 };
 
 export interface GlyphProps {
@@ -43,7 +67,7 @@ export interface GlyphProps {
 }
 
 export const Glyph = ({ name, size, color, strokeWidth = 2.5 }: GlyphProps) => {
-  const circle = CIRCLES[name];
+  const circles = CIRCLES[name] ?? [];
   return (
     <Svg
       width={size}
@@ -61,7 +85,9 @@ export const Glyph = ({ name, size, color, strokeWidth = 2.5 }: GlyphProps) => {
       {FILLS[name].map((d) => (
         <Path key={d} d={d} fill={color} stroke="none" />
       ))}
-      {circle === undefined ? null : <Circle {...circle} />}
+      {circles.map((circle) => (
+        <Circle key={circle.r} {...circle} />
+      ))}
     </Svg>
   );
 };

@@ -1,9 +1,10 @@
-import { View, useWindowDimensions } from "react-native";
+import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDeviceStore } from "../../stores/device.store";
 import { useTrackSessionStore } from "../../stores/track-session.store";
 import { headerBadge } from "../../lib/link-presentation";
 import { useLink } from "../../hooks/use-link";
+import { useIsLandscape } from "../../hooks/use-is-landscape";
 import { UiColors } from "../../theme/ui-tokens";
 import { Header } from "./Header";
 import { OverlayBanner } from "./OverlayBanner";
@@ -27,8 +28,7 @@ const LandscapeInset = () => {
 };
 
 export const ShellHeader = () => {
-  const { width, height } = useWindowDimensions();
-  const Top = width > height ? LandscapeInset : PortraitHeader;
+  const Top = useIsLandscape() ? LandscapeInset : PortraitHeader;
   return (
     <View>
       <Top />
