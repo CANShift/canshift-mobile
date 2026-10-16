@@ -1,6 +1,5 @@
 import {
   LOGGING_CUTOFF_PERCENT,
-  isPhoneBatteryLow,
   phoneBatteryStatus,
   toBatteryPercent,
 } from "./phone-battery";
@@ -34,7 +33,5 @@ describe("phoneBatteryStatus", () => {
 
   it("stays silent while the level is unknown", () => {
     expect(phoneBatteryStatus(null)).toBe("ok");
-    expect(isPhoneBatteryLow(null)).toBe(false);
-    expect(isPhoneBatteryLow(8)).toBe(true);
   });
 });

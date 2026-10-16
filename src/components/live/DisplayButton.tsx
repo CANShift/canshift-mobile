@@ -1,7 +1,7 @@
-import { Pressable, StyleSheet, Text } from "react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 import { STRINGS } from "../../strings";
-import { TouchTarget, UiColors, UiRadius } from "../../theme/ui-tokens";
+import { UiColors } from "../../theme/ui-tokens";
+import { ToolButton } from "../buttons/ToolButton";
 
 const ICON_SIZE = 18;
 
@@ -25,28 +25,9 @@ export interface DisplayButtonProps {
 }
 
 export const DisplayButton = ({ onPress }: DisplayButtonProps) => (
-  <Pressable
-    style={styles.button}
+  <ToolButton
+    label={STRINGS.live.display}
     onPress={onPress}
-    accessibilityRole="button"
-    accessibilityLabel={STRINGS.live.display}
-  >
-    <SunIcon />
-    <Text style={styles.label}>{STRINGS.live.display}</Text>
-  </Pressable>
+    icon={<SunIcon />}
+  />
 );
-
-const styles = StyleSheet.create({
-  button: {
-    minHeight: TouchTarget.min,
-    paddingHorizontal: 14,
-    borderRadius: UiRadius.control,
-    borderWidth: 1,
-    borderColor: UiColors.border,
-    backgroundColor: UiColors.surface,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  label: { fontSize: 15, color: UiColors.text },
-});

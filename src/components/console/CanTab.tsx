@@ -1,27 +1,19 @@
-import { useShallow } from "zustand/react/shallow";
-import { useDeviceStore } from "../../stores/device.store";
-import {
-  CAN_EMPTY_MESSAGE,
-  OPEN_LOG_LABEL,
-  canLinkFooter,
-} from "../../lib/can-stream";
-import { ConsoleEmpty } from "./ConsoleEmpty";
+import { STRINGS } from "../../strings";
+import { UiColors } from "../../theme/ui-tokens";
+import { Glyph } from "../icons/Glyph";
+import { EmptyCard } from "../cards/EmptyCard";
 
-export interface CanTabProps {
-  onOpenLog: () => void;
-}
-
-export const CanTab = ({ onOpenLog }: CanTabProps) => {
-  const { mode, connectionState } = useDeviceStore(
-    useShallow((s) => ({ mode: s.mode, connectionState: s.connectionState })),
-  );
-
-  return (
-    <ConsoleEmpty
-      action={{ label: OPEN_LOG_LABEL, onPress: onOpenLog }}
-      footer={canLinkFooter(mode, connectionState)}
-    >
-      {CAN_EMPTY_MESSAGE}
-    </ConsoleEmpty>
-  );
-};
+export const CanTab = () => (
+  <EmptyCard
+    icon={
+      <Glyph
+        name="frames"
+        size={48}
+        color={UiColors.textStale}
+        strokeWidth={1.8}
+      />
+    }
+    title={STRINGS.console.canEmptyTitle}
+    body={STRINGS.console.canEmptyBody}
+  />
+);

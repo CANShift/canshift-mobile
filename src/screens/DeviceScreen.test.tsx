@@ -1,82 +1,131 @@
 import * as React from "react";
-import { render } from "@testing-library/react-native";
+import { act, fireEvent, render } from "@testing-library/react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import DeviceScreen from "./DeviceScreen";
-import type { RootStackParamList } from "../navigation";
-import { usePhoneBatteryStore } from "../stores/phone-battery.store";
+import { useDeviceStore } from "../stores/device.store";
 import { useTrackSessionStore } from "../stores/track-session.store";
+import { STRINGS } from "../strings";
 
-const navigation = {
-  goBack: jest.fn(),
-  replace: jest.fn(),
-} as unknown as NativeStackNavigationProp<RootStackParamList, "Device">;
+const mockDisconnect = jest.fn(() => Promise.resolve());
+const mockSimStop = jest.fn();
+const mockReset = jest.fn();
+const mockStartTrack = jest.fn(() => Promise.resolve());
+const mockStopTrack = jest.fn(() => Promise.resolve());
+
+jest.mock("../services/ble.service", () => ({
+  disconnect: () => mockDisconnect(),
+  tryReconnectLastDevice: () => Promise.resolve(false),
+  cancelReconnect: jest.fn(),
+}));
+jest.mock("../services/sim.service", () => ({
+  stop: () => {
+    mockSimStop();
+  },
+}));
+jest.mock("../navigation/navigation-ref", () => ({
+  resetToScan: () => {
+    mockReset();
+  },
+}));
+jest.mock("../lib/track-mode-actions", () => ({
+  startTrackMode: () => mockStartTrack(),
+  stopTrackMode: () => mockStopTrack(),
+}));
+jest.mock("expo-secure-store", () => ({
+  getItemAsync: jest.fn(() => Promise.resolve(null)),
+  setItemAsync: jest.fn(() => Promise.resolve()),
+}));
 
 const metrics = {
   frame: { x: 0, y: 0, width: 390, height: 844 },
   insets: { top: 47, left: 0, right: 0, bottom: 34 },
 };
 
+const onOpenConsole = jest.fn();
+
 const renderScreen = () =>
   render(
     <SafeAreaProvider initialMetrics={metrics}>
-      <DeviceScreen navigation={navigation} />
+      <DeviceScreen onOpenConsole={onOpenConsole} />
     </SafeAreaProvider>,
   );
 
-const KICKER = "PHONE BATTERY LOW";
-const STOP_LOGGING = "STOP LOGGING NOW";
+type View = Awaited<ReturnType<typeof renderScreen>>;
+
+const press = async (view: View, label: string) => {
+  await act(() => {
+    void fireEvent.press(view.getByLabelText(label));
+  });
+};
+
+const pressLast = async (view: View, label: string) => {
+  const matches = view.getAllByLabelText(label);
+  const last = matches[matches.length - 1];
+  if (last === undefined) throw new Error(`no ${label}`);
+  await act(() => {
+    void fireEvent.press(last);
+  });
+};
+
+const initialDevice = useDeviceStore.getState();
 
 describe("DeviceScreen", () => {
   beforeEach(() => {
-    usePhoneBatteryStore.setState({ levelPercent: null });
+    jest.clearAllMocks();
+    useDeviceStore.setState(initialDevice, true);
     useTrackSessionStore.setState({ recording: false, sessionStartMs: 0 });
+    useDeviceStore.getState().setDevice("AA:BB", "CANShift-4F2A");
+    useDeviceStore.getState().setMode("ble");
+    useDeviceStore.getState().setFirmwareStatus("0.20.2", true);
   });
 
-  it("renders the device and application facts", async () => {
-    const { getByText } = await renderScreen();
-    expect(getByText("Device")).toBeTruthy();
-    expect(getByText("Config schema")).toBeTruthy();
-    expect(getByText("Firmware")).toBeTruthy();
-  });
-
-  it("hides the disconnect action when not connected", async () => {
-    const { queryByLabelText } = await renderScreen();
-    expect(queryByLabelText("Disconnect")).toBeNull();
-    expect(queryByLabelText("End demo")).toBeNull();
-  });
-
-  it("stays quiet while the phone battery is healthy", async () => {
-    usePhoneBatteryStore.setState({ levelPercent: 82 });
-    const { queryByText, queryByLabelText } = await renderScreen();
-    expect(queryByText(KICKER)).toBeNull();
-    expect(queryByLabelText(STOP_LOGGING)).toBeNull();
-  });
-
-  it("states the consequence when the phone battery is low", async () => {
-    usePhoneBatteryStore.setState({ levelPercent: 8 });
-    const { getByText } = await renderScreen();
-    expect(getByText(KICKER)).toBeTruthy();
+  it("lists the dash and app facts", async () => {
+    const view = await renderScreen();
     expect(
-      getByText(
-        "Logging stops below 5 % to protect the recording. The dash keeps running on its own.",
-      ),
+      view.getByText(STRINGS.device.viaBluetooth("CANShift-4F2A")),
     ).toBeTruthy();
+    expect(view.getByText("v0.20.2")).toBeTruthy();
+    expect(view.getByText(STRINGS.device.configVersion)).toBeTruthy();
+    expect(view.getByText(STRINGS.device.dashBattery)).toBeTruthy();
   });
 
-  it("offers the stop action only while logging is running", async () => {
-    usePhoneBatteryStore.setState({ levelPercent: 8 });
-    const idle = await renderScreen();
-    expect(idle.queryByLabelText(STOP_LOGGING)).toBeNull();
-    expect(idle.getByText("OFF")).toBeTruthy();
-    await idle.unmount();
+  it("asks before disconnecting, then goes back to Scan", async () => {
+    const view = await renderScreen();
+    await press(view, STRINGS.device.disconnect);
+    expect(view.getByText(STRINGS.device.disconnectTitle)).toBeTruthy();
+    await pressLast(view, STRINGS.device.disconnect);
+    expect(mockDisconnect).toHaveBeenCalled();
+    expect(mockReset).toHaveBeenCalled();
+  });
 
+  it("shows the demo card with End demo in a simulated session", async () => {
+    useDeviceStore.getState().setMode("sim");
+    const view = await renderScreen();
+    expect(view.getByText(STRINGS.device.demoBody)).toBeTruthy();
+    await press(view, STRINGS.device.endDemo);
+    await pressLast(view, STRINGS.device.endDemo);
+    expect(mockSimStop).toHaveBeenCalled();
+    expect(mockReset).toHaveBeenCalled();
+  });
+
+  it("starts and stops logging from its card", async () => {
+    const idle = await renderScreen();
+    await press(idle, STRINGS.device.startLogging);
+    expect(mockStartTrack).toHaveBeenCalled();
+    await idle.unmount();
     useTrackSessionStore.setState({
       recording: true,
-      sessionStartMs: Date.now() - 12 * 60_000,
+      sessionStartMs: Date.now() - 252_000,
     });
     const running = await renderScreen();
-    expect(running.getByLabelText(STOP_LOGGING)).toBeTruthy();
-    expect(running.getByText("ON · 12 min")).toBeTruthy();
+    expect(running.getByText("04:12")).toBeTruthy();
+    await press(running, STRINGS.device.stopLogging);
+    expect(mockStopTrack).toHaveBeenCalled();
+  });
+
+  it("opens the console", async () => {
+    const view = await renderScreen();
+    await press(view, STRINGS.device.console);
+    expect(onOpenConsole).toHaveBeenCalled();
   });
 });

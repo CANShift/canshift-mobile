@@ -1,310 +1,71 @@
-import React, { useCallback, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useShallow } from "zustand/react/shallow";
-import { CURRENT_SCHEMA_VERSION } from "@canshift/core";
-import { readAppVersion } from "../lib/expo-version";
-import { firmwareLabel } from "../lib/device-labels";
-import { ScreenHeader } from "../components/ScreenHeader";
-import { InfoRow } from "../components/InfoRow";
-import { NavRow } from "../components/NavRow";
-import { LowBatteryWarning } from "../components/device/LowBatteryWarning";
-import {
-  Button,
-  Section,
-  SectionLabel,
-  SegmentedControl,
-  Toast,
-} from "@/components/ui";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../components/ui/alert-dialog";
-import {
-  useAppSettingsStore,
-  TELEMETRY_BUFFER_OPTIONS,
-  type ReconnectBehavior,
-  type TelemetryBufferSize,
-} from "../stores/app-settings.store";
-import { useDeviceStore, type ConnectionState } from "../stores/device.store";
-import { usePhoneBatteryStore } from "../stores/phone-battery.store";
-import { useTrackSessionStore } from "../stores/track-session.store";
-import { useSignalValue } from "../stores/signals.store";
-import { useLoggingElapsedMs } from "../hooks/use-logging-elapsed-ms";
-import { isPhoneBatteryLow } from "../lib/phone-battery";
-import { loggingStatusText } from "../lib/logging-status";
-import { errText } from "../lib/error-text";
-import { formatWidgetValue } from "../components/widgets/widget-value";
-import { SIGNAL_META } from "../constants/ble";
-import * as BleService from "../services/ble.service";
-import * as SimService from "../services/sim.service";
-import { trackModeController } from "../services/track-mode-controller";
-import { Colors, Spacing, SCREEN_PADDING } from "../theme";
+import { ScrollView, StyleSheet, Text } from "react-native";
+import { STRINGS } from "../strings";
+import { UiColors } from "../theme/ui-tokens";
+import { useDeviceScreen } from "../hooks/use-device-screen";
+import { useLoggingCard } from "../hooks/use-logging-card";
+import { disconnectDash, endDemo } from "../lib/device-actions";
+import { retryReconnect } from "../services/session-exit";
+import { ConnectionCard } from "../components/device/ConnectionCard";
+import { DemoCard } from "../components/device/DemoCard";
+import { LoggingCard } from "../components/device/LoggingCard";
+import { ConsoleLinkCard } from "../components/device/ConsoleLinkCard";
+import { InfoCard } from "../components/device/InfoCard";
+import { PhoneSettingsCard } from "../components/device/PhoneSettingsCard";
+import { DeviceDialogs } from "../components/device/DeviceDialogs";
+import { BackRow } from "../components/controls/BackRow";
 
-interface DeviceNav {
-  goBack: () => void;
-  replace: (screen: "Scan") => void;
-  navigate: (screen: "Console") => void;
+export interface DeviceScreenProps {
+  onOpenConsole: () => void;
+  onBack?: () => void;
 }
 
-interface Props {
-  navigation: DeviceNav;
-  showBack?: boolean;
-}
-
-const EM_DASH = "—";
-const NOT_CONNECTED = "Not connected";
-
-const CONNECTION_LABEL: Record<ConnectionState, string> = {
-  idle: "Disconnected",
-  scanning: "Scanning",
-  connecting: "Connecting",
-  connected: "Connected",
-  error: "Error",
-};
-
-const RECONNECT_OPTIONS: { label: string; value: ReconnectBehavior }[] = [
-  { label: "Automatic", value: "auto" },
-  { label: "Off", value: "off" },
-];
-
-const BUFFER_OPTIONS: { label: string; value: TelemetryBufferSize }[] =
-  TELEMETRY_BUFFER_OPTIONS.map((value) => ({
-    label: `${(value / 1000).toString()}k`,
-    value,
-  }));
-
-const STOP_LOGGING_LABEL = "STOP LOGGING NOW";
-
-const ROW_GROUP_GAP = 26;
-
-const dashBatteryText = (volts: number | undefined): string =>
-  volts === undefined
-    ? EM_DASH
-    : `${formatWidgetValue(volts, SIGNAL_META.bat.decimals)} ${SIGNAL_META.bat.unit}`;
-
-const DeviceScreen = ({ navigation, showBack = false }: Props) => {
-  const { connectionState, firmwareVersion, deviceName, deviceId, isSim } =
-    useDeviceStore(
-      useShallow((s) => ({
-        connectionState: s.connectionState,
-        firmwareVersion: s.firmwareVersion,
-        deviceName: s.deviceName,
-        deviceId: s.deviceId,
-        isSim: s.mode === "sim",
-      })),
-    );
-  const telemetryBufferSize = useAppSettingsStore((s) => s.telemetryBufferSize);
-  const reconnectBehavior = useAppSettingsStore((s) => s.reconnectBehavior);
-  const setTelemetryBufferSize = useAppSettingsStore(
-    (s) => s.setTelemetryBufferSize,
-  );
-  const setReconnectBehavior = useAppSettingsStore(
-    (s) => s.setReconnectBehavior,
-  );
-
-  const [disconnectVisible, setDisconnectVisible] = useState(false);
-
-  const batteryLow = usePhoneBatteryStore((s) =>
-    isPhoneBatteryLow(s.levelPercent),
-  );
-  const recording = useTrackSessionStore((s) => s.recording);
-  const loggingElapsedMs = useLoggingElapsedMs();
-  const dashVolts = useSignalValue("bat");
-
-  const appVersion = readAppVersion();
-  const connected = connectionState === "connected";
-  const firmwareValue = firmwareLabel(isSim, connected, firmwareVersion);
-
-  const stopLogging = useCallback(async () => {
-    try {
-      await trackModeController.stop();
-    } catch (err) {
-      Toast.show({
-        type: "error",
-        text1: "Could not stop logging",
-        text2: errText(err),
-      });
-    }
-  }, []);
-
-  const confirmDisconnect = useCallback(async () => {
-    if (SimService.isRunning()) {
-      SimService.stop();
-    } else {
-      await BleService.disconnect();
-    }
-    navigation.replace("Scan");
-  }, [navigation]);
-
+const DeviceScreen = ({ onOpenConsole, onBack }: DeviceScreenProps) => {
+  const device = useDeviceScreen();
+  const logging = useLoggingCard();
   return (
-    <SafeAreaView style={styles.container}>
-      <ScreenHeader
-        title="Device"
-        onBack={
-          showBack
-            ? () => {
-                navigation.goBack();
-              }
-            : undefined
-        }
-      />
-
-      <ScrollView contentContainerStyle={styles.scroll}>
-        {batteryLow && <LowBatteryWarning />}
-
-        <View style={styles.rowGroup}>
-          <InfoRow
-            label="LOGGING"
-            value={loggingStatusText(recording, loggingElapsedMs)}
-            muted={!recording}
-          />
-          <InfoRow
-            label="DASH BATT"
-            value={dashBatteryText(dashVolts)}
-            muted={dashVolts === undefined}
-          />
-        </View>
-
-        <View style={styles.rowGroup}>
-          <SectionLabel className="mb-3">Dashboard</SectionLabel>
-          <InfoRow
-            label="Connection"
-            value={CONNECTION_LABEL[connectionState]}
-            muted={!connected}
-          />
-          <InfoRow
-            label="Name"
-            value={deviceName ?? NOT_CONNECTED}
-            muted={deviceName === null}
-          />
-          <InfoRow
-            label="Firmware"
-            value={firmwareValue}
-            muted={!connected || firmwareVersion === null}
-          />
-          <InfoRow
-            label="Device ID"
-            value={deviceId ?? EM_DASH}
-            muted={deviceId === null}
-          />
-        </View>
-
-        <Section title="TELEMETRY BUFFER" style={styles.section}>
-          <SegmentedControl
-            options={BUFFER_OPTIONS}
-            value={telemetryBufferSize}
-            onChange={setTelemetryBufferSize}
-          />
-        </Section>
-
-        <Section title="RECONNECT" style={styles.section}>
-          <SegmentedControl
-            options={RECONNECT_OPTIONS}
-            value={reconnectBehavior}
-            onChange={setReconnectBehavior}
-          />
-        </Section>
-
-        <View style={styles.rowGroup}>
-          <SectionLabel className="mb-3">Application</SectionLabel>
-          <InfoRow
-            label="Mobile app"
-            value={appVersion !== null ? `v${appVersion}` : EM_DASH}
-            muted={appVersion === null}
-          />
-          <InfoRow label="Config schema" value={`v${CURRENT_SCHEMA_VERSION}`} />
-        </View>
-
-        <NavRow
-          label="Console"
-          onPress={() => {
-            navigation.navigate("Console");
+    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+      {onBack === undefined ? null : (
+        <BackRow label={STRINGS.connect.scanForDashes} onPress={onBack} />
+      )}
+      <Text style={styles.title} accessibilityRole="header">
+        {STRINGS.device.title}
+      </Text>
+      {device.link === "demo" ? (
+        <DemoCard
+          onEnd={() => {
+            device.setDialog("endDemo");
           }}
         />
-
-        {(connected || isSim) && (
-          <View style={styles.disconnectWrap}>
-            <Button
-              variant="destructive"
-              onPress={() => {
-                setDisconnectVisible(true);
-              }}
-              accessibilityLabel={isSim ? "End demo" : "Disconnect"}
-            >
-              {isSim ? "End demo" : "Disconnect"}
-            </Button>
-          </View>
-        )}
-      </ScrollView>
-
-      {batteryLow && recording && (
-        <View style={styles.stopLoggingWrap}>
-          <Button
-            variant="destructive"
-            onPress={() => {
-              void stopLogging();
-            }}
-            accessibilityLabel={STOP_LOGGING_LABEL}
-          >
-            {STOP_LOGGING_LABEL}
-          </Button>
-        </View>
+      ) : (
+        <ConnectionCard
+          link={device.link}
+          dashName={device.dashName}
+          onDisconnect={() => {
+            device.setDialog("disconnect");
+          }}
+          onReconnect={() => void retryReconnect()}
+        />
       )}
-
-      <AlertDialog open={disconnectVisible} onOpenChange={setDisconnectVisible}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {isSim ? "End demo mode?" : "Disconnect"}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {isSim
-                ? "Stop the simulator and return to scan?"
-                : "Disconnect from the dashboard?"}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onPress={() => void confirmDisconnect()}>
-              {isSim ? "End demo" : "Disconnect"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </SafeAreaView>
+      <LoggingCard {...logging} />
+      <ConsoleLinkCard onPress={onOpenConsole} />
+      <InfoCard rows={device.rows} />
+      <PhoneSettingsCard />
+      <DeviceDialogs
+        dialog={device.dialog}
+        onClose={() => {
+          device.setDialog("none");
+        }}
+        onDisconnect={() => void disconnectDash()}
+        onEndDemo={endDemo}
+      />
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.bg },
-  scroll: { flexGrow: 1 },
-  rowGroup: {
-    paddingHorizontal: SCREEN_PADDING,
-    paddingTop: ROW_GROUP_GAP,
-  },
-  section: {
-    paddingHorizontal: SCREEN_PADDING,
-    paddingVertical: 18,
-    gap: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.ruleHair,
-  },
-  disconnectWrap: {
-    marginTop: "auto",
-    paddingHorizontal: SCREEN_PADDING,
-    paddingVertical: Spacing.lg,
-  },
-  stopLoggingWrap: {
-    paddingHorizontal: SCREEN_PADDING,
-    paddingBottom: Spacing.lg,
-  },
+  screen: { flex: 1, backgroundColor: UiColors.bg },
+  content: { padding: 16, paddingTop: 12, gap: 10 },
+  title: { fontSize: 26, fontWeight: "700", color: UiColors.text },
 });
 
 export default DeviceScreen;

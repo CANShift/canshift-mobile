@@ -1,12 +1,10 @@
-const MS_PER_MINUTE = 60_000;
+const MS_PER_SECOND = 1000;
+const SECONDS_PER_MINUTE = 60;
 
-export const LOGGING_OFF_TEXT = "OFF";
+const pad = (value: number): string => String(value).padStart(2, "0");
 
-export const loggingStatusText = (
-  recording: boolean,
-  elapsedMs: number,
-): string => {
-  if (!recording) return LOGGING_OFF_TEXT;
-  const minutes = Math.floor(Math.max(0, elapsedMs) / MS_PER_MINUTE);
-  return `ON · ${String(minutes)} min`;
+export const formatElapsed = (elapsedMs: number): string => {
+  const totalSeconds = Math.floor(Math.max(0, elapsedMs) / MS_PER_SECOND);
+  const minutes = Math.floor(totalSeconds / SECONDS_PER_MINUTE);
+  return `${pad(minutes)}:${pad(totalSeconds % SECONDS_PER_MINUTE)}`;
 };

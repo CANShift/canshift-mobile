@@ -10,7 +10,11 @@ export type GlyphName =
   | "search"
   | "chart"
   | "link"
-  | "target";
+  | "target"
+  | "frames"
+  | "warning"
+  | "back"
+  | "chevron";
 
 const STROKES: Record<GlyphName, readonly string[]> = {
   pause: [],
@@ -26,6 +30,13 @@ const STROKES: Record<GlyphName, readonly string[]> = {
     "M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1",
   ],
   target: ["M12 1v3M12 20v3M1 12h3M20 12h3"],
+  frames: [
+    "M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z",
+    "M7 9h4M7 13h10M7 17h6",
+  ],
+  warning: ["M12 3l10 18H2z", "M12 10v5M12 18v.5"],
+  back: ["M15 6l-6 6 6 6"],
+  chevron: ["M9 6l6 6-6 6"],
 };
 
 const FILLS: Record<GlyphName, readonly string[]> = {
@@ -43,6 +54,10 @@ const FILLS: Record<GlyphName, readonly string[]> = {
   chart: [],
   link: [],
   target: [],
+  frames: [],
+  warning: [],
+  back: [],
+  chevron: [],
 };
 
 interface GlyphCircle {

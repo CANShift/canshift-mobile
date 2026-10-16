@@ -1,71 +1,61 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import {
-  Colors,
-  Fonts,
-  Typography,
-  Spacing,
-  SCREEN_PADDING,
-} from "../../theme";
+import { UiColors, UiFonts } from "../../theme/ui-tokens";
 import type { LogEntry, LogLevel } from "../../stores/log.store";
 
-export const CONSOLE_TEXT_SIZE = 12;
-export const CONSOLE_LINE_HEIGHT = CONSOLE_TEXT_SIZE * 2.1;
+const TEXT_SIZE = 13;
+const LINE_HEIGHT = TEXT_SIZE * 1.4;
 
-const LEVEL_COLOR: Record<LogLevel, string> = {
-  info: Colors.textDim,
-  warn: Colors.warning,
-  error: Colors.danger,
+const LEVEL_LOOK: Record<LogLevel, { label: string; color: string }> = {
+  info: { label: "INFO", color: UiColors.textMuted },
+  warn: { label: "WARN", color: UiColors.warning },
+  error: { label: "ERR", color: UiColors.dangerValue },
 };
 
 const formatTime = (ms: number): string =>
-  new Date(ms).toLocaleTimeString("en-US", { hour12: false });
+  new Date(ms).toLocaleTimeString("en-GB", { hour12: false });
 
-export const LogEntryRow = React.memo(({ entry }: { entry: LogEntry }) => (
-  <View style={styles.row}>
-    <Text style={styles.timestamp}>{formatTime(entry.timestamp)}</Text>
-    <Text style={[styles.level, { color: LEVEL_COLOR[entry.level] }]}>
-      {entry.level.toUpperCase()}
-    </Text>
-    <Text style={styles.message} numberOfLines={3}>
-      {entry.message}
-    </Text>
-  </View>
-));
+export interface LogEntryRowProps {
+  entry: LogEntry;
+}
+
+export const LogEntryRow = React.memo(({ entry }: LogEntryRowProps) => {
+  const look = LEVEL_LOOK[entry.level];
+  return (
+    <View style={styles.row}>
+      <Text style={styles.time}>{formatTime(entry.timestamp)}</Text>
+      <Text style={[styles.level, { color: look.color }]}>{look.label}</Text>
+      <Text style={styles.message}>{entry.message}</Text>
+    </View>
+  );
+});
 LogEntryRow.displayName = "LogEntryRow";
 
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    paddingVertical: Spacing.xs,
-    paddingHorizontal: SCREEN_PADDING,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.ruleHair,
-    gap: Spacing.sm,
+    gap: 8,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
   },
-  timestamp: {
-    fontFamily: Fonts.mono,
-    fontSize: CONSOLE_TEXT_SIZE,
-    lineHeight: CONSOLE_LINE_HEIGHT,
-    color: Colors.textMuted,
-    minWidth: 66,
-    flexShrink: 0,
-    fontVariant: ["tabular-nums"],
+  time: {
+    fontFamily: UiFonts.numeric,
+    fontSize: TEXT_SIZE,
+    lineHeight: LINE_HEIGHT,
+    color: UiColors.labelStale,
   },
   level: {
-    fontFamily: Fonts.uiExtraBold,
-    fontSize: Typography.xs,
-    lineHeight: CONSOLE_LINE_HEIGHT,
-    letterSpacing: 0.6,
-    minWidth: 38,
-    flexShrink: 0,
+    width: 40,
+    fontFamily: UiFonts.numeric,
+    fontSize: TEXT_SIZE,
+    lineHeight: LINE_HEIGHT,
+    fontWeight: "700",
   },
   message: {
     flex: 1,
-    fontFamily: Fonts.mono,
-    fontSize: CONSOLE_TEXT_SIZE,
-    lineHeight: CONSOLE_LINE_HEIGHT,
-    color: Colors.textDim,
+    fontFamily: UiFonts.numeric,
+    fontSize: TEXT_SIZE,
+    lineHeight: LINE_HEIGHT,
+    color: UiColors.text,
   },
 });

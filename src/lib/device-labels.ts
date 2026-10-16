@@ -1,5 +1,6 @@
-const EM_DASH = "—";
-const NOT_CONNECTED = "Not connected";
+import { STRINGS } from "../strings";
+import { NO_VALUE } from "./tile-state";
+
 const CONNECTING = "CONNECTING";
 
 export type DeviceRowState = "connecting" | "signal" | "unadvertised";
@@ -23,8 +24,8 @@ export const firmwareLabel = (
   connected: boolean,
   firmwareVersion: string | null,
 ): string => {
-  if (isSim) return "Simulator";
-  if (!connected) return NOT_CONNECTED;
-  if (firmwareVersion === null) return EM_DASH;
+  if (isSim) return STRINGS.device.simulator;
+  if (!connected) return STRINGS.link.offline;
+  if (firmwareVersion === null) return NO_VALUE;
   return `v${firmwareVersion}`;
 };
