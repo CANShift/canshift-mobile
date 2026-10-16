@@ -51,8 +51,15 @@ const press = async (view: Rendered, label: string) => {
   });
 };
 
+const FIXED_NOW = 1_000_000;
+
 describe("CriticalAlertOverlay", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   beforeEach(() => {
+    jest.spyOn(Date, "now").mockReturnValue(FIXED_NOW);
     jest.clearAllMocks();
     useSignalsStore.setState(initialSignals, true);
     useDeviceStore.setState(initialDevice, true);
