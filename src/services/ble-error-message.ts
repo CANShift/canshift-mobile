@@ -1,4 +1,5 @@
 import type { BleConnectionError } from "./ble.errors";
+import { STRINGS } from "../strings";
 
 export interface BleErrorMessage {
   title: string;
@@ -35,7 +36,7 @@ export const bleErrorMessage = (err: BleConnectionError): BleErrorMessage => {
     case "write-failed":
       return {
         title: "Connection failed",
-        body: err.reason ?? "A BLE write failed. Try again in a moment.",
+        body: STRINGS.genericError,
       };
     case "permission-denied":
       return {
@@ -51,7 +52,7 @@ export const bleErrorMessage = (err: BleConnectionError): BleErrorMessage => {
         body: "The dash sends live data in a format this app can’t read. Update the app or the dash firmware.",
       };
     case "unknown":
-      return { title: "Connection failed", body: err.message };
+      return { title: "Connection failed", body: STRINGS.genericError };
     default: {
       const _exhaustive: never = err;
       return _exhaustive;

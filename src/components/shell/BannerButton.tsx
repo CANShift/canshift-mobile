@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text } from "react-native";
 import { UiColors, UiRadius } from "../../theme/ui-tokens";
 
 const BUTTON_HEIGHT = 48;
+const BANNER_HIT_SLOP = { top: 4, bottom: 4 };
 
 export interface BannerButtonProps {
   label: string;
@@ -12,6 +13,7 @@ export const BannerButton = ({ label, onPress }: BannerButtonProps) => (
   <Pressable
     style={styles.button}
     onPress={onPress}
+    hitSlop={BANNER_HIT_SLOP}
     accessibilityRole="button"
     accessibilityLabel={label}
   >

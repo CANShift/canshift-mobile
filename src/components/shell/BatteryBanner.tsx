@@ -11,6 +11,7 @@ import { Banner } from "./Banner";
 const BANNER_HEIGHT = 68;
 const ICON_SIZE = 26;
 const DISMISS_SIZE = 48;
+const DISMISS_HIT_SLOP = { top: 4, bottom: 4, left: 4, right: 4 };
 const CROSS_SIZE = 20;
 
 const BatteryIcon = () => (
@@ -61,6 +62,7 @@ export const BatteryBanner = () => {
       <Pressable
         style={styles.dismiss}
         onPress={dismissBatteryBanner}
+        hitSlop={DISMISS_HIT_SLOP}
         accessibilityRole="button"
         accessibilityLabel={STRINGS.banners.dismiss}
       >

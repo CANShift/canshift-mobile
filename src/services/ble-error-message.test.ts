@@ -1,3 +1,4 @@
+import { STRINGS } from "../strings";
 import { bleErrorMessage } from "./ble-error-message";
 import type { BleConnectionError } from "./ble.errors";
 
@@ -33,16 +34,10 @@ describe("bleErrorMessage", () => {
     );
   });
 
-  it("uses the write-failed reason as the body when present", () => {
+  it("never shows the raw write-failure reason", () => {
     expect(
-      bleErrorMessage({ kind: "write-failed", reason: "timeout" }).body,
-    ).toBe("timeout");
-  });
-
-  it("falls back to a generic body when write-failed has no reason", () => {
-    expect(bleErrorMessage({ kind: "write-failed" }).body).toBe(
-      "A BLE write failed. Try again in a moment.",
-    );
+      bleErrorMessage({ kind: "write-failed", reason: "GATT 0x85" }).body,
+    ).toBe(STRINGS.genericError);
   });
 
   it("gives platform-specific copy for permission-denied on android", () => {
@@ -57,11 +52,11 @@ describe("bleErrorMessage", () => {
     ).toContain("Bluetooth access");
   });
 
-  it("surfaces the raw message for unknown errors", () => {
+  it("never shows the raw message of an unknown error", () => {
     const err: BleConnectionError = { kind: "unknown", message: "boom" };
     expect(bleErrorMessage(err)).toEqual({
       title: "Connection failed",
-      body: "boom",
+      body: STRINGS.genericError,
     });
   });
 });

@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
 import { TouchTarget, UiColors, UiRadius } from "../../theme/ui-tokens";
 
+const TOOL_HIT_SLOP = { top: 6, bottom: 6 };
+
 export interface ToolButtonProps {
   label: string;
   onPress: () => void;
@@ -12,6 +14,7 @@ export const ToolButton = ({ label, onPress, icon }: ToolButtonProps) => (
   <Pressable
     style={styles.button}
     onPress={onPress}
+    hitSlop={TOOL_HIT_SLOP}
     accessibilityRole="button"
     accessibilityLabel={label}
   >
