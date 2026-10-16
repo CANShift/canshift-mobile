@@ -1,155 +1,91 @@
 import { useState } from "react";
-import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
-import {
-  Colors,
-  Typography,
-  Spacing,
-  Fonts,
-  HitSlop,
-  SCREEN_PADDING,
-} from "../../theme";
+import { FlatList, StyleSheet, Text, View } from "react-native";
+import { STRINGS } from "../../strings";
+import { UiColors, UiRadius } from "../../theme/ui-tokens";
 import { useLogStore } from "../../stores/log.store";
 import { useLogFilter } from "../../hooks/use-log-filter";
+import { ToolButton } from "../buttons/ToolButton";
+import { SearchField } from "../controls/SearchField";
+import { ConfirmDialog } from "../dialog/ConfirmDialog";
+import { Glyph } from "../icons/Glyph";
+import { LevelChips } from "./LevelChips";
 import { LogEntryRow } from "./LogEntryRow";
-import { ConsoleEmpty } from "./ConsoleEmpty";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../ui/alert-dialog";
 
 export const LogTab = () => {
   const clear = useLogStore((s) => s.clear);
-  const { visible, filter, setFilter, paused, togglePause } = useLogFilter();
-  const [confirmVisible, setConfirmVisible] = useState(false);
-
+  const log = useLogFilter();
+  const [confirming, setConfirming] = useState(false);
+  const empty =
+    log.filter.trim().length > 0
+      ? STRINGS.console.noMatches
+      : STRINGS.console.noEvents;
   return (
     <>
-      <View style={styles.controls}>
-        <Pressable
-          style={[styles.pauseBtn, paused && styles.pauseBtnActive]}
-          onPress={togglePause}
-          hitSlop={HitSlop.vertical}
-          accessibilityRole="button"
-          accessibilityLabel={paused ? "Resume log" : "Pause log"}
-        >
-          <Text style={[styles.pauseText, paused && styles.pauseTextActive]}>
-            {paused ? "Paused" : "Live"}
-          </Text>
-        </Pressable>
-        <TextInput
-          style={styles.filterInput}
-          value={filter}
-          onChangeText={setFilter}
-          placeholder="Filter…"
-          placeholderTextColor={Colors.textMuted}
-          autoCapitalize="none"
-          autoCorrect={false}
-          accessibilityLabel="Filter log entries"
+      <View style={styles.toolbar}>
+        <ToolButton
+          label={log.paused ? STRINGS.console.resume : STRINGS.console.pause}
+          onPress={log.togglePause}
+          icon={
+            <Glyph
+              name={log.paused ? "play" : "pause"}
+              size={16}
+              color={UiColors.text}
+            />
+          }
         />
-        <Pressable
-          style={styles.clearBtn}
+        <SearchField
+          value={log.filter}
+          onChange={log.setFilter}
+          placeholder={STRINGS.console.filter}
+        />
+        <ToolButton
+          label={STRINGS.console.clear}
           onPress={() => {
-            setConfirmVisible(true);
+            setConfirming(true);
           }}
-          hitSlop={HitSlop.vertical}
-          accessibilityRole="button"
-          accessibilityLabel="Clear log"
-        >
-          <Text style={styles.clearText}>Clear</Text>
-        </Pressable>
+        />
       </View>
-
+      <LevelChips level={log.level} onLevel={log.setLevel} />
       <FlatList
-        data={visible}
-        keyExtractor={(e) => e.id}
-        contentContainerStyle={
-          visible.length === 0 ? styles.empty : styles.list
-        }
+        style={styles.list}
+        contentContainerStyle={styles.listContent}
+        data={log.visible}
+        keyExtractor={(entry) => entry.id}
         renderItem={({ item }) => <LogEntryRow entry={item} />}
-        ListEmptyComponent={
-          <ConsoleEmpty>
-            {filter.trim() ? "No matching events" : "No events yet"}
-          </ConsoleEmpty>
-        }
+        ListEmptyComponent={<Text style={styles.empty}>{empty}</Text>}
       />
-
-      <AlertDialog open={confirmVisible} onOpenChange={setConfirmVisible}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Clear log?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This removes all logged events and cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onPress={clear}>Clear</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        visible={confirming}
+        title={STRINGS.console.clearTitle}
+        body={STRINGS.console.clearBody}
+        confirmLabel={STRINGS.console.clear}
+        cancelLabel={STRINGS.console.cancel}
+        onConfirm={() => {
+          clear();
+          setConfirming(false);
+        }}
+        onCancel={() => {
+          setConfirming(false);
+        }}
+      />
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  controls: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.sm,
-    paddingHorizontal: SCREEN_PADDING,
-    paddingVertical: Spacing.md,
-  },
-  pauseBtn: {
-    minHeight: 40,
-    paddingHorizontal: Spacing.md,
-    justifyContent: "center",
-    borderWidth: 2,
-    borderColor: Colors.text,
-  },
-  pauseBtnActive: { borderColor: Colors.accent },
-  pauseText: {
-    fontFamily: Fonts.uiExtraBold,
-    fontSize: Typography.xs,
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
-    color: Colors.text,
-  },
-  pauseTextActive: { color: Colors.accent },
-  filterInput: {
+  toolbar: { flexDirection: "row", gap: 8 },
+  list: {
     flex: 1,
-    minHeight: 40,
+    borderRadius: UiRadius.tile,
     borderWidth: 1,
-    borderColor: Colors.border,
-    paddingHorizontal: Spacing.md,
-    color: Colors.text,
-    fontFamily: Fonts.mono,
-    fontSize: Typography.sm,
+    borderColor: UiColors.border,
+    backgroundColor: UiColors.surface,
   },
-  clearBtn: {
-    minHeight: 40,
-    justifyContent: "center",
-    paddingHorizontal: Spacing.sm,
+  listContent: { paddingVertical: 6 },
+  empty: {
+    padding: 16,
+    fontSize: 15,
+    color: UiColors.textMuted,
+    textAlign: "center",
   },
-  clearText: {
-    fontFamily: Fonts.uiExtraBold,
-    fontSize: Typography.xs,
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
-    color: Colors.textMuted,
-  },
-  list: { paddingVertical: Spacing.xs },
-  empty: { flex: 1 },
 });

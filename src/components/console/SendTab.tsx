@@ -1,102 +1,96 @@
-import { useCallback, useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
-import { useShallow } from "zustand/react/shallow";
 import {
-  Colors,
-  Typography,
-  Spacing,
-  Fonts,
-  SCREEN_PADDING,
-} from "../../theme";
-import { useDeviceStore } from "../../stores/device.store";
-import { log } from "../../stores/log.store";
-import { sendCmd } from "../../services/ble.service";
-import { errText } from "../../lib/error-text";
-import { Button } from "../ui";
-import { ConsoleEmpty } from "./ConsoleEmpty";
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { STRINGS } from "../../strings";
+import {
+  TouchTarget,
+  UiColors,
+  UiFonts,
+  UiRadius,
+} from "../../theme/ui-tokens";
+import { useSendConsole } from "../../hooks/use-send-console";
+import { SendWarning } from "./SendWarning";
+import { SentCommandCard } from "./SentCommandCard";
 
 export const SendTab = () => {
-  const { mode, connectionState } = useDeviceStore(
-    useShallow((s) => ({
-      mode: s.mode,
-      connectionState: s.connectionState,
-    })),
-  );
-  const [command, setCommand] = useState("");
-  const [sending, setSending] = useState(false);
-  const canSend = mode === "ble" && connectionState === "connected";
-
-  const handleSend = useCallback(async () => {
-    const trimmed = command.trim();
-    if (!trimmed || sending) return;
-    setSending(true);
-    try {
-      await sendCmd(trimmed);
-      log("info", `Console → sent "${trimmed}"`);
-      setCommand("");
-    } catch (err) {
-      Alert.alert("Send failed", errText(err));
-    } finally {
-      setSending(false);
-    }
-  }, [command, sending]);
-
-  if (!canSend) {
+  const send = useSendConsole();
+  if (!send.canSend)
     return (
-      <ConsoleEmpty>
-        {mode === "sim"
-          ? "Command send isn't available in demo mode."
-          : "Connect to a dashboard over Bluetooth to send commands."}
-      </ConsoleEmpty>
+      <Text style={styles.unavailable}>{STRINGS.console.sendUnavailable}</Text>
     );
-  }
-
   return (
-    <View style={styles.body}>
-      <Text style={styles.label}>Command</Text>
-      <TextInput
-        style={styles.input}
-        value={command}
-        onChangeText={setCommand}
-        placeholder="e.g. reset_odo"
-        placeholderTextColor={Colors.textMuted}
-        autoCapitalize="none"
-        autoCorrect={false}
-        onSubmitEditing={() => void handleSend()}
-        returnKeyType="send"
-        accessibilityLabel="Command to send"
+    <>
+      <SendWarning />
+      <FlatList
+        style={styles.history}
+        contentContainerStyle={styles.historyContent}
+        data={send.history}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <SentCommandCard sent={item} />}
       />
-      <Button
-        onPress={() => void handleSend()}
-        disabled={!command.trim() || sending}
-        accessibilityLabel="Send command"
-      >
-        {sending ? "Sending…" : "Send"}
-      </Button>
-    </View>
+      <View style={styles.composer}>
+        <TextInput
+          style={styles.input}
+          value={send.command}
+          onChangeText={send.setCommand}
+          onSubmitEditing={() => void send.submit()}
+          returnKeyType="send"
+          autoCapitalize="none"
+          autoCorrect={false}
+          placeholder={STRINGS.console.command}
+          placeholderTextColor={UiColors.textMuted}
+          accessibilityLabel={STRINGS.console.command}
+        />
+        <Pressable
+          style={[styles.send, send.ready ? null : styles.sendOff]}
+          onPress={() => void send.submit()}
+          disabled={!send.ready}
+          accessibilityRole="button"
+          accessibilityLabel={STRINGS.console.send}
+          accessibilityState={{ disabled: !send.ready }}
+        >
+          <Text style={styles.sendText}>{STRINGS.console.send}</Text>
+        </Pressable>
+      </View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  body: {
-    paddingHorizontal: SCREEN_PADDING,
-    paddingVertical: Spacing.lg,
-    gap: Spacing.sm,
-  },
-  label: {
-    fontFamily: Fonts.uiExtraBold,
-    fontSize: Typography.xs,
-    letterSpacing: 1,
-    textTransform: "uppercase",
-    color: Colors.textMuted,
-  },
+  history: { flex: 1 },
+  historyContent: { gap: 10 },
+  composer: { flexDirection: "row", gap: 8 },
   input: {
-    minHeight: 48,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    paddingHorizontal: Spacing.md,
-    color: Colors.text,
-    fontFamily: Fonts.mono,
-    fontSize: Typography.md,
+    flex: 1,
+    height: TouchTarget.driving,
+    paddingHorizontal: 14,
+    borderRadius: UiRadius.tile,
+    borderWidth: 2,
+    borderColor: UiColors.text,
+    backgroundColor: UiColors.surface,
+    color: UiColors.text,
+    fontSize: 16,
+    fontFamily: UiFonts.numeric,
+  },
+  send: {
+    height: TouchTarget.driving,
+    paddingHorizontal: 20,
+    borderRadius: UiRadius.tile,
+    backgroundColor: UiColors.primaryBtn,
+    justifyContent: "center",
+  },
+  sendOff: { backgroundColor: UiColors.surface2 },
+  sendText: { fontSize: 17, fontWeight: "700", color: UiColors.onPrimary },
+  unavailable: {
+    padding: 16,
+    fontSize: 15,
+    lineHeight: 21,
+    color: UiColors.textMuted,
+    textAlign: "center",
   },
 });

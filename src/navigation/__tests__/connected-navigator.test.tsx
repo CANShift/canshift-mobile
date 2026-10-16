@@ -24,7 +24,7 @@ const stubScreen = (label: string) => () => <Text>{label}</Text>;
 jest.mock("../../screens/LiveScreen", () => stubScreen("live-screen"));
 jest.mock("../../screens/GraphScreen", () => stubScreen("graph-screen"));
 jest.mock("../../screens/LapsScreen", () => stubScreen("laps-screen"));
-jest.mock("../../screens/DeviceScreen", () => stubScreen("device-screen"));
+jest.mock("../DeviceStack", () => stubScreen("device-screen"));
 jest.mock("../../services/ble.service", () => ({
   cancelReconnect: jest.fn(),
   tryReconnectLastDevice: jest.fn(() => Promise.resolve(false)),
@@ -35,15 +35,11 @@ const metrics = {
   insets: { top: 47, left: 0, right: 0, bottom: 34 },
 };
 
-const navigationStub = {} as React.ComponentProps<
-  typeof ConnectedNavigator
->["navigation"];
-
 const renderShell = () =>
   render(
     <SafeAreaProvider initialMetrics={metrics}>
       <NavigationContainer>
-        <ConnectedNavigator navigation={navigationStub} />
+        <ConnectedNavigator />
       </NavigationContainer>
     </SafeAreaProvider>,
   );

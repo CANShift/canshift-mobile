@@ -18,9 +18,6 @@ export const phoneBatteryStatus = (
   return "ok";
 };
 
-export const isPhoneBatteryLow = (percent: number | null): boolean =>
-  phoneBatteryStatus(percent) !== "ok";
-
 export const isBatteryBannerDue = (
   percent: number | null,
   dismissedStatus: PhoneBatteryStatus | null,

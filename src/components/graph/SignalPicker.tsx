@@ -9,7 +9,7 @@ import type { GraphSelection } from "../../hooks/use-graph-selection";
 import { BottomSheet } from "../sheet/BottomSheet";
 import { SheetDoneButton } from "../sheet/SheetDoneButton";
 import { PickerRow } from "./PickerRow";
-import { SignalSearch } from "./SignalSearch";
+import { SearchField } from "../controls/SearchField";
 
 const LIST_MAX_HEIGHT = 440;
 
@@ -47,7 +47,11 @@ export const SignalPicker = ({ selection, latest }: SignalPickerProps) => {
       }
       onClose={selection.closePicker}
     >
-      <SignalSearch query={selection.query} onQuery={selection.setQuery} />
+      <SearchField
+        value={selection.query}
+        onChange={selection.setQuery}
+        placeholder={STRINGS.graph.searchSignals}
+      />
       <ScrollView style={styles.list}>
         {selection.matches.map(rowFor)}
       </ScrollView>

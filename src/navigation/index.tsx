@@ -7,7 +7,7 @@ import {
 } from "@react-navigation/native-stack";
 import ScanScreen from "../screens/ScanScreen";
 import DeviceScreen from "../screens/DeviceScreen";
-import LogScreen from "../screens/LogScreen";
+import ConsoleScreen from "../screens/ConsoleScreen";
 import ConnectedNavigator from "./ConnectedNavigator";
 import { navigationRef } from "./navigation-ref";
 import { OverlayHost } from "../components/shell/OverlayHost";
@@ -36,14 +36,19 @@ const Navigation = () => {
             {({
               navigation,
             }: NativeStackScreenProps<RootStackParamList, "Device">) => (
-              <DeviceScreen navigation={navigation} showBack />
+              <DeviceScreen
+                onBack={navigation.goBack}
+                onOpenConsole={() => {
+                  navigation.navigate("Console");
+                }}
+              />
             )}
           </Stack.Screen>
           <Stack.Screen name="Console">
             {({
               navigation,
             }: NativeStackScreenProps<RootStackParamList, "Console">) => (
-              <LogScreen onBack={navigation.goBack} />
+              <ConsoleScreen onBack={navigation.goBack} />
             )}
           </Stack.Screen>
         </Stack.Navigator>
