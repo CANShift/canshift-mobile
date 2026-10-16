@@ -94,7 +94,3 @@ export const getFrameCount = (): number => frameCount;
 export const useSignalValue = (key: SignalKey): number | undefined => {
   return useSignalsStore((s) => s.values[key]);
 };
-
-export const useSignalsIsLive = (): boolean => {
-  return useSignalsStore((s) => s.isLive);
-};

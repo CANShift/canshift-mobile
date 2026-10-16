@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { Toast } from "../components/ui";
+import { Toast } from "../components/ui/toast";
 import { errText } from "../lib/error-text";
 import {
   LOGGING_CUTOFF_PERCENT,

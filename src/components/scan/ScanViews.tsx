@@ -142,7 +142,7 @@ const FoundView = ({ model }: ScanViewProps) => (
   </>
 );
 
-export const SCAN_VIEWS: Record<
+const SCAN_VIEWS: Record<
   ScanView,
   (props: ScanViewProps) => React.JSX.Element
 > = {

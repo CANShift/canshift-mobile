@@ -66,14 +66,13 @@ const decodeTimerLap = (raw: string) => {
 const applyStatus = (status: {
   firmwareVersion?: string;
   canHealthy?: boolean;
-  isDay?: boolean;
 }): void => {
-  const store = useDeviceStore.getState();
-  store.setFirmwareStatus(
-    status.firmwareVersion ?? "?",
-    status.canHealthy ?? false,
-  );
-  if (status.isDay !== undefined) store.setIsDayMode(status.isDay);
+  useDeviceStore
+    .getState()
+    .setFirmwareStatus(
+      status.firmwareVersion ?? "?",
+      status.canHealthy ?? false,
+    );
 };
 
 const applyTelemetry = guarded("telemetry", decodeTelemetry, (p) => {

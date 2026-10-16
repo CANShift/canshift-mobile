@@ -7,7 +7,7 @@ import {
 import { useDeviceStore, type ConnectionState } from "../stores/device.store";
 import { useReconnectStore } from "../stores/reconnect.store";
 import { tryReconnectLastDevice } from "../services/ble.service";
-import { Toast } from "../components/ui";
+import { Toast } from "../components/ui/toast";
 import { log } from "../stores/log.store";
 import { errText } from "../lib/error-text";
 

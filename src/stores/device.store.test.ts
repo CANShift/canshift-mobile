@@ -16,7 +16,6 @@ describe("useDeviceStore", () => {
     expect(state.deviceName).toBeNull();
     expect(state.firmwareVersion).toBeNull();
     expect(state.canHealthy).toBe(false);
-    expect(state.isDayMode).toBeNull();
     expect(state.error).toBeNull();
   });
 
@@ -61,13 +60,6 @@ describe("useDeviceStore", () => {
     expect(state.canHealthy).toBe(false);
   });
 
-  it("setIsDayMode toggles day/night flag", () => {
-    useDeviceStore.getState().setIsDayMode(true);
-    expect(useDeviceStore.getState().isDayMode).toBe(true);
-    useDeviceStore.getState().setIsDayMode(false);
-    expect(useDeviceStore.getState().isDayMode).toBe(false);
-  });
-
   it('setError stores the error and forces the connection state to "error"', () => {
     const err: BleConnectionError = {
       kind: "permission-denied",
@@ -100,7 +92,6 @@ describe("useDeviceStore", () => {
     useDeviceStore.getState().setDevice("AA:BB:CC", "CANShift-01");
     useDeviceStore.getState().setMode("ble");
     useDeviceStore.getState().setFirmwareStatus("1.2.3", true);
-    useDeviceStore.getState().setIsDayMode(true);
     useDeviceStore.getState().setError({ kind: "unknown", message: "boom" });
 
     useDeviceStore.getState().disconnect();
@@ -112,7 +103,6 @@ describe("useDeviceStore", () => {
     expect(state.deviceName).toBeNull();
     expect(state.firmwareVersion).toBeNull();
     expect(state.canHealthy).toBe(false);
-    expect(state.isDayMode).toBeNull();
     expect(state.error).toBeNull();
   });
 });

@@ -1,4 +1,4 @@
-import { deriveLink, isLinkedToData, keepsScreenAwake } from "./link-model";
+import { deriveLink, keepsScreenAwake } from "./link-model";
 
 describe("deriveLink", () => {
   it("names a simulated session demo whatever the transport says", () => {
@@ -41,11 +41,5 @@ describe("link helpers", () => {
     expect(keepsScreenAwake("demo")).toBe(true);
     expect(keepsScreenAwake("offline")).toBe(false);
     expect(keepsScreenAwake("scanning")).toBe(false);
-  });
-
-  it("expects data only from a connected or simulated dash", () => {
-    expect(isLinkedToData("connected")).toBe(true);
-    expect(isLinkedToData("demo")).toBe(true);
-    expect(isLinkedToData("reconnecting")).toBe(false);
   });
 });

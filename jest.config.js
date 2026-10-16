@@ -14,7 +14,6 @@ module.exports = {
   ],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
-    "^.+\\.css$": "<rootDir>/__mocks__/styleMock.ts",
     // canshift-core publishes ESM-only "exports" (import/types only) and the
     // dist files use ESM syntax that jest's CJS resolver can't load directly.
     // Map to a small re-export shim that hand-picks the symbols mobile unit
@@ -36,7 +35,7 @@ module.exports = {
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
   transformIgnorePatterns: [
-    "/node_modules/(?!(@canshift/core|(jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|nativewind|react-native-css-interop)",
+    "/node_modules/(?!(@canshift/core|(jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg)",
     "/node_modules/react-native-reanimated/plugin/",
   ],
   // Coverage opt-in: off by default, enabled via `npm run test:coverage`
