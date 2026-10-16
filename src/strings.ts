@@ -124,12 +124,24 @@ export const STRINGS = {
     exportFailed: "Couldn’t export the graph. Try again.",
   },
   laps: {
+    title: "Laps",
+    modeSwitch: "Timer",
     gpsTiming: "GPS timing",
     dashTimer: "Dash timer",
     waitingForGps: "Waiting for GPS…",
     accuracy: (meters: number, needed: number): string =>
       `Accuracy ${String(meters)} m. Needs better than ${String(needed)} m.`,
     openSky: "Move to open sky.",
+    gpsReady: "GPS ready",
+    accuracyShort: (meters: number): string => `± ${String(meters)} m`,
+    needsFixAndLine: "Needs a GPS fix and a start/finish line.",
+    gpsUnavailable: "GPS isn’t available on this phone right now.",
+    startFailed: "Track mode didn’t start. Try again.",
+    trackModeTag: "TRACK MODE",
+    bestTag: "BEST",
+    syncedHint: "The dash shows the same timer.",
+    stop: "Stop",
+    resetEllipsis: "Reset…",
     locationOffTitle: "Location is off for CANShift",
     locationOffBody: "Allow location in Settings to time laps with GPS.",
     openSettings: "Open Settings",
@@ -141,7 +153,8 @@ export const STRINGS = {
     lineSet: "Line set",
     startTrackMode: "Start track mode",
     stopTrackMode: "Stop track mode",
-    stopTrackModeConfirm: "Stop track mode? Laps so far are kept.",
+    stopTrackModeTitle: "Stop track mode?",
+    stopTrackModeBody: "Laps so far are kept.",
     lapNumber: (lap: number): string => `Lap ${String(lap)}`,
     best: "Best",
     last: "Last",
@@ -160,8 +173,9 @@ export const STRINGS = {
     phoneOnly: "PHONE ONLY",
     phoneOnlyBody:
       "The dash isn’t connected, so this timer runs on the phone only.",
-    resetConfirm: (laps: number): string =>
-      `Reset the timer? ${plural(laps, "lap", "laps")} will be removed.`,
+    resetTitle: "Reset the timer?",
+    resetBody: (laps: number): string =>
+      `${plural(laps, "lap", "laps")} will be removed.`,
     cancel: "Cancel",
     cantSave:
       "Laps can’t be saved: the phone is out of storage. They stay until you close the app.",

@@ -1,4 +1,5 @@
 import { pushSample } from "../stores/track-session.store";
+import { setGpsAccuracy } from "../stores/gps-fix.store";
 
 export interface GpsWatcherUpdate {
   t: number;
@@ -6,6 +7,7 @@ export interface GpsWatcherUpdate {
   lng: number;
   speedMs: number | null;
   headingDeg: number | null;
+  accuracyM: number | null;
 }
 
 export interface GpsWatcher {
@@ -20,6 +22,7 @@ export const startGpsSubscription = async (
   watcher: GpsWatcher,
 ): Promise<GpsSubscription> => {
   const detach = await watcher.start((update) => {
+    setGpsAccuracy(update.accuracyM);
     pushSample({
       t: update.t,
       lat: update.lat,

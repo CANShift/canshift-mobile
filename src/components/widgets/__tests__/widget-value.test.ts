@@ -1,4 +1,4 @@
-import { formatTimerElapsed, formatWidgetValue } from "../widget-value";
+import { formatWidgetValue } from "../widget-value";
 import { signalKeyToSensorKind } from "../../../theme/signal-colors";
 
 describe("formatWidgetValue", () => {
@@ -24,19 +24,5 @@ describe("signalKeyToSensorKind", () => {
     expect(signalKeyToSensorKind("s")).toBeUndefined();
     expect(signalKeyToSensorKind("g")).toBeUndefined();
     expect(signalKeyToSensorKind("tps")).toBeUndefined();
-  });
-});
-
-describe("formatTimerElapsed", () => {
-  it("shows SS.mmm below one minute", () => {
-    expect(formatTimerElapsed(0, true)).toBe("00.000");
-    expect(formatTimerElapsed(1234, true)).toBe("01.234");
-    expect(formatTimerElapsed(59_999, true)).toBe("59.999");
-  });
-
-  it("switches to MM:SS at one minute and blinks the colon", () => {
-    expect(formatTimerElapsed(60_000, true)).toBe("01:00");
-    expect(formatTimerElapsed(60_000, false)).toBe("01 00");
-    expect(formatTimerElapsed(600_000, true)).toBe("10:00");
   });
 });

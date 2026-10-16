@@ -40,5 +40,6 @@ const toUpdate = (location: Location.LocationObject): GpsWatcherUpdate => {
     lng: location.coords.longitude,
     speedMs: location.coords.speed,
     headingDeg: location.coords.heading,
+    accuracyM: location.coords.accuracy,
   };
 };

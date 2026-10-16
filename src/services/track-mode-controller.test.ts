@@ -124,8 +124,22 @@ describe("createTrackModeController", () => {
     });
 
     await controller.start();
-    emit({ t: 1000, lat: 46.2, lng: 6.1, speedMs: 10, headingDeg: 90 });
-    emit({ t: 1200, lat: 46.21, lng: 6.11, speedMs: 11, headingDeg: 92 });
+    emit({
+      t: 1000,
+      lat: 46.2,
+      lng: 6.1,
+      speedMs: 10,
+      headingDeg: 90,
+      accuracyM: 4,
+    });
+    emit({
+      t: 1200,
+      lat: 46.21,
+      lng: 6.11,
+      speedMs: 11,
+      headingDeg: 92,
+      accuracyM: 4,
+    });
 
     expect(useTrackSessionStore.getState().writeIndex).toBe(2);
     await controller.stop();

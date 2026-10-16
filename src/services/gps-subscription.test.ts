@@ -41,8 +41,22 @@ describe("startGpsSubscription", () => {
     const { watcher, emit } = makeWatcher();
     await startGpsSubscription(watcher);
 
-    emit({ t: 1000, lat: 46.2, lng: 6.1, speedMs: 12.5, headingDeg: 180 });
-    emit({ t: 1200, lat: 46.21, lng: 6.11, speedMs: 13.0, headingDeg: 178 });
+    emit({
+      t: 1000,
+      lat: 46.2,
+      lng: 6.1,
+      speedMs: 12.5,
+      headingDeg: 180,
+      accuracyM: 4,
+    });
+    emit({
+      t: 1200,
+      lat: 46.21,
+      lng: 6.11,
+      speedMs: 13.0,
+      headingDeg: 178,
+      accuracyM: 4,
+    });
 
     expect(getWriteIndex()).toBe(2);
     expect(getSampleAt(0)).toEqual({
@@ -65,7 +79,14 @@ describe("startGpsSubscription", () => {
     const { watcher, emit } = makeWatcher();
     await startGpsSubscription(watcher);
 
-    emit({ t: 5000, lat: 0, lng: 0, speedMs: null, headingDeg: null });
+    emit({
+      t: 5000,
+      lat: 0,
+      lng: 0,
+      speedMs: null,
+      headingDeg: null,
+      accuracyM: null,
+    });
 
     expect(getSampleAt(0)).toEqual({
       t: 5000,
