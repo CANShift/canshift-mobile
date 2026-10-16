@@ -1,9 +1,10 @@
 import { SIGNAL_META, type SignalKey } from "../constants/ble";
 import { STRINGS } from "../strings";
+import { gearGlyph } from "@canshift/core";
 import { formatWidgetValue } from "../components/widgets/widget-value";
 import { isSignalInDanger } from "./signal-danger";
 import { ageSeconds, isSignalFresh } from "./signal-staleness";
-import type { LiveTileSpec } from "./live-tiles";
+import type { LiveTileSpec, TileFormat } from "./live-tiles";
 
 export type TileState = "normal" | "warning" | "danger" | "stale" | "nodata";
 
@@ -55,6 +56,15 @@ const SPOKEN_STATES: Record<TileState, (reading: TileReading) => string> = {
 const spokenValue = (spec: LiveTileSpec, text: string): string =>
   [text, spec.spokenUnit].filter((part) => part.length > 0).join(" ");
 
+const FORMATTERS: Record<
+  TileFormat,
+  (spec: LiveTileSpec, value: number) => string
+> = {
+  number: (spec, value) =>
+    formatWidgetValue(value, SIGNAL_META[spec.signal].decimals),
+  gear: (_, value) => gearGlyph(value),
+};
+
 export const tileModel = (
   spec: LiveTileSpec,
   reading: TileReading,
@@ -63,7 +73,7 @@ export const tileModel = (
   const text =
     reading.value === undefined
       ? NO_VALUE
-      : formatWidgetValue(reading.value, SIGNAL_META[spec.signal].decimals);
+      : FORMATTERS[spec.format](spec, reading.value);
   const spoken = [
     spec.spokenLabel,
     reading.value === undefined ? "" : spokenValue(spec, text),

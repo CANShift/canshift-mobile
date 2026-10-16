@@ -85,6 +85,7 @@ export const STRINGS = {
       `Linked, but no data · last update ${String(seconds)} s ago`,
     footerReconnecting: "Paused while reconnecting",
     display: "Display",
+    pages: "Dash pages",
     brightness: "Brightness",
     keepScreenOn: "Keep screen on",
     done: "Done",
