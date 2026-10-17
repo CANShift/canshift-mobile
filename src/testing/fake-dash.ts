@@ -20,6 +20,7 @@ export interface FakeDash {
   connect: SocketConnector;
   commands: Record<string, unknown>[];
   beats: () => number;
+  isOpen: () => boolean;
   drop: (code?: number) => void;
 }
 
@@ -109,6 +110,7 @@ export const fakeDash = (options: FakeDashOptions = {}): FakeDash => {
     connect,
     commands: link.commands,
     beats: () => link.beats,
+    isOpen: () => link.open,
     drop: (code) => {
       dropLink(link, code);
     },

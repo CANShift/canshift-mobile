@@ -222,4 +222,69 @@ describe("the firmware update flow", () => {
     expect(flow.deps.wifi.forget).not.toHaveBeenCalled();
     expect(flow.deps.ble.resume).toHaveBeenCalledTimes(1);
   });
+
+  it("stays closed when cancelled while the socket is still opening", async () => {
+    const flow = setup();
+    const realOpen = flow.deps.openSocket;
+    let release: () => void = () => undefined;
+    flow.deps.openSocket = () =>
+      new Promise((resolve) => {
+        release = () => {
+          void realOpen().then(resolve);
+        };
+      });
+    await flow.store.getState().open(PKG, "0.20.2");
+    flow.store.getState().inWorkshop();
+    const joining = flow.store.getState().join();
+    await Promise.resolve();
+    flow.deps.openSocket = realOpen;
+    await flow.store.getState().close();
+    release();
+    await joining;
+    expect(flow.store.getState().view).toEqual({ kind: "closed" });
+    const late = flow.opened[0];
+    expect(cmds(late).at(-1)).toBe(CMD_REBOOT);
+    expect(late?.isOpen()).toBe(false);
+  });
+
+  it("forgets the dash Wi-Fi when cancelled while the phone is joining it", async () => {
+    const flow = setup();
+    let finishJoin: (outcome: "joined") => void = () => undefined;
+    (flow.deps.wifi.join as jest.Mock).mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finishJoin = resolve;
+        }),
+    );
+    await flow.store.getState().open(PKG, "0.20.2");
+    const joining = flow.store.getState().join();
+    await flow.store.getState().close();
+    finishJoin("joined");
+    await joining;
+    expect(flow.store.getState().view).toEqual({ kind: "closed" });
+    expect(flow.deps.wifi.forget).toHaveBeenCalledWith(NETWORK.ssid);
+    expect(flow.opened).toHaveLength(0);
+  });
+
+  it("closes the socket of an upload that timed out, so Try again is not refused as busy", async () => {
+    const flow = setup([
+      {
+        reply: (command) => (command.cmd === CMD_OTA_WRITE ? null : undefined),
+      },
+      {},
+    ]);
+    await toReady(flow);
+    jest.useFakeTimers({ doNotFake: ["nextTick", "queueMicrotask"] });
+    const install = flow.store.getState().install();
+    await jest.advanceTimersByTimeAsync(8_000);
+    await install;
+    jest.useRealTimers();
+    expect(flow.store.getState().view).toEqual({
+      kind: "failed",
+      failure: { kind: "dropped" },
+    });
+    expect(flow.opened[0]?.isOpen()).toBe(false);
+    await flow.store.getState().retry();
+    expect(flow.store.getState().view).toEqual({ kind: "ready" });
+  });
 });
