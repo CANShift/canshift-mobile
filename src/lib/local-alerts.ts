@@ -2,7 +2,7 @@ import {
   isOutsideDangerBand,
   sensorDefaultDangerBand,
   type AlertLimit,
-  type AlertSource,
+  type BuiltInAlertSource,
   type SensorDangerBand,
 } from "@canshift/core";
 import type { SignalKey } from "../constants/ble";
@@ -12,7 +12,9 @@ import { fromSensorKindValue, toSensorKindValue } from "../theme/sensor-units";
 import {
   ALERT_SOURCE_META,
   SOURCE_BY_SIGNAL,
+  builtInOrigin,
   type AlertEntry,
+  type AlertKey,
 } from "./alert-model";
 
 const MS_PER_SECOND = 1000;
@@ -23,7 +25,7 @@ const SIDES: readonly Side[] = ["below", "above"];
 
 const NO_BAND: SensorDangerBand = { below: null, above: null };
 
-export type Onsets = Partial<Record<AlertSource, number>>;
+export type Onsets = Partial<Record<AlertKey, number>>;
 
 const crossedLimit = (key: SignalKey, value: number): AlertLimit | null => {
   const kind = signalKeyToSensorKind(key);
@@ -43,15 +45,15 @@ const crossedLimit = (key: SignalKey, value: number): AlertLimit | null => {
 };
 
 const entryFor = (
-  key: SignalKey,
-  source: AlertSource,
+  source: BuiltInAlertSource,
   value: number,
   limit: AlertLimit,
   activeSeconds: number,
 ): AlertEntry => {
   const meta = ALERT_SOURCE_META[source];
   return {
-    source,
+    key: source,
+    origin: builtInOrigin(source),
     name: meta.name,
     unit: meta.unit,
     decimals: meta.decimals,
@@ -76,7 +78,6 @@ export const localAlerts = (
     const since = onsets[source] ?? nowMs;
     return [
       entryFor(
-        key,
         source,
         value,
         limit,
@@ -91,5 +92,5 @@ export const nextOnsets = (
   nowMs: number,
 ): Onsets =>
   Object.fromEntries(
-    entries.map((entry) => [entry.source, previous[entry.source] ?? nowMs]),
+    entries.map((entry) => [entry.key, previous[entry.key] ?? nowMs]),
   );

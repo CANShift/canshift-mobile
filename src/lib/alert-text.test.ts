@@ -9,6 +9,7 @@ import {
 
 const OIL = entryFromDash({
   source: "oil_pressure",
+  configuredIndex: null,
   signal: "oil_press_bar",
   value: 0.8,
   limit: { value: 1, direction: "below" },
@@ -41,6 +42,7 @@ describe("alert text", () => {
   it("names a configured alert after its signal", () => {
     const egt = entryFromDash({
       source: "configured",
+      configuredIndex: 0,
       signal: "turbo_inlet_temp",
       value: 950,
       limit: { value: 900, direction: "above" },
@@ -50,5 +52,35 @@ describe("alert text", () => {
     });
     expect(alertTitle(egt)).toBe("TURBO INLET TEMP HIGH");
     expect(egt.dashAcknowledged).toBe(true);
+  });
+
+  it("reads a configured alert on a built-in signal like the built-in one", () => {
+    const highOil = entryFromDash({
+      source: "configured",
+      configuredIndex: 1,
+      signal: "oil_press_bar",
+      value: 8.6,
+      limit: { value: 8, direction: "above" },
+      acknowledged: false,
+      displayed: false,
+      activeSeconds: 2,
+    });
+    expect(alertTitle(highOil)).toBe("OIL PRESSURE HIGH");
+    expect(alertLimit(highOil)).toBe("Limit: above 8.0 bar");
+  });
+
+  it("takes the unit of a configured alert from the signal catalogue", () => {
+    const fuel = entryFromDash({
+      source: "configured",
+      configuredIndex: 2,
+      signal: "fuel_press_bar",
+      value: 2.1,
+      limit: { value: 2.5, direction: "below" },
+      acknowledged: false,
+      displayed: true,
+      activeSeconds: 1,
+    });
+    expect(alertTitle(fuel)).toBe("FUEL PRESS BAR LOW");
+    expect(alertLimit(fuel)).toBe("Limit: below 2.5 bar");
   });
 });

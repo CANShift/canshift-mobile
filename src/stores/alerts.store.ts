@@ -1,12 +1,11 @@
 import { create } from "zustand";
-import type { AlertSource } from "@canshift/core";
-import type { AlertEntry, AlertFeed } from "../lib/alert-model";
+import type { AlertEntry, AlertFeed, AlertKey } from "../lib/alert-model";
 
 interface AlertsState {
   feed: AlertFeed;
   active: readonly AlertEntry[];
-  acknowledged: readonly AlertSource[];
-  muted: readonly AlertSource[];
+  acknowledged: readonly AlertKey[];
+  muted: readonly AlertKey[];
 }
 
 export const useAlertsStore = create<AlertsState>()(() => ({
@@ -16,16 +15,13 @@ export const useAlertsStore = create<AlertsState>()(() => ({
   muted: [],
 }));
 
-const without = (
-  sources: readonly AlertSource[],
-  source: AlertSource,
-): AlertSource[] => sources.filter((known) => known !== source);
+const without = (keys: readonly AlertKey[], key: AlertKey): AlertKey[] =>
+  keys.filter((known) => known !== key);
 
-const withSource = (
-  sources: readonly AlertSource[],
-  source: AlertSource,
-): readonly AlertSource[] =>
-  sources.includes(source) ? sources : [...sources, source];
+const withKey = (
+  keys: readonly AlertKey[],
+  key: AlertKey,
+): readonly AlertKey[] => (keys.includes(key) ? keys : [...keys, key]);
 
 export const publishAlerts = (
   feed: AlertFeed,
@@ -33,10 +29,10 @@ export const publishAlerts = (
 ): void => {
   useAlertsStore.setState((s) => {
     if (s.feed !== feed) return s;
-    const present = new Set(active.map((entry) => entry.source));
+    const present = new Set(active.map((entry) => entry.key));
     return {
       active,
-      acknowledged: s.acknowledged.filter((source) => present.has(source)),
+      acknowledged: s.acknowledged.filter((key) => present.has(key)),
     };
   });
 };
@@ -47,24 +43,24 @@ export const switchAlertFeed = (feed: AlertFeed): void => {
   );
 };
 
-export const acknowledgeAlert = (source: AlertSource): void => {
+export const acknowledgeAlert = (key: AlertKey): void => {
   useAlertsStore.setState((s) => ({
-    acknowledged: withSource(s.acknowledged, source),
+    acknowledged: withKey(s.acknowledged, key),
   }));
 };
 
-export const reopenAlert = (source: AlertSource): void => {
+export const reopenAlert = (key: AlertKey): void => {
   useAlertsStore.setState((s) => ({
-    acknowledged: without(s.acknowledged, source),
+    acknowledged: without(s.acknowledged, key),
   }));
 };
 
-export const muteAlerts = (sources: readonly AlertSource[]): void => {
+export const muteAlerts = (keys: readonly AlertKey[]): void => {
   useAlertsStore.setState((s) => ({
-    muted: sources.reduce(withSource, s.muted),
+    muted: keys.reduce(withKey, s.muted),
   }));
 };
 
-export const unmuteAlert = (source: AlertSource): void => {
-  useAlertsStore.setState((s) => ({ muted: without(s.muted, source) }));
+export const unmuteAlert = (key: AlertKey): void => {
+  useAlertsStore.setState((s) => ({ muted: without(s.muted, key) }));
 };

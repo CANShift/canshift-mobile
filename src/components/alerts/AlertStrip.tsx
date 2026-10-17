@@ -23,7 +23,7 @@ const STRIP_LOOKS: Record<StripKind, StripLook> = {
     status: STRINGS.alert.stripAcknowledgedActive,
     action: STRINGS.alert.show,
     onAction: (item) => {
-      alertActions.show(item.entry.source);
+      alertActions.show(item.entry.key);
     },
   },
   muted: {
@@ -31,7 +31,7 @@ const STRIP_LOOKS: Record<StripKind, StripLook> = {
     status: STRINGS.alert.stripMutedActive,
     action: STRINGS.alert.unmute,
     onAction: (item) => {
-      alertActions.unmute(item.entry.source);
+      alertActions.unmute(item.entry.key);
     },
   },
 };
@@ -70,7 +70,7 @@ const StripRow = ({ item }: { item: AlertStripItem }) => {
 export const AlertStrip = () => (
   <View>
     {useAlertViews().strips.map((item) => (
-      <StripRow key={item.entry.source} item={item} />
+      <StripRow key={item.entry.key} item={item} />
     ))}
   </View>
 );

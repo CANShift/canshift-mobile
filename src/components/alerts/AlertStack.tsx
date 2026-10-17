@@ -1,5 +1,4 @@
 import { ScrollView, StyleSheet } from "react-native";
-import type { AlertSource } from "@canshift/core";
 import { STRINGS } from "../../strings";
 import { TouchTarget } from "../../theme/ui-tokens";
 import type { AlertEntry } from "../../lib/alert-model";
@@ -8,7 +7,7 @@ import { AlertCard } from "./AlertCard";
 
 export interface AlertStackProps {
   entries: readonly AlertEntry[];
-  onAcknowledge: (source: AlertSource) => void;
+  onAcknowledge: (entry: AlertEntry) => void;
   onMuteAll: () => void;
 }
 
@@ -21,10 +20,10 @@ export const AlertStack = ({
     <ScrollView style={styles.list} contentContainerStyle={styles.content}>
       {entries.map((entry) => (
         <AlertCard
-          key={entry.source}
+          key={entry.key}
           entry={entry}
           onAcknowledge={() => {
-            onAcknowledge(entry.source);
+            onAcknowledge(entry);
           }}
         />
       ))}

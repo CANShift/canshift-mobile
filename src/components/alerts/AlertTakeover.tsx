@@ -16,10 +16,10 @@ const TakeoverBody = () => {
       <AlertFocus
         entry={first}
         onAcknowledge={() => {
-          alertActions.acknowledge(first.source);
+          alertActions.acknowledge(first);
         }}
         onMute={() => {
-          alertActions.muteAll([first.source]);
+          alertActions.muteAll([first.key]);
         }}
       />
     );
@@ -29,7 +29,7 @@ const TakeoverBody = () => {
       entries={takeover}
       onAcknowledge={alertActions.acknowledge}
       onMuteAll={() => {
-        alertActions.muteAll(takeover.map((entry) => entry.source));
+        alertActions.muteAll(takeover.map((entry) => entry.key));
       }}
     />
   );
