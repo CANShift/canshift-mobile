@@ -3,6 +3,7 @@ import { STRINGS } from "../strings";
 import { UiColors } from "../theme/ui-tokens";
 import { useDeviceScreen } from "../hooks/use-device-screen";
 import { useLoggingCard } from "../hooks/use-logging-card";
+import { useFirmwareCard } from "../hooks/use-firmware-card";
 import { disconnectDash, endDemo } from "../lib/device-actions";
 import { retryReconnect } from "../services/session-exit";
 import { ConnectionCard } from "../components/device/ConnectionCard";
@@ -10,6 +11,7 @@ import { DemoCard } from "../components/device/DemoCard";
 import { LoggingCard } from "../components/device/LoggingCard";
 import { ConsoleLinkCard } from "../components/device/ConsoleLinkCard";
 import { InfoCard } from "../components/device/InfoCard";
+import { FirmwareCard } from "../components/device/FirmwareCard";
 import { PhoneSettingsCard } from "../components/device/PhoneSettingsCard";
 import { DeviceDialogs } from "../components/device/DeviceDialogs";
 import { BackRow } from "../components/controls/BackRow";
@@ -22,6 +24,7 @@ export interface DeviceScreenProps {
 const DeviceScreen = ({ onOpenConsole, onBack }: DeviceScreenProps) => {
   const device = useDeviceScreen();
   const logging = useLoggingCard();
+  const firmware = useFirmwareCard();
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       {onBack === undefined ? null : (
@@ -49,6 +52,7 @@ const DeviceScreen = ({ onOpenConsole, onBack }: DeviceScreenProps) => {
       <LoggingCard {...logging} />
       <ConsoleLinkCard onPress={onOpenConsole} />
       <InfoCard rows={device.rows} />
+      {device.link === "demo" ? null : <FirmwareCard {...firmware} />}
       <PhoneSettingsCard />
       <DeviceDialogs
         dialog={device.dialog}

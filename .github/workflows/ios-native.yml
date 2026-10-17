@@ -5,6 +5,7 @@ on:
     paths:
       - "app.json"
       - "plugins/**"
+      - "modules/**"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/ios-native.yml"

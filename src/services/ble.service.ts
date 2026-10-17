@@ -61,6 +61,7 @@ export class BleService {
   private readonly link: DeviceLink;
 
   private userInitiatedDisconnect = false;
+  private reconnectHeld = false;
   private activeScan: ActiveScan | null = null;
 
   constructor(deps: BleServiceDeps = {}) {
@@ -261,7 +262,17 @@ export class BleService {
     this.reconnector.cancel();
   }
 
+  holdReconnect(): void {
+    this.reconnectHeld = true;
+    this.cancelReconnect();
+  }
+
+  releaseReconnect(): void {
+    this.reconnectHeld = false;
+  }
+
   async tryReconnectLastDevice(): Promise<boolean> {
+    if (this.reconnectHeld) return false;
     if (!(await this.isBlePowered())) return false;
     const lastId = await getLastDevice();
     if (!lastId) return false;
@@ -270,6 +281,10 @@ export class BleService {
   }
 
   private reconnectAfterLoss(deviceId: string): void {
+    if (this.reconnectHeld) {
+      log("info", `Dash ${deviceId} left for workshop mode — not reconnecting`);
+      return;
+    }
     if (useAppSettingsStore.getState().reconnectBehavior === "off") {
       log(
         "info",
@@ -299,5 +314,7 @@ export const sendTimerCommand = bleService.sendTimerCommand.bind(bleService);
 export const getBlePermissionState =
   bleService.getBlePermissionState.bind(bleService);
 export const isBlePowered = bleService.isBlePowered.bind(bleService);
+export const holdReconnect = bleService.holdReconnect.bind(bleService);
+export const releaseReconnect = bleService.releaseReconnect.bind(bleService);
 export const tryReconnectLastDevice =
   bleService.tryReconnectLastDevice.bind(bleService);

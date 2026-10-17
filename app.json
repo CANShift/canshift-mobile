@@ -17,7 +17,14 @@
       "supportsTablet": false,
       "bundleIdentifier": "ch.tmbk.canshift",
       "infoPlist": {
-        "NSBluetoothAlwaysUsageDescription": "CANShift uses Bluetooth to connect to the dashboard device for live data and configuration."
+        "NSBluetoothAlwaysUsageDescription": "CANShift uses Bluetooth to connect to the dashboard device for live data and configuration.",
+        "NSLocalNetworkUsageDescription": "CANShift connects to your dash over its own Wi-Fi to install firmware updates.",
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true
+        }
+      },
+      "entitlements": {
+        "com.apple.developer.networking.HotspotConfiguration": true
       }
     },
     "android": {

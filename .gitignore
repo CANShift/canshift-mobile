@@ -2,12 +2,12 @@
 node_modules/
 
 # React Native native projects (regenerated via expo prebuild)
-ios/
+/ios/
 android/
 
 # React Native build artifacts
-ios/Pods/
-ios/build/
+/ios/Pods/
+/ios/build/
 android/app/build/
 android/build/
 android/.gradle/

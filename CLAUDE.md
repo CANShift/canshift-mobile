@@ -12,7 +12,8 @@ iPhone companion app for the CANShift dashboard (org: github.com/CANShift). Expo
 - `@canshift/core` comes from npm (jest transforms it — keep it in `transformIgnorePatterns`' allowlist).
 - Zero comments policy; TS strict; arrow functions; wire JSON snake_case at boundaries.
 - BLE state machine lives in `BleService`; don't scatter BLE calls in components.
-- Since the firmware WiFi stack removal, there is no mobile OTA — firmware updates go through the tuner's USB flasher.
+- Firmware updates go over the dash's workshop-mode Wi-Fi (`src/services/workshop/`, [docs/firmware-update.md](docs/firmware-update.md)), the tuner's socket protocol with Ed25519-signed images. Not over BLE, and not the old HMAC flow.
+- The socket client stays free of React Native imports: `npm run e2e:workshop` runs it in Node against the tuner's `mock-dash`.
 
 ## Code shape
 

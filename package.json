@@ -15,7 +15,8 @@
     "format:check": "prettier --check .",
     "preinstall": "node ./scripts/check-overrides.js",
     "prepare": "husky",
-    "lint:pre-commit": "lint-staged"
+    "lint:pre-commit": "lint-staged",
+    "e2e:workshop": "tsx scripts/workshop-ota-e2e.ts"
   },
   "dependencies": {
     "@canshift/core": "^11.0.1",
@@ -29,6 +30,7 @@
     "expo-audio": "~1.1.1",
     "expo-battery": "~10.0.8",
     "expo-constants": "~18.0.13",
+    "expo-crypto": "~15.0.9",
     "expo-file-system": "~19.0.23",
     "expo-haptics": "~15.0.8",
     "expo-keep-awake": "~15.0.8",
@@ -83,6 +85,7 @@
     "lint-staged": "^15.5.2",
     "prettier": "^3.3.3",
     "test-renderer": "^1.2.0",
+    "tsx": "^4.23.15",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.68.0"
   },

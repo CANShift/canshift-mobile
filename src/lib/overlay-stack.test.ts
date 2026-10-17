@@ -2,6 +2,7 @@ import { resolveOverlays, type OverlayInputs } from "./overlay-stack";
 
 const QUIET: OverlayInputs = {
   alertHolds: false,
+  firmwareUpdate: false,
   reconnectFailed: false,
   reconnecting: false,
   alertStrip: false,
@@ -12,6 +13,7 @@ const QUIET: OverlayInputs = {
 
 const ALL_RAISED: OverlayInputs = {
   alertHolds: true,
+  firmwareUpdate: true,
   reconnectFailed: true,
   reconnecting: true,
   alertStrip: true,
@@ -33,6 +35,17 @@ describe("resolveOverlays", () => {
     expect(resolveOverlays({ ...QUIET, reconnectFailed: true }).takeover).toBe(
       "reconnectFailed",
     );
+  });
+
+  it("keeps a firmware update above the reconnect-failed dialog, under an alert", () => {
+    expect(
+      resolveOverlays({ ...QUIET, firmwareUpdate: true, reconnectFailed: true })
+        .takeover,
+    ).toBe("firmwareUpdate");
+    expect(
+      resolveOverlays({ ...QUIET, firmwareUpdate: true, alertHolds: true })
+        .takeover,
+    ).toBe("criticalAlert");
   });
 
   it.each([

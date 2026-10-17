@@ -383,6 +383,18 @@ describe("BleService monitor death", () => {
     service.cancelReconnect();
   });
 
+  it("does not chase a dash that left for workshop mode while the hold is on", async () => {
+    const { service, monitors } = makeMonitoredService();
+    await service.connect("test-device");
+    service.holdReconnect();
+
+    await killUntilLost(monitors, BLE_CHAR_TELE);
+
+    expect(useReconnectStore.getState().isReconnecting).toBe(false);
+    await expect(service.tryReconnectLastDevice()).resolves.toBe(false);
+    service.releaseReconnect();
+  });
+
   it("declares the link lost so the dash starts its hold on the last values", async () => {
     const { service, monitors } = makeMonitoredService();
     await service.connect("test-device");

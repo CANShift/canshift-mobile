@@ -65,14 +65,15 @@ const decodeTimerLap = (raw: string) => {
 
 const applyStatus = (status: {
   firmwareVersion?: string;
+  boardId?: string;
   canHealthy?: boolean;
 }): void => {
-  useDeviceStore
-    .getState()
-    .setFirmwareStatus(
-      status.firmwareVersion ?? "?",
-      status.canHealthy ?? false,
-    );
+  const device = useDeviceStore.getState();
+  device.setFirmwareStatus(
+    status.firmwareVersion ?? "?",
+    status.canHealthy ?? false,
+  );
+  if (status.boardId !== undefined) device.setBoardId(status.boardId);
 };
 
 const applyTelemetry = guarded("telemetry", decodeTelemetry, (p) => {
