@@ -48,6 +48,7 @@ interface Session {
   joinedSsid: string | null;
   inWorkshop: boolean;
   cancelRequested: boolean;
+  generation: number;
 }
 
 interface Flow {
@@ -84,10 +85,20 @@ const openWithRetries = async (deps: FirmwareFlowDeps): Promise<OpenResult> => {
   return opened;
 };
 
-const connect = async ({ deps, session, set }: Flow): Promise<void> => {
+const settleStaleOpen = async (opened: OpenResult): Promise<void> => {
+  if (opened.kind === "open") await leaveWorkshop(opened.socket);
+};
+
+const connect = async (
+  { deps, session, set }: Flow,
+  generation = session.generation,
+): Promise<void> => {
+  if (session.generation !== generation) return;
   set({ view: { kind: "connecting" } });
   session.socket?.close();
+  session.socket = null;
   const opened = await openWithRetries(deps);
+  if (session.generation !== generation) return settleStaleOpen(opened);
   session.socket = opened.kind === "open" ? opened.socket : null;
   set({ view: VIEW_AFTER_OPEN[opened.kind] });
 };
@@ -96,15 +107,20 @@ const join = async (flow: Flow): Promise<void> => {
   const { deps, session, set, get } = flow;
   const { network } = get();
   if (!deps.wifi.canJoin) return connect(flow);
+  const generation = session.generation;
   set({ view: { kind: "wifi", joining: true, problem: null } });
   const outcome = await deps.wifi.join(network.ssid, network.password);
+  if (session.generation !== generation) {
+    if (outcome === "joined") deps.wifi.forget(network.ssid);
+    return;
+  }
   if (outcome !== "joined") {
     set({ view: { kind: "wifi", joining: false, problem: outcome } });
     return;
   }
   session.joinedSsid = network.ssid;
   await deps.network.save(network);
-  return connect(flow);
+  return connect(flow, generation);
 };
 
 const workshopSocket = async ({
@@ -157,6 +173,7 @@ const AFTER_INSTALL: Record<
     set({ view: { kind: "ready" } });
   },
   dropped: ({ session, set }) => {
+    session.socket?.close();
     session.socket = null;
     set({ view: { kind: "failed", failure: { kind: "dropped" } } });
   },
@@ -190,10 +207,11 @@ const install = async (flow: Flow): Promise<void> => {
 };
 
 const openFlow = async (
-  { deps, set }: Flow,
+  { deps, session, set }: Flow,
   pkg: FirmwarePackage,
   runningVersion: string,
 ): Promise<void> => {
+  session.generation += 1;
   deps.ble.hold();
   set({ view: { kind: "prepare" }, pkg, runningVersion });
   set({ network: await deps.network.load() });
@@ -213,6 +231,7 @@ const retry = (flow: Flow): Promise<void> => {
 };
 
 const close = async (flow: Flow): Promise<void> => {
+  flow.session.generation += 1;
   flow.set({ view: { kind: "closed" }, pkg: null });
   await handBack(flow);
 };
@@ -246,6 +265,7 @@ export const createFirmwareFlowStore = (
       joinedSsid: null,
       inWorkshop: false,
       cancelRequested: false,
+      generation: 0,
     };
     return {
       view: { kind: "closed" },
