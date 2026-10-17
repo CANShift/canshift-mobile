@@ -18,7 +18,7 @@
     "lint:pre-commit": "lint-staged"
   },
   "dependencies": {
-    "@canshift/core": "^10.2.0",
+    "@canshift/core": "^11.0.1",
     "@react-native-community/slider": "5.2.1",
     "@react-navigation/bottom-tabs": "^7.21.0",
     "@react-navigation/native": "^7.5.1",
