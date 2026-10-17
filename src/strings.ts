@@ -1,3 +1,5 @@
+import { FIRMWARE_STRINGS } from "./firmware-strings";
+
 const plural = (n: number, one: string, many: string): string =>
   `${String(n)} ${n === 1 ? one : many}`;
 
@@ -221,6 +223,7 @@ export const STRINGS = {
     autoReconnect: "Reconnect automatically",
     simulator: "Simulator",
   },
+  firmware: FIRMWARE_STRINGS,
   console: {
     log: "Log",
     send: "Send",

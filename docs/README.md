@@ -3,12 +3,14 @@
 The phone companion connects to a dash over BLE for in-car telemetry. It is the
 newest surface of the project and deliberately narrow: it reads live data and
 sends a small command set, but it does not configure the dashboard — that is the
-[tuner's](https://github.com/CANShift/canshift-tuner/tree/main/docs) job, over USB.
+[tuner's](https://github.com/CANShift/canshift-tuner/tree/main/docs) job. It can
+update the dash's firmware over the dash's Wi-Fi in workshop mode.
 
 | Doc                                     | What it covers                                       |
 | --------------------------------------- | ---------------------------------------------------- |
 | [Companion app](companion-app.md)       | What the app does today, and what it does not        |
 | [Pairing over BLE](pairing.md)          | Permissions, scan, bonding, and automatic reconnect  |
+| [Firmware update](firmware-update.md)   | Updating the dash over its workshop-mode Wi-Fi       |
 | [Redesign handoff](redesign/HANDOFF.md) | The approved redesign spec and its reference mockups |
 
 BLE only exists on firmware built with it compiled in — see

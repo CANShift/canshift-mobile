@@ -1,4 +1,5 @@
-export type Takeover = "criticalAlert" | "reconnectFailed" | "none";
+export type Takeover =
+  "criticalAlert" | "firmwareUpdate" | "reconnectFailed" | "none";
 
 export type Banner =
   | "reconnecting"
@@ -10,6 +11,7 @@ export type Banner =
 
 export interface OverlayInputs {
   alertHolds: boolean;
+  firmwareUpdate: boolean;
   reconnectFailed: boolean;
   reconnecting: boolean;
   alertStrip: boolean;
@@ -27,6 +29,7 @@ type Rule<T> = readonly [T, keyof OverlayInputs];
 
 const TAKEOVER_ORDER: readonly Rule<Exclude<Takeover, "none">>[] = [
   ["criticalAlert", "alertHolds"],
+  ["firmwareUpdate", "firmwareUpdate"],
   ["reconnectFailed", "reconnectFailed"],
 ];
 

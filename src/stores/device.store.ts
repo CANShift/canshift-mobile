@@ -13,6 +13,7 @@ interface DeviceState {
   deviceName: string | null;
   lastDashName: string | null;
   firmwareVersion: string | null;
+  boardId: string | null;
   canHealthy: boolean;
   error: BleConnectionError | null;
   linkProblem: BleConnectionError | null;
@@ -21,6 +22,7 @@ interface DeviceState {
   setMode: (m: DeviceMode) => void;
   setDevice: (id: string, name: string) => void;
   setFirmwareStatus: (version: string, canHealthy: boolean) => void;
+  setBoardId: (boardId: string) => void;
   setError: (err: BleConnectionError | null) => void;
   setLinkProblem: (problem: BleConnectionError) => void;
   clearError: () => void;
@@ -34,6 +36,7 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
   deviceName: null,
   lastDashName: null,
   firmwareVersion: null,
+  boardId: null,
   canHealthy: false,
   error: null,
   linkProblem: null,
@@ -60,6 +63,10 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
     set({ firmwareVersion, canHealthy });
   },
 
+  setBoardId: (boardId) => {
+    set({ boardId });
+  },
+
   setError: (error) => {
     set({ error, connectionState: "error" });
   },
@@ -79,6 +86,7 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
       deviceId: null,
       deviceName: null,
       firmwareVersion: null,
+      boardId: null,
       canHealthy: false,
       error: null,
       linkProblem: null,
