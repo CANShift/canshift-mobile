@@ -7,10 +7,11 @@ import {
   unmuteAlert,
   useAlertsStore,
 } from "./alerts.store";
-import type { AlertEntry } from "../lib/alert-model";
+import { builtInOrigin, type AlertEntry } from "../lib/alert-model";
 
 const OIL: AlertEntry = {
-  source: "oil_pressure",
+  key: "oil_pressure",
+  origin: builtInOrigin("oil_pressure"),
   name: "Oil pressure",
   unit: "bar",
   decimals: 1,

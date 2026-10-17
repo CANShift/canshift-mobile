@@ -5,7 +5,8 @@ import {
   acknowledgeAlert,
   useAlertsStore,
 } from "../stores/alerts.store";
-import type { AlertEntry } from "../lib/alert-model";
+import type { BuiltInAlertSource } from "@canshift/core";
+import { builtInOrigin, type AlertEntry } from "../lib/alert-model";
 
 const mockPlay = jest.fn();
 const mockHaptic = jest.fn(() => Promise.resolve());
@@ -30,8 +31,9 @@ jest.mock("../components/ui/toast", () => ({
   },
 }));
 
-const entry = (source: AlertEntry["source"], name: string): AlertEntry => ({
-  source,
+const entry = (source: BuiltInAlertSource, name: string): AlertEntry => ({
+  key: source,
+  origin: builtInOrigin(source),
   name,
   unit: "",
   decimals: 0,

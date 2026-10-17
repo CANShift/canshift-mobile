@@ -18,6 +18,7 @@ const metrics = {
 
 const OIL = entryFromDash({
   source: "oil_pressure",
+  configuredIndex: null,
   signal: "oil_press_bar",
   value: 0.8,
   limit: { value: 1, direction: "below" },
@@ -28,6 +29,7 @@ const OIL = entryFromDash({
 
 const COOLANT = entryFromDash({
   source: "coolant_temp",
+  configuredIndex: null,
   signal: "coolant_temp_c",
   value: 121,
   limit: { value: 118, direction: "above" },

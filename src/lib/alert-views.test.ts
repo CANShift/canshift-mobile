@@ -1,12 +1,14 @@
 import { alertViews, clearedSources } from "./alert-views";
-import type { AlertEntry } from "./alert-model";
+import type { BuiltInAlertSource } from "@canshift/core";
+import { builtInOrigin, type AlertEntry } from "./alert-model";
 
 const entry = (
-  source: AlertEntry["source"],
+  source: BuiltInAlertSource,
   activeSeconds: number,
   dashAcknowledged = false,
 ): AlertEntry => ({
-  source,
+  key: source,
+  origin: builtInOrigin(source),
   name: source,
   unit: "",
   decimals: 0,
@@ -26,7 +28,7 @@ describe("alert views", () => {
       acknowledged: [],
       muted: [],
     });
-    expect(views.takeover.map((alert) => alert.source)).toEqual([
+    expect(views.takeover.map((alert) => alert.key)).toEqual([
       "coolant_temp",
       "oil_pressure",
     ]);
@@ -39,9 +41,7 @@ describe("alert views", () => {
       acknowledged: ["oil_pressure"],
       muted: [],
     });
-    expect(views.takeover.map((alert) => alert.source)).toEqual([
-      "coolant_temp",
-    ]);
+    expect(views.takeover.map((alert) => alert.key)).toEqual(["coolant_temp"]);
     expect(views.strips).toEqual([{ entry: OIL, kind: "acknowledged" }]);
   });
 
@@ -58,9 +58,7 @@ describe("alert views", () => {
       acknowledged: [],
       muted: ["oil_pressure"],
     });
-    expect(views.takeover.map((alert) => alert.source)).toEqual([
-      "coolant_temp",
-    ]);
+    expect(views.takeover.map((alert) => alert.key)).toEqual(["coolant_temp"]);
     expect(views.strips).toEqual([{ entry: OIL, kind: "muted" }]);
   });
 

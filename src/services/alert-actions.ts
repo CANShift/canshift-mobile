@@ -1,8 +1,4 @@
-import {
-  ALERT_ACK_COMMAND,
-  alertSourceId,
-  type AlertSource,
-} from "@canshift/core";
+import { ALERT_ACK_COMMAND, alertSourceId } from "@canshift/core";
 import { sendCmd } from "./ble.service";
 import { useDeviceStore } from "../stores/device.store";
 import {
@@ -12,25 +8,28 @@ import {
   unmuteAlert,
 } from "../stores/alerts.store";
 import { reportDashFailure } from "../lib/report-dash-failure";
+import type { AlertEntry } from "../lib/alert-model";
+
+type Acknowledged = Pick<AlertEntry, "key" | "origin">;
 
 const isDashLinked = (): boolean => {
   const { connectionState, mode } = useDeviceStore.getState();
   return connectionState === "connected" && mode === "ble";
 };
 
-const sendAcknowledge = async (source: AlertSource): Promise<void> => {
+const sendAcknowledge = async (alert: Acknowledged): Promise<void> => {
   try {
-    await sendCmd(ALERT_ACK_COMMAND, { source: alertSourceId(source) });
+    await sendCmd(ALERT_ACK_COMMAND, { source: alertSourceId(alert.origin) });
   } catch (err) {
-    reportDashFailure(`Alert acknowledge for ${source}`, err);
+    reportDashFailure(`Alert acknowledge for ${alert.key}`, err);
   }
 };
 
 export const alertActions = {
-  acknowledge: (source: AlertSource): void => {
-    acknowledgeAlert(source);
+  acknowledge: (alert: Acknowledged): void => {
+    acknowledgeAlert(alert.key);
     if (!isDashLinked()) return;
-    void sendAcknowledge(source);
+    void sendAcknowledge(alert);
   },
   show: reopenAlert,
   muteAll: muteAlerts,
