@@ -1,5 +1,6 @@
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
-import { TouchTarget, UiColors, UiRadius } from "../../theme/ui-tokens";
+import { Modal, StyleSheet, Text, View } from "react-native";
+import { UiColors, UiRadius } from "../../theme/ui-tokens";
+import { ConfirmDialogActions } from "./ConfirmDialogActions";
 
 export interface ConfirmDialogProps {
   visible: boolean;
@@ -15,16 +16,13 @@ export const ConfirmDialog = ({
   visible,
   title,
   body,
-  confirmLabel,
-  cancelLabel,
-  onConfirm,
-  onCancel,
+  ...actions
 }: ConfirmDialogProps) => (
   <Modal
     visible={visible}
     transparent
     animationType="fade"
-    onRequestClose={onCancel}
+    onRequestClose={actions.onCancel}
     supportedOrientations={["portrait", "landscape"]}
   >
     <View style={styles.scrim}>
@@ -35,24 +33,7 @@ export const ConfirmDialog = ({
       >
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.body}>{body}</Text>
-        <View style={styles.actions}>
-          <Pressable
-            style={[styles.button, styles.cancel]}
-            onPress={onCancel}
-            accessibilityRole="button"
-            accessibilityLabel={cancelLabel}
-          >
-            <Text style={styles.cancelText}>{cancelLabel}</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.button, styles.confirm]}
-            onPress={onConfirm}
-            accessibilityRole="button"
-            accessibilityLabel={confirmLabel}
-          >
-            <Text style={styles.confirmText}>{confirmLabel}</Text>
-          </Pressable>
-        </View>
+        <ConfirmDialogActions {...actions} />
       </View>
     </View>
   </Modal>
@@ -75,16 +56,4 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 19, fontWeight: "700", color: UiColors.text },
   body: { fontSize: 15, lineHeight: 21, color: UiColors.textSecondary },
-  actions: { flexDirection: "row", gap: 10, marginTop: 8 },
-  button: {
-    flex: 1,
-    minHeight: TouchTarget.driving,
-    borderRadius: UiRadius.control,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cancel: { borderWidth: 1, borderColor: UiColors.border },
-  confirm: { backgroundColor: UiColors.primaryBtn },
-  cancelText: { fontSize: 16, color: UiColors.text },
-  confirmText: { fontSize: 16, fontWeight: "700", color: UiColors.onPrimary },
 });

@@ -5,9 +5,7 @@ import { useDeviceScreen } from "../hooks/use-device-screen";
 import { useLoggingCard } from "../hooks/use-logging-card";
 import { useFirmwareCard } from "../hooks/use-firmware-card";
 import { disconnectDash, endDemo } from "../lib/device-actions";
-import { retryReconnect } from "../services/session-exit";
-import { ConnectionCard } from "../components/device/ConnectionCard";
-import { DemoCard } from "../components/device/DemoCard";
+import { DeviceLinkCard } from "../components/device/DeviceLinkCard";
 import { LoggingCard } from "../components/device/LoggingCard";
 import { ConsoleLinkCard } from "../components/device/ConsoleLinkCard";
 import { InfoCard } from "../components/device/InfoCard";
@@ -33,22 +31,7 @@ const DeviceScreen = ({ onOpenConsole, onBack }: DeviceScreenProps) => {
       <Text style={styles.title} accessibilityRole="header">
         {STRINGS.device.title}
       </Text>
-      {device.link === "demo" ? (
-        <DemoCard
-          onEnd={() => {
-            device.setDialog("endDemo");
-          }}
-        />
-      ) : (
-        <ConnectionCard
-          link={device.link}
-          dashName={device.dashName}
-          onDisconnect={() => {
-            device.setDialog("disconnect");
-          }}
-          onReconnect={() => void retryReconnect()}
-        />
-      )}
+      <DeviceLinkCard device={device} />
       <LoggingCard {...logging} />
       <ConsoleLinkCard onPress={onOpenConsole} />
       <InfoCard rows={device.rows} />

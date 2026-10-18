@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { STRINGS } from "../../strings";
 import { UiColors } from "../../theme/ui-tokens";
 import type { ScanScreenModel } from "../../hooks/use-scan-screen";
@@ -7,7 +7,7 @@ import { Glyph } from "../icons/Glyph";
 import { ScanHero } from "./ScanHero";
 import { ScanActions } from "./ScanActions";
 import { ScanRadar } from "./ScanRadar";
-import { DashCard } from "./DashCard";
+import { FoundDashList } from "./FoundDashList";
 
 export interface ScanViewProps {
   model: ScanScreenModel;
@@ -112,19 +112,7 @@ const FoundView = ({ model }: ScanViewProps) => (
       {STRINGS.connect.foundTitle}
     </Text>
     <Text style={styles.hint}>{STRINGS.connect.tapToConnect}</Text>
-    <FlatList
-      style={styles.list}
-      contentContainerStyle={styles.listContent}
-      data={model.scan.devices}
-      keyExtractor={(dash) => dash.id}
-      renderItem={({ item }) => (
-        <DashCard
-          dash={item}
-          lastUsed={item.id === model.scan.lastPairedId}
-          onPress={(dash) => void model.scan.connectTo(dash)}
-        />
-      )}
-    />
+    <FoundDashList scan={model.scan} />
     {model.scan.scanning ? null : (
       <Text style={styles.hint}>
         {STRINGS.connect.searchFinished(model.scan.devices.length)}
@@ -179,6 +167,4 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   hint: { fontSize: 14, color: UiColors.textMuted },
-  list: { flexGrow: 0 },
-  listContent: { gap: 10 },
 });

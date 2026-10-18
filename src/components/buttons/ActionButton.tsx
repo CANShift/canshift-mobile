@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
 import { UiColors, UiRadius } from "../../theme/ui-tokens";
+import { buttonFrame } from "./button-frame";
 
 type ActionTone = "filled" | "outline";
 
@@ -53,14 +54,7 @@ export const ActionButton = ({
   const look = disabled ? DISABLED : TONES[tone];
   return (
     <Pressable
-      style={[
-        styles.button,
-        {
-          height,
-          backgroundColor: look.background,
-          borderColor: look.borderColor,
-        },
-      ]}
+      style={[styles.button, buttonFrame(look, height)]}
       onPress={onPress}
       disabled={disabled}
       accessibilityRole="button"

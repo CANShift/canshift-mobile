@@ -1,7 +1,7 @@
 import { STRINGS } from "../../strings";
 import type { GpsTimingModel } from "../../hooks/use-gps-timing";
 import { BigButton } from "../buttons/BigButton";
-import { ConfirmDialog } from "../dialog/ConfirmDialog";
+import { StopTrackModeDialog } from "./StopTrackModeDialog";
 import { TrackRun } from "./TrackRun";
 import { StatTiles } from "./StatTiles";
 import { LapLines } from "./LapLines";
@@ -34,14 +34,6 @@ export const GpsRunning = ({ gps }: GpsRunningProps) => (
         </>
       }
     />
-    <ConfirmDialog
-      visible={gps.confirmingStop}
-      title={STRINGS.laps.stopTrackModeTitle}
-      body={STRINGS.laps.stopTrackModeBody}
-      confirmLabel={STRINGS.laps.stop}
-      cancelLabel={STRINGS.laps.cancel}
-      onConfirm={gps.confirmStop}
-      onCancel={gps.cancelStop}
-    />
+    <StopTrackModeDialog gps={gps} />
   </>
 );

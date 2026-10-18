@@ -1,8 +1,7 @@
 import { STRINGS } from "../../strings";
-import { TouchTarget } from "../../theme/ui-tokens";
-import { BigButton } from "../buttons/BigButton";
 import { FlowFrame } from "./FlowFrame";
 import { FlowText } from "./FlowText";
+import { NoticeStepFooter } from "./NoticeStepFooter";
 import type { FlowStepProps } from "./FlowStepProps";
 
 const F = STRINGS.firmware;
@@ -34,28 +33,7 @@ export const NoticeStep = ({ model, notice }: NoticeStepProps) => {
     <FlowFrame
       title={copy.title}
       footer={
-        <>
-          <BigButton
-            label={F.tryAgain}
-            tone="primary"
-            height={TouchTarget.driving}
-            onPress={model.retry}
-          />
-          {copy.offersSettings ? (
-            <BigButton
-              label={F.openSettings}
-              tone="outline"
-              height={TouchTarget.min}
-              onPress={model.openSettings}
-            />
-          ) : null}
-          <BigButton
-            label={F.close}
-            tone="outline"
-            height={TouchTarget.min}
-            onPress={model.close}
-          />
-        </>
+        <NoticeStepFooter model={model} offersSettings={copy.offersSettings} />
       }
     >
       <FlowText>{copy.body}</FlowText>

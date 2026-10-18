@@ -1,5 +1,8 @@
 import { Modal, StyleSheet, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  useSafeAreaInsets,
+  type EdgeInsets,
+} from "react-native-safe-area-context";
 import { UiColors } from "../../theme/ui-tokens";
 import { alertActions } from "../../services/alert-actions";
 import { useAlertFromDash, useAlertViews } from "../../hooks/use-alerts";
@@ -35,6 +38,13 @@ const TakeoverBody = () => {
   );
 };
 
+const fieldPadding = (insets: EdgeInsets) => ({
+  paddingTop: insets.top + 12,
+  paddingBottom: insets.bottom + 16,
+  paddingLeft: insets.left + 20,
+  paddingRight: insets.right + 20,
+});
+
 export const AlertTakeover = () => {
   const insets = useSafeAreaInsets();
   const count = useAlertViews().takeover.length;
@@ -49,15 +59,7 @@ export const AlertTakeover = () => {
       supportedOrientations={["portrait", "landscape"]}
     >
       <View
-        style={[
-          styles.field,
-          {
-            paddingTop: insets.top + 12,
-            paddingBottom: insets.bottom + 16,
-            paddingLeft: insets.left + 20,
-            paddingRight: insets.right + 20,
-          },
-        ]}
+        style={[styles.field, fieldPadding(insets)]}
         accessibilityViewIsModal
       >
         <AlertKicker count={count} fromDash={fromDash} />
