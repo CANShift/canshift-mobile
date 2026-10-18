@@ -84,14 +84,9 @@ const accept = (link: FakeLink, options: FakeDashOptions): void => {
   if (options.busy === true) dropLink(link, CLOSE_BUSY);
 };
 
-export const fakeDash = (options: FakeDashOptions = {}): FakeDash => {
-  const link: FakeLink = {
-    handlers: null,
-    open: false,
-    beats: 0,
-    commands: [],
-  };
-  const connect: SocketConnector = (_url, handlers) => {
+const connectorFor =
+  (link: FakeLink, options: FakeDashOptions): SocketConnector =>
+  (_url, handlers) => {
     link.handlers = handlers;
     void Promise.resolve().then(() => {
       accept(link, options);
@@ -106,6 +101,15 @@ export const fakeDash = (options: FakeDashOptions = {}): FakeDash => {
       isOpen: () => link.open,
     };
   };
+
+export const fakeDash = (options: FakeDashOptions = {}): FakeDash => {
+  const link: FakeLink = {
+    handlers: null,
+    open: false,
+    beats: 0,
+    commands: [],
+  };
+  const connect = connectorFor(link, options);
   return {
     connect,
     commands: link.commands,

@@ -25,30 +25,37 @@ export interface ScanScreenModel {
   cancelReconnect: () => void;
 }
 
-export const useScanScreen = (nav: ScanNavigation): ScanScreenModel => {
-  const scan = useDeviceScan(nav.toConnected);
+const useScanView = (scan: DeviceScan): ScanView => {
   const promptSeen = useAppSettingsStore((s) => s.blePromptSeen);
-  const markSeen = useAppSettingsStore((s) => s.markBlePromptSeen);
   const reconnecting = useReconnectStore((s) => s.isReconnecting);
-  const lastDashName =
-    useDeviceStore((s) => s.lastDashName) ?? STRINGS.connect.theDash;
-  const view = scanView({
+  return scanView({
     promptSeen,
     denied: scan.denied,
     reconnecting,
     scanning: scan.scanning,
     deviceCount: scan.devices.length,
   });
-  const { startScan } = scan;
-  const continueFirstRun = useCallback(() => {
+};
+
+const useContinueFirstRun = (
+  startScan: DeviceScan["startScan"],
+): (() => void) => {
+  const markSeen = useAppSettingsStore((s) => s.markBlePromptSeen);
+  return useCallback(() => {
     markSeen();
     void startScan();
   }, [markSeen, startScan]);
+};
+
+export const useScanScreen = (nav: ScanNavigation): ScanScreenModel => {
+  const scan = useDeviceScan(nav.toConnected);
+  const lastDashName =
+    useDeviceStore((s) => s.lastDashName) ?? STRINGS.connect.theDash;
   return {
-    view,
+    view: useScanView(scan),
     scan,
     lastDashName,
-    continueFirstRun,
+    continueFirstRun: useContinueFirstRun(scan.startScan),
     startDemo: () => {
       SimService.start();
       nav.toConnected();
