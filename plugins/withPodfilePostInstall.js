@@ -1,5 +1,3 @@
-// Shared Podfile post_install patcher: inserts `patch` just before the final
-// `end` pair that closes the post_install block, once, guarded by `marker`.
 const { withDangerousMod } = require("@expo/config-plugins");
 const fs = require("fs");
 const path = require("path");

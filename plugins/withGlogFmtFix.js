@@ -1,20 +1,6 @@
-// Patches the Podfile post_install hook so fmt and glog pods build with
-// C++17 instead of C++20. Required for Xcode 16+ / Clang 18+ where
-// __cpp_consteval is defined under C++20, which makes fmt's FMT_STRING
-// consteval-only and breaks RN 0.76's bundled fmt usage.
-//
-// Symptom without this fix:
-//   error: call to consteval function 'fmt::basic_format_string<...>'
-//   is not a constant expression
-//   in ios/Pods/fmt/include/fmt/format-inl.h
-
 const PATCH_MARKER = "# canshift-fmt-glog-cxx17-fix";
 const PATCH = `
     ${PATCH_MARKER}
-    # Downgrade fmt + glog to gnu++17 so __cpp_consteval is undefined →
-    # FMT_USE_CONSTEVAL=0 → FMT_STRING macros stop tripping Clang 18+.
-    # Patch both target-level build settings (authoritative — pbxproj overrides
-    # xcconfig) and the xcconfig files (defensive, in case CocoaPods rewrites).
     installer.pods_project.targets.each do |target|
       if ['fmt', 'glog'].include?(target.name)
         target.build_configurations.each do |config|

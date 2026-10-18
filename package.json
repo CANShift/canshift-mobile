@@ -49,7 +49,6 @@
     "zod": "^4.6.7",
     "zustand": "^5.0.15"
   },
-  "//overrides": "scripts/check-overrides.js blocks tar>=7 and @xmldom/xmldom>=0.9. Re-evaluate these blocks against the SDK 53 @expo/cli internals; remove if the constraints no longer apply. The 0.8.13 xmldom pin is the LTS line and patches all known CVEs (issue #588).",
   "overrides": {
     "uuid": "^11.1.0",
     "postcss": "^8.5.3",
@@ -91,6 +90,6 @@
   },
   "lint-staged": {
     "*.{ts,tsx,js,json,md,yml,yaml}": "prettier --write --ignore-unknown",
-    "*.{ts,tsx}": "eslint --fix --no-warn-ignored"
+    "*.{js,ts,tsx}": "eslint --fix --no-warn-ignored"
   }
 }
