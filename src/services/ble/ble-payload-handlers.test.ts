@@ -3,7 +3,7 @@ import { encodeTelemetryFrame } from "@canshift/core";
 import { handleTelemetry } from "./ble-payload-handlers";
 import { useDeviceStore } from "../../stores/device.store";
 import { useLogStore } from "../../stores/log.store";
-import { useSignalsStore } from "../../stores/signals.store";
+import { DISPLAY_FLUSH_MS, useSignalsStore } from "../../stores/signals.store";
 import { clearBuffer, getWriteIndex } from "../../stores/telemetry.store";
 
 const FUTURE_VERSION = 9;
@@ -24,6 +24,7 @@ describe("handleTelemetry", () => {
   beforeEach(() => {
     useDeviceStore.setState(initialDevice, true);
     useSignalsStore.setState(initialSignals, true);
+    useSignalsStore.getState().clearHeld();
     useLogStore.getState().clear();
     clearBuffer();
   });
@@ -32,6 +33,16 @@ describe("handleTelemetry", () => {
     handleTelemetry(toBase64(encodeTelemetryFrame({ r: 3000 })));
     expect(getWriteIndex()).toBe(1);
     expect(useDeviceStore.getState().linkProblem).toBeNull();
+  });
+
+  it("drops a signal the dash stops sending instead of holding its last value", () => {
+    jest.useFakeTimers();
+    handleTelemetry(toBase64(encodeTelemetryFrame({ r: 3000, op: 0.4 })));
+    jest.advanceTimersByTime(DISPLAY_FLUSH_MS);
+    handleTelemetry(toBase64(encodeTelemetryFrame({ r: 3000 })));
+    jest.advanceTimersByTime(DISPLAY_FLUSH_MS);
+    jest.useRealTimers();
+    expect(useSignalsStore.getState().values).toEqual({ r: 3000 });
   });
 
   it("reports a frame version mismatch once, as one device problem", () => {

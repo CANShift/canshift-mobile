@@ -51,10 +51,13 @@ export const useSignalsStore = create<SignalsState>()((set, get) => ({
 
   ingest: (payload) => {
     const defined = definedValues(payload);
-    if (Object.keys(defined).length === 0) return;
+    if (Object.keys(defined).length === 0) {
+      get().clearHeld();
+      return;
+    }
     frameCount++;
     pushSample(defined);
-    pendingPayload = { ...pendingPayload, ...defined };
+    pendingPayload = defined;
     if (flushTimer !== null) return;
     flushTimer = setTimeout(() => {
       const flushed = pendingPayload ?? {};
@@ -66,13 +69,13 @@ export const useSignalsStore = create<SignalsState>()((set, get) => ({
 
   update: (payload) => {
     const nowMs = Date.now();
-    set((s) => ({
-      values: { ...s.values, ...payload },
-      lastAt: { ...s.lastAt, ...stampsFor(payload, nowMs) },
+    set({
+      values: payload,
+      lastAt: stampsFor(payload, nowMs),
       lastUpdateMs: nowMs,
       isLive: true,
       staleSinceMs: 0,
-    }));
+    });
   },
 
   markStale: () => {

@@ -37,13 +37,11 @@ describe("useSignalsStore", () => {
     expect(buffer[0]?.v).toEqual({ r: 2000, tps: 20 });
   });
 
-  it("update() stamps each signal it carries and leaves the others alone", () => {
-    useSignalsStore.getState().update({ r: 1500 });
-    const first = useSignalsStore.getState().lastAt.r;
-    useSignalsStore.getState().update({ op: 3.8 });
+  it("update() stamps each signal it carries", () => {
+    useSignalsStore.getState().update({ r: 1500, op: 3.8 });
     const state = useSignalsStore.getState();
-    expect(state.lastAt.r).toBe(first);
-    expect(state.lastAt.op).toBeGreaterThanOrEqual(first ?? 0);
+    expect(state.lastAt.r).toBe(state.lastUpdateMs);
+    expect(state.lastAt.op).toBe(state.lastUpdateMs);
     expect(state.lastAt.ct).toBeUndefined();
   });
 
@@ -54,6 +52,14 @@ describe("useSignalsStore", () => {
     jest.useRealTimers();
     expect(useSignalsStore.getState().isLive).toBe(false);
     expect(getWriteIndex()).toBe(0);
+  });
+
+  it("ingest() clears the held values when a frame carries no valid signal", () => {
+    useSignalsStore.getState().update({ r: 1500, ot: 95 });
+    useSignalsStore.getState().ingest({});
+    const state = useSignalsStore.getState();
+    expect(state.values).toEqual({});
+    expect(state.lastAt).toEqual({});
   });
 
   it("update() handles an empty payload without throwing", () => {
@@ -95,10 +101,12 @@ describe("useSignalsStore", () => {
     expect(state.staleSinceMs).toBeGreaterThan(0);
   });
 
-  it("successive updates MERGE into the cached payload (issue #1017 M-LO-3)", () => {
+  it("update() replaces the held values with the frame, so a signal it omits is gone", () => {
     useSignalsStore.getState().update({ r: 1500, tps: 10 });
     useSignalsStore.getState().update({ r: 2000 });
-    expect(useSignalsStore.getState().values).toEqual({ r: 2000, tps: 10 });
+    const state = useSignalsStore.getState();
+    expect(state.values).toEqual({ r: 2000 });
+    expect(state.lastAt.tps).toBeUndefined();
   });
 
   it("update() lets a fresh value overwrite the previous reading for the same key", () => {
@@ -135,7 +143,7 @@ describe("useSignalsStore", () => {
       expect(useSignalsStore.getState().isLive).toBe(true);
     });
 
-    it("merges a burst of notifies into one store write", () => {
+    it("keeps only the latest frame of a burst, in one store write", () => {
       const listener = jest.fn();
       const unsubscribe = useSignalsStore.subscribe(listener);
       useSignalsStore.getState().ingest({ r: 1500, tps: 10 });
@@ -144,11 +152,7 @@ describe("useSignalsStore", () => {
       jest.advanceTimersByTime(DISPLAY_FLUSH_MS);
       unsubscribe();
       expect(listener).toHaveBeenCalledTimes(1);
-      expect(useSignalsStore.getState().values).toEqual({
-        r: 1700,
-        tps: 10,
-        s: 40,
-      });
+      expect(useSignalsStore.getState().values).toEqual({ r: 1700, s: 40 });
       expect(getWriteIndex()).toBe(3);
     });
 
@@ -158,6 +162,14 @@ describe("useSignalsStore", () => {
       jest.advanceTimersByTime(DISPLAY_FLUSH_MS);
       expect(useSignalsStore.getState().isLive).toBe(false);
       expect(useSignalsStore.getState().values).toEqual({});
+    });
+
+    it("lets a frame with no valid signal override a pending one", () => {
+      useSignalsStore.getState().ingest({ r: 1500 });
+      useSignalsStore.getState().ingest({});
+      jest.advanceTimersByTime(DISPLAY_FLUSH_MS);
+      expect(useSignalsStore.getState().values).toEqual({});
+      expect(useSignalsStore.getState().isLive).toBe(false);
     });
 
     it("drops a pending flush when the held values are cleared", () => {
