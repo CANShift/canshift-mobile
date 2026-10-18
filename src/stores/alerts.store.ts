@@ -64,3 +64,7 @@ export const muteAlerts = (keys: readonly AlertKey[]): void => {
 export const unmuteAlert = (key: AlertKey): void => {
   useAlertsStore.setState((s) => ({ muted: without(s.muted, key) }));
 };
+
+export const clearMutedAlerts = (): void => {
+  useAlertsStore.setState({ muted: [] });
+};

@@ -57,7 +57,7 @@ Implement this as a single `OverlayHost` at the root that renders from one store
 - It shows: signal title (caps), value (huge), limit ("Limit: below 1.0 bar"), context rows (RPM, oil temp, "Since 0:12").
 - **Several active alerts → all of them are on screen at once**, as stacked cards, newest first, each with its own **Acknowledge**. One shared **Mute all for this session**.
 - **Acknowledge** removes that alert's takeover. While its condition lasts it becomes a red strip ("Acknowledged · still active", **Show** reopens it). Other alerts stay full screen.
-- **Mute for this session**: no takeover and no sound for that signal until the app restarts. The strip stays ("Muted for this session", **Unmute**). A **new** alert on a different signal still takes over.
+- **Mute for this session**: no takeover and no sound for that signal until the app restarts or you pick a dash from the scan list again (an automatic reconnect keeps the mute). The strip stays ("Muted for this session", **Unmute**). A **new** alert on a different signal still takes over.
 - When the condition clears, the strip disappears and a toast says "Oil pressure is back to normal."
 - Visual cue = Tuner: **solid `#D63333` + Maximize (frame-corners) icon**. Never used for a tile. Tiles use outlined orange (warning) and outlined red + tint (danger).
 
@@ -145,7 +145,7 @@ Connection labels are identical to the Tuner: **Connected · Reconnecting… · 
 - [ ] All driving-screen targets are ≥ 56 pt; Capture lap, Start, Resume and Acknowledge are ≥ 88 pt tall.
 - [ ] Unplugging the dash: within 2 s all tiles turn stale (dashed, grey, age) and the NO DATA or Reconnecting banner shows. No value keeps live colours.
 - [ ] Two alerts at once: both visible; acknowledging one keeps the other full screen; the acknowledged one shows as a strip on every tab.
-- [ ] Mute: no takeover or sound for that signal until restart; a different signal still takes over.
+- [ ] Mute: no takeover or sound for that signal until restart or a new connection from the scan list; a different signal still takes over.
 - [ ] The critical alert covers tabs, sheets and dialogs (it's on top of every `Modal`).
 - [ ] Reconnect banner Cancel returns to Scan; Reconnect failed offers Try again + Scan for dashes.
 - [ ] Phone-only timer shows the PHONE ONLY tag and explanation; can't-save warning appears when storage fails.

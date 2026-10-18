@@ -22,7 +22,7 @@ Before a dash is linked the app is one **Scan** screen (Bluetooth pre-prompt, sc
 ## How it shows trouble
 
 - **Stale values.** Each signal goes stale 2 s after its last update: dashed tile, grey value, "{n} s ago". A link that sends nothing for 2 s shows NO DATA. Values never keep their live colours.
-- **Critical alerts.** The phone mirrors the dash's full-screen alert from the dash's ALERT characteristic: every active alert at once, each with its own Acknowledge (sent back to the dash), one Mute for this session. An acknowledged or muted alert stays as a red strip under the header until it clears. On firmware without that characteristic, or in demo mode, the phone decides alerts from core's default danger bands.
+- **Critical alerts.** The phone mirrors the dash's full-screen alert from the dash's ALERT characteristic: every active alert at once, each with its own Acknowledge (sent back to the dash), one Mute for this session. A session lasts until you pick a dash from the scan list again or the app restarts; an automatic reconnect keeps it. An acknowledged or muted alert stays as a red strip under the header until it clears. On firmware without that characteristic, or in demo mode, the phone decides alerts from core's default danger bands.
 - **One overlay order.** Critical alert, firmware update, reconnect failed, reconnecting banner, alert strip, phone battery low: the top one wins on every screen.
 
 ## What it is not
