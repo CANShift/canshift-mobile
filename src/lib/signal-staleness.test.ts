@@ -1,3 +1,4 @@
+import { TELEMETRY_KEEPALIVE_MS } from "@canshift/core";
 import {
   SIGNAL_STALE_MS,
   ageSeconds,
@@ -17,8 +18,8 @@ describe("signal staleness", () => {
     expect(isSignalFresh(undefined, NOW)).toBe(false);
   });
 
-  it("uses a threshold at least twice the dash keepalive", () => {
-    expect(SIGNAL_STALE_MS).toBeGreaterThanOrEqual(2000);
+  it("waits two and a half dash keepalives before calling a signal stale", () => {
+    expect(SIGNAL_STALE_MS).toBe(TELEMETRY_KEEPALIVE_MS * 2.5);
   });
 
   it("counts whole seconds since a stamp and never goes negative", () => {

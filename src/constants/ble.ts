@@ -1,3 +1,5 @@
+import type { TelemetryFieldKey } from "@canshift/core";
+
 export const BLE_SERVICE_UUID = "4fa0b6a0-0000-0000-0000-000000000001" as const;
 
 export const BLE_CHAR_TELE = "4fa0b6a0-0000-0000-0000-000000000002" as const;
@@ -45,6 +47,6 @@ export const SIGNAL_META = {
   s: { label: "Speed", unit: "kph", decimals: 0 },
   g: { label: "Gear", unit: "", decimals: 0 },
   bat: { label: "Battery", unit: "V", decimals: 1 },
-} satisfies Record<string, SignalMeta>;
+} satisfies Record<TelemetryFieldKey, SignalMeta>;
 
 export type SignalKey = keyof typeof SIGNAL_META;
