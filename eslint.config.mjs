@@ -40,7 +40,7 @@ export default tseslint.config(
   prettierConfig,
   {
     plugins: { "no-comments": noCommentsPlugin },
-    files: ["src/**/*.{ts,tsx}", "index.ts", "App.tsx"],
+    files: ["src/**/*.{ts,tsx}", "index.ts"],
     languageOptions: {
       parserOptions: {
         projectService: true,
@@ -70,8 +70,21 @@ export default tseslint.config(
     },
   },
   {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/**/*.test.{ts,tsx}", "src/**/__tests__/**"],
+    rules: {
+      "max-lines-per-function": [
+        "error",
+        { max: 30, skipBlankLines: true, skipComments: true },
+      ],
+      "max-lines": ["error", { max: 300, skipBlankLines: true }],
+      "max-depth": ["error", 2],
+      complexity: ["error", 10],
+    },
+  },
+  {
     files: ["**/*.{js,cjs,ts}"],
-    ignores: ["src/**", "index.ts", "App.tsx"],
+    ignores: ["src/**", "index.ts"],
     plugins: { "no-comments": noCommentsPlugin },
     languageOptions: tseslint.configs.disableTypeChecked.languageOptions,
     rules: {
