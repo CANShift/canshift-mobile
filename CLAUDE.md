@@ -24,7 +24,7 @@ Non-negotiable. Reviewed on every PR, ahead of feature count.
 - One error taxonomy, `ble.errors.ts`. Never a second one built on message substrings, never an error class faked with a cast, never re-wrap an error in a way that drops its code.
 - Report a failure on exactly one channel. Setting store error state _and_ rethrowing means the user sees it up to three times.
 - Stacked `cond && <X/>`, chained ternaries and mutually-exclusive booleans are a union that lost its type. Derive one named state value and render it from a `Record<Kind, …>`.
-- ~30 lines per function, ~300 per file. Screens hold layout only — data, animation and copy tables live in `hooks/`, `lib/` and `services/`.
+- ~30 lines per function, ~300 per file. `eslint` enforces 30 / 300, nesting depth 2 and complexity 10 on non-test `src/` files; `knip` rejects exports nothing imports. Screens hold layout only — data, animation and copy tables live in `hooks/`, `lib/` and `services/`.
 - Every reusable component gets its own file with a props interface. One implementation per component name.
 - Third copy gets extracted. Cross-file boilerplate (error→string, storage guards, tick hooks) lives in one shared helper under `src/lib/` and is imported, never re-typed.
 - Lap detection, telemetry codecs and schemas come from `@canshift/core` — never reimplemented, never restated field-by-field.
