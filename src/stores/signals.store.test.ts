@@ -164,12 +164,15 @@ describe("useSignalsStore", () => {
       expect(useSignalsStore.getState().values).toEqual({});
     });
 
-    it("lets a frame with no valid signal override a pending one", () => {
+    it("lets a frame with no valid signal override a pending one without counting as live", () => {
+      useSignalsStore.getState().update({ r: 1000 });
+      const liveAtMs = useSignalsStore.getState().lastUpdateMs;
+      jest.advanceTimersByTime(DISPLAY_FLUSH_MS);
       useSignalsStore.getState().ingest({ r: 1500 });
       useSignalsStore.getState().ingest({});
       jest.advanceTimersByTime(DISPLAY_FLUSH_MS);
       expect(useSignalsStore.getState().values).toEqual({});
-      expect(useSignalsStore.getState().isLive).toBe(false);
+      expect(useSignalsStore.getState().lastUpdateMs).toBe(liveAtMs);
     });
 
     it("drops a pending flush when the held values are cleared", () => {
