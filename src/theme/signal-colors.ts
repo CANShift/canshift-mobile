@@ -1,7 +1,7 @@
 import type { SensorKind } from "@canshift/core";
 import type { SignalKey } from "../constants/ble";
 
-export const KEY_TO_SENSOR_KIND: Record<string, SensorKind> = {
+const KEY_TO_SENSOR_KIND: Record<string, SensorKind> = {
   r: "rpm",
   ct: "coolant_temp",
   ot: "oil_temp",

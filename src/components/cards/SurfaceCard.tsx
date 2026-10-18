@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { StyleSheet, View, type ViewStyle } from "react-native";
 import { UiColors, UiRadius } from "../../theme/ui-tokens";
 
-export type CardTone = "plain" | "danger" | "warning";
+type CardTone = "plain" | "danger" | "warning";
 
 const TONES: Record<CardTone, ViewStyle> = {
   plain: {

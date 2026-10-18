@@ -75,7 +75,7 @@ export const builtInOrigin = (source: BuiltInAlertSource): AlertOrigin => ({
   configuredIndex: null,
 });
 
-export const alertKeyOf = (origin: AlertOrigin): AlertKey =>
+const alertKeyOf = (origin: AlertOrigin): AlertKey =>
   origin.source === "configured"
     ? `configured:${String(origin.configuredIndex)}`
     : origin.source;

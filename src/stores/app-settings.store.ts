@@ -6,10 +6,10 @@ import { reportFailure } from "../lib/report-dash-failure";
 import { STRINGS } from "../strings";
 import { tryParseJson } from "../lib/try-parse-json";
 
-export type ReconnectBehavior = "auto" | "off";
+type ReconnectBehavior = "auto" | "off";
 
 export const TELEMETRY_BUFFER_OPTIONS = [1000, 3000, 6000] as const;
-export type TelemetryBufferSize = (typeof TELEMETRY_BUFFER_OPTIONS)[number];
+type TelemetryBufferSize = (typeof TELEMETRY_BUFFER_OPTIONS)[number];
 
 const STORAGE_KEY = "canshift.mobile.appSettings";
 

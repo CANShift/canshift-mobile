@@ -7,7 +7,7 @@ const GITHUB_JSON = "application/vnd.github+json";
 const HEX_RADIX = 16;
 const BYTE_HEX_DIGITS = 2;
 
-export class HttpStatusError extends Error {
+class HttpStatusError extends Error {
   constructor(readonly status: number) {
     super(`HTTP ${String(status)}`);
     this.name = "HttpStatusError";

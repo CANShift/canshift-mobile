@@ -2,7 +2,7 @@ import { requireOptionalNativeModule } from "expo";
 import { log } from "../../stores/log.store";
 import { errText } from "../../lib/error-text";
 
-export type JoinOutcome = "joined" | "denied" | "invalid" | "failed";
+type JoinOutcome = "joined" | "denied" | "invalid" | "failed";
 
 interface DashWifiNative {
   join: (ssid: string, passphrase: string) => Promise<string>;

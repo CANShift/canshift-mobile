@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
 import { UiColors, UiRadius } from "../../theme/ui-tokens";
 
-export type ActionTone = "filled" | "outline";
+type ActionTone = "filled" | "outline";
 
 interface ToneLook {
   background: string;

@@ -6,7 +6,7 @@ import DeviceScreen from "../screens/DeviceScreen";
 import ConsoleScreen from "../screens/ConsoleScreen";
 import { UiColors } from "../theme/ui-tokens";
 
-export type DeviceStackParamList = Record<"DeviceHome" | "Console", undefined>;
+type DeviceStackParamList = Record<"DeviceHome" | "Console", undefined>;
 
 const Stack = createNativeStackNavigator<DeviceStackParamList>();
 

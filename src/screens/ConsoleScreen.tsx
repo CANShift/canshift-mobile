@@ -22,7 +22,7 @@ const TAB_VIEWS: Record<ConsoleTab, () => React.JSX.Element> = {
   can: CanTab,
 };
 
-export interface ConsoleScreenProps {
+interface ConsoleScreenProps {
   onBack: () => void;
 }
 

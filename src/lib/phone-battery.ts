@@ -1,6 +1,6 @@
 export const LOGGING_CUTOFF_PERCENT = 5;
 
-export const LOW_BATTERY_PERCENT = 20;
+const LOW_BATTERY_PERCENT = 20;
 
 export type PhoneBatteryStatus = "ok" | "low" | "cutoff";
 

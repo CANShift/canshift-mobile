@@ -7,7 +7,7 @@ import type { FlowStepProps } from "./FlowStepProps";
 
 const F = STRINGS.firmware;
 
-export type NoticeKind = "unreachable" | "busy";
+type NoticeKind = "unreachable" | "busy";
 
 interface NoticeCopy {
   title: string;

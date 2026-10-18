@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["plugins/*.js"],
+  "ignoreDependencies": [
+    "buffer",
+    "react-native-reanimated",
+    "react-native-worklets",
+    "@babel/core",
+    "expo-updates",
+    "expo-system-ui"
+  ]
+}

@@ -66,9 +66,4 @@ export const Toaster = (): React.ReactElement => {
 Toaster.displayName = "Toaster";
 
 export { RNToast as Toast };
-export type {
-  ToastShowParams,
-  ToastConfig,
-  ToastType,
-  ToastPosition,
-} from "react-native-toast-message";
+export type { ToastShowParams } from "react-native-toast-message";

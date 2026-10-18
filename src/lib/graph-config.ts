@@ -10,7 +10,7 @@ export const DEFAULT_GRAPH_WINDOW: GraphWindow = 60;
 
 export const DEFAULT_GRAPH_SIGNALS: readonly SignalKey[] = ["r", "op", "ct"];
 
-export const ALL_GRAPH_SIGNALS = Object.keys(SIGNAL_META) as SignalKey[];
+const ALL_GRAPH_SIGNALS = Object.keys(SIGNAL_META) as SignalKey[];
 
 const DASHED_SERIES_INDEX = 2;
 const FIRST_CYCLE_DASH = "6 4";

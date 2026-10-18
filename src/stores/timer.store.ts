@@ -8,7 +8,7 @@ import {
 
 export type TimerStatus = "idle" | "running" | "paused";
 
-export const LOCAL_SESSION_ID = -1;
+const LOCAL_SESSION_ID = -1;
 
 interface TimerState {
   status: TimerStatus;

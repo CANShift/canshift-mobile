@@ -8,7 +8,7 @@ import { TileTag } from "./TileTag";
 const LABEL_SIZE = 14;
 const UNIT_SIZE = 16;
 
-export interface ValueTileProps {
+interface ValueTileProps {
   label: string;
   value: string;
   unit: string;

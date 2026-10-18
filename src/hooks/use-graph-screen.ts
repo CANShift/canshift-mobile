@@ -8,7 +8,7 @@ import { useGraphSeries, type GraphSeries } from "./use-graph-series";
 import { useGraphPause, type GraphPause } from "./use-graph-pause";
 import { useGraphSelection, type GraphSelection } from "./use-graph-selection";
 
-export type GraphDialog = "none" | "clear" | "export";
+type GraphDialog = "none" | "clear" | "export";
 
 export interface GraphScreenModel {
   window: GraphWindow;

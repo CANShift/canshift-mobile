@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export const DISPLAY_TICK_MS = 50;
+const DISPLAY_TICK_MS = 50;
 
 export const useTickingMs = (
   readMs: () => number,

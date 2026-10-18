@@ -9,7 +9,7 @@ import { UiColors } from "../theme/ui-tokens";
 import type { ShellTab } from "../lib/shell-tabs";
 import { useIsLandscape } from "../hooks/use-is-landscape";
 
-export type ConnectedTabParamList = Record<ShellTab, undefined>;
+type ConnectedTabParamList = Record<ShellTab, undefined>;
 
 const Tab = createBottomTabNavigator<ConnectedTabParamList>();
 

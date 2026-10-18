@@ -6,8 +6,8 @@ import type { FirmwareFlowDeps, FlowView } from "./firmware-flow-types";
 
 export const CONNECT_ATTEMPTS = 4;
 export const CONNECT_RETRY_MS = 2_000;
-export const RESTART_TIMEOUT_MS = 150_000;
-export const RESTART_RETRY_MS = 3_000;
+const RESTART_TIMEOUT_MS = 150_000;
+const RESTART_RETRY_MS = 3_000;
 export const BLE_RETURN_TIMEOUT_MS = 120_000;
 
 export const reopenAfterRestart = async (
