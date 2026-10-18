@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create, type StoreApi } from "zustand";
 import * as SecureStore from "expo-secure-store";
 import { z } from "zod";
 import { setBufferCap } from "./telemetry.store";
@@ -80,6 +80,21 @@ const snapshot = (state: AppSettings): AppSettings => ({
   blePromptSeen: state.blePromptSeen,
 });
 
+type SettingsStore = StoreApi<AppSettingsState>;
+
+const hydrateSettings = async (
+  set: SettingsStore["setState"],
+  get: SettingsStore["getState"],
+): Promise<void> => {
+  if (get().hydrated) return;
+  const persisted = await readPersisted();
+  const settings =
+    persisted.kind === "found" ? persisted.settings : DEFAULT_SETTINGS;
+  set({ ...settings, hydrated: true });
+  setBufferCap(settings.telemetryBufferSize);
+  if (persisted.kind === "missing") void writePersisted(DEFAULT_SETTINGS);
+};
+
 export const useAppSettingsStore = create<AppSettingsState>()((set, get) => {
   const update = (patch: Partial<AppSettings>): void => {
     set(patch);
@@ -89,17 +104,7 @@ export const useAppSettingsStore = create<AppSettingsState>()((set, get) => {
   return {
     ...DEFAULT_SETTINGS,
     hydrated: false,
-
-    hydrate: async () => {
-      if (get().hydrated) return;
-      const persisted = await readPersisted();
-      const settings =
-        persisted.kind === "found" ? persisted.settings : DEFAULT_SETTINGS;
-      set({ ...settings, hydrated: true });
-      setBufferCap(settings.telemetryBufferSize);
-      if (persisted.kind === "missing") void writePersisted(DEFAULT_SETTINGS);
-    },
-
+    hydrate: () => hydrateSettings(set, get),
     setTelemetryBufferSize: (telemetryBufferSize) => {
       update({ telemetryBufferSize });
       setBufferCap(telemetryBufferSize);

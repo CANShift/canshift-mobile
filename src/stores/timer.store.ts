@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create, type StoreApi } from "zustand";
 import type { TimerBleLap, TimerBleState } from "@canshift/core";
 import {
   insertLap,
@@ -34,14 +34,10 @@ const STATUS_BY_RUN_STATE: Record<TimerBleState["state"], TimerStatus> = {
   paused: "paused",
 };
 
-export const useTimerStore = create<TimerState>()((set, get) => ({
-  status: "idle",
-  startedAt: null,
-  accumulatedMs: 0,
-  laps: [],
-  sessionId: null,
-  deviceSynced: false,
+type SetTimer = StoreApi<TimerState>["setState"];
+type GetTimer = StoreApi<TimerState>["getState"];
 
+const runActions = (set: SetTimer, get: GetTimer) => ({
   start: () => {
     if (get().status !== "idle") return;
     set({
@@ -52,7 +48,6 @@ export const useTimerStore = create<TimerState>()((set, get) => ({
       sessionId: LOCAL_SESSION_ID,
     });
   },
-
   pause: () => {
     const { status, startedAt, accumulatedMs } = get();
     if (status !== "running" || startedAt === null) return;
@@ -62,45 +57,53 @@ export const useTimerStore = create<TimerState>()((set, get) => ({
       accumulatedMs: accumulatedMs + Math.max(0, Date.now() - startedAt),
     });
   },
-
   resume: () => {
     if (get().status !== "paused") return;
     set({ status: "running", startedAt: Date.now() });
   },
-
-  toggle: () => {
-    const state = get();
-    const next: Record<TimerStatus, () => void> = {
-      idle: state.start,
-      running: state.pause,
-      paused: state.resume,
-    };
-    next[state.status]();
-  },
-
   reset: () => {
     set({ status: "idle", startedAt: null, accumulatedMs: 0, laps: [] });
   },
+});
 
-  captureLocalLap: (atMs = Date.now()) => {
-    const state = get();
-    if (state.status !== "running") return null;
-    const totalMs = elapsedMsOf(state, atMs);
-    const previousTotalMs = state.laps.reduce(
-      (max, lap) => Math.max(max, lap.totalMs),
-      0,
-    );
-    const lap: IncomingLap = {
-      sessionId: state.sessionId ?? LOCAL_SESSION_ID,
-      index: state.laps.length + 1,
-      lapMs: Math.max(0, totalMs - previousTotalMs),
-      totalMs,
-    };
-    set({ laps: insertLap(state.laps, lap) });
-    return lap;
-  },
+const toggleRun = (get: GetTimer): void => {
+  const state = get();
+  const next: Record<TimerStatus, () => void> = {
+    idle: state.start,
+    running: state.pause,
+    paused: state.resume,
+  };
+  next[state.status]();
+};
 
-  applyDeviceState: (deviceState, atMs = Date.now()) => {
+const nextLocalLap = (state: TimerState, atMs: number): IncomingLap => {
+  const totalMs = elapsedMsOf(state, atMs);
+  const previousTotalMs = state.laps.reduce(
+    (max, lap) => Math.max(max, lap.totalMs),
+    0,
+  );
+  return {
+    sessionId: state.sessionId ?? LOCAL_SESSION_ID,
+    index: state.laps.length + 1,
+    lapMs: Math.max(0, totalMs - previousTotalMs),
+    totalMs,
+  };
+};
+
+const captureLap = (
+  set: SetTimer,
+  get: GetTimer,
+  atMs: number,
+): IncomingLap | null => {
+  const state = get();
+  if (state.status !== "running") return null;
+  const lap = nextLocalLap(state, atMs);
+  set({ laps: insertLap(state.laps, lap) });
+  return lap;
+};
+
+const deviceActions = (set: SetTimer, get: GetTimer) => ({
+  applyDeviceState: (deviceState: TimerBleState, atMs = Date.now()) => {
     const { sessionId, laps } = get();
     const sameSession = sessionId === deviceState.sessionId;
     const keepLaps = sameSession && deviceState.lapCount > 0;
@@ -113,8 +116,7 @@ export const useTimerStore = create<TimerState>()((set, get) => ({
       laps: keepLaps ? laps : [],
     });
   },
-
-  applyDeviceLap: (lap) => {
+  applyDeviceLap: (lap: TimerBleLap) => {
     const { sessionId, laps } = get();
     if (sessionId !== null && lap.sessionId !== sessionId) return;
     set({
@@ -126,10 +128,24 @@ export const useTimerStore = create<TimerState>()((set, get) => ({
       sessionId: lap.sessionId,
     });
   },
-
   clearDeviceSync: () => {
     set({ deviceSynced: false });
   },
+});
+
+export const useTimerStore = create<TimerState>()((set, get): TimerState => ({
+  status: "idle",
+  startedAt: null,
+  accumulatedMs: 0,
+  laps: [],
+  sessionId: null,
+  deviceSynced: false,
+  ...runActions(set, get),
+  toggle: () => {
+    toggleRun(get);
+  },
+  captureLocalLap: (atMs = Date.now()) => captureLap(set, get, atMs),
+  ...deviceActions(set, get),
 }));
 
 export const elapsedMsOf = (

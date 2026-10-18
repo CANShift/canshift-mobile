@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create, type StoreApi } from "zustand";
 import type { SignalKey } from "../constants/ble";
 import { pushSample, type SignalValues } from "./telemetry.store";
 
@@ -42,32 +42,32 @@ const definedValues = (payload: TelemetryPayload): SignalValues => {
   return defined;
 };
 
-export const useSignalsStore = create<SignalsState>()((set, get) => ({
-  values: {},
-  lastAt: {},
-  lastUpdateMs: 0,
-  isLive: false,
-  staleSinceMs: 0,
+type GetSignals = StoreApi<SignalsState>["getState"];
 
-  ingest: (payload) => {
-    const defined = definedValues(payload);
-    if (Object.keys(defined).length === 0) {
-      get().clearHeld();
-      return;
-    }
-    frameCount++;
-    pushSample(defined);
-    pendingPayload = defined;
-    if (flushTimer !== null) return;
-    flushTimer = setTimeout(() => {
-      const flushed = pendingPayload ?? {};
-      flushTimer = null;
-      pendingPayload = null;
-      get().update(flushed);
-    }, DISPLAY_FLUSH_MS);
-  },
+const scheduleFlush = (get: GetSignals): void => {
+  if (flushTimer !== null) return;
+  flushTimer = setTimeout(() => {
+    const flushed = pendingPayload ?? {};
+    flushTimer = null;
+    pendingPayload = null;
+    get().update(flushed);
+  }, DISPLAY_FLUSH_MS);
+};
 
-  update: (payload) => {
+const ingestFrame = (get: GetSignals, payload: TelemetryPayload): void => {
+  const defined = definedValues(payload);
+  if (Object.keys(defined).length === 0) {
+    get().clearHeld();
+    return;
+  }
+  frameCount++;
+  pushSample(defined);
+  pendingPayload = defined;
+  scheduleFlush(get);
+};
+
+const displayActions = (set: StoreApi<SignalsState>["setState"]) => ({
+  update: (payload: TelemetryPayload) => {
     const nowMs = Date.now();
     set({
       values: payload,
@@ -77,7 +77,6 @@ export const useSignalsStore = create<SignalsState>()((set, get) => ({
       staleSinceMs: 0,
     });
   },
-
   markStale: () => {
     dropPendingFlush();
     set((s) => ({
@@ -85,12 +84,25 @@ export const useSignalsStore = create<SignalsState>()((set, get) => ({
       staleSinceMs: s.staleSinceMs > 0 ? s.staleSinceMs : Date.now(),
     }));
   },
-
   clearHeld: () => {
     dropPendingFlush();
     set({ values: {}, lastAt: {} });
   },
-}));
+});
+
+export const useSignalsStore = create<SignalsState>()(
+  (set, get): SignalsState => ({
+    values: {},
+    lastAt: {},
+    lastUpdateMs: 0,
+    isLive: false,
+    staleSinceMs: 0,
+    ingest: (payload) => {
+      ingestFrame(get, payload);
+    },
+    ...displayActions(set),
+  }),
+);
 
 export const getFrameCount = (): number => frameCount;
 

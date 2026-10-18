@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import {
   TelemetrySample,
   getBufferCap,
@@ -39,6 +39,23 @@ const EMPTY_SERIES: GraphSeries = {
   hasData: false,
 };
 
+const readFreshSamples = (
+  rollingRef: RefObject<TelemetrySample[]>,
+  lastSeenIndexRef: RefObject<number>,
+): readonly TelemetrySample[] => {
+  const currentWriteIndex = getWriteIndex();
+  if (currentWriteIndex < lastSeenIndexRef.current) {
+    rollingRef.current = [];
+    lastSeenIndexRef.current = 0;
+  }
+  const fresh =
+    currentWriteIndex > lastSeenIndexRef.current
+      ? getRange(lastSeenIndexRef.current, currentWriteIndex)
+      : [];
+  lastSeenIndexRef.current = currentWriteIndex;
+  return fresh;
+};
+
 export const useGraphSeries = (
   windowSecs: number,
   paused: boolean,
@@ -60,17 +77,7 @@ export const useGraphSeries = (
     const now = paused ? pausedAt : Date.now();
     const windowStart = now - windowSecs * 1000;
 
-    const currentWriteIndex = getWriteIndex();
-    if (currentWriteIndex < lastSeenIndexRef.current) {
-      rollingRef.current = [];
-      lastSeenIndexRef.current = 0;
-    }
-    const fresh =
-      currentWriteIndex > lastSeenIndexRef.current
-        ? getRange(lastSeenIndexRef.current, currentWriteIndex)
-        : [];
-    lastSeenIndexRef.current = currentWriteIndex;
-
+    const fresh = readFreshSamples(rollingRef, lastSeenIndexRef);
     const rolling = rollingRef.current;
     ingestIncremental(rolling, fresh, windowStart);
 

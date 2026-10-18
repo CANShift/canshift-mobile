@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create, type StoreApi } from "zustand";
 import type { BleConnectionError } from "../services/ble.errors";
 
 export type ConnectionState =
@@ -32,28 +32,29 @@ interface DeviceState {
   disconnect: () => void;
 }
 
-export const useDeviceStore = create<DeviceState>()((set) => ({
+type SetDevice = StoreApi<DeviceState>["setState"];
+
+const DISCONNECTED = {
   connectionState: "idle",
   mode: "idle",
   deviceId: null,
   deviceName: null,
-  lastDashName: null,
   firmwareVersion: null,
   boardId: null,
   canHealthy: false,
   error: null,
   linkProblem: null,
   unreadableFramesInARow: 0,
+} satisfies Partial<DeviceState>;
 
-  setConnectionState: (connectionState) => {
+const connectionActions = (set: SetDevice) => ({
+  setConnectionState: (connectionState: ConnectionState) => {
     set({ connectionState });
   },
-
-  setMode: (mode) => {
+  setMode: (mode: DeviceMode) => {
     set({ mode });
   },
-
-  setDevice: (deviceId, deviceName) => {
+  setDevice: (deviceId: string, deviceName: string) => {
     set({
       deviceId,
       deviceName,
@@ -62,27 +63,33 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
       error: null,
     });
   },
+  disconnect: () => {
+    set(DISCONNECTED);
+  },
+});
 
-  setFirmwareStatus: (firmwareVersion, canHealthy) => {
+const statusActions = (set: SetDevice) => ({
+  setFirmwareStatus: (firmwareVersion: string, canHealthy: boolean) => {
     set({ firmwareVersion, canHealthy });
   },
-
-  setBoardId: (boardId) => {
+  setBoardId: (boardId: string) => {
     set({ boardId });
   },
+});
 
-  setError: (error) => {
+const problemActions = (set: SetDevice) => ({
+  setError: (error: BleConnectionError | null) => {
     set({ error, connectionState: "error" });
   },
-
-  setLinkProblem: (linkProblem) => {
+  clearError: () => {
+    set({ error: null, connectionState: "idle" });
+  },
+  setLinkProblem: (linkProblem: BleConnectionError) => {
     set({ linkProblem });
   },
-
   countUnreadableFrame: () => {
     set((s) => ({ unreadableFramesInARow: s.unreadableFramesInARow + 1 }));
   },
-
   markTelemetryReadable: () => {
     set((s) => ({
       unreadableFramesInARow: 0,
@@ -90,23 +97,12 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
         s.linkProblem?.kind === "telemetry-malformed" ? null : s.linkProblem,
     }));
   },
+});
 
-  clearError: () => {
-    set({ error: null, connectionState: "idle" });
-  },
-
-  disconnect: () => {
-    set({
-      connectionState: "idle",
-      mode: "idle",
-      deviceId: null,
-      deviceName: null,
-      firmwareVersion: null,
-      boardId: null,
-      canHealthy: false,
-      error: null,
-      linkProblem: null,
-      unreadableFramesInARow: 0,
-    });
-  },
+export const useDeviceStore = create<DeviceState>()((set): DeviceState => ({
+  ...DISCONNECTED,
+  lastDashName: null,
+  ...connectionActions(set),
+  ...statusActions(set),
+  ...problemActions(set),
 }));

@@ -37,22 +37,13 @@ const useTimedLaps = (): readonly TimedLap[] => {
   );
 };
 
-export const useGpsTiming = (visible: boolean): GpsTimingModel => {
-  const recording = useTrackSessionStore((s) => s.recording);
-  const lineSet = useTrackSessionStore((s) => s.startFinishSet);
-  const permission = useGpsFixStore((s) => s.permission);
-  const accuracyM = useGpsFixStore((s) => s.accuracyM);
+const useStopConfirmation = (): Pick<
+  GpsTimingModel,
+  "confirmingStop" | "askStop" | "cancelStop" | "confirmStop"
+> => {
   const [confirmingStop, setConfirmingStop] = useState(false);
-  useGpsPreview(useIsFocused() && visible && !recording);
   return {
-    recording,
-    fix: gpsFix(permission, accuracyM),
-    accuracyM,
-    lineSet,
-    laps: useTimedLaps(),
-    currentLapMs: useCurrentLapMs(),
     confirmingStop,
-    start: () => void startTrackMode(),
     askStop: () => {
       setConfirmingStop(true);
     },
@@ -63,6 +54,25 @@ export const useGpsTiming = (visible: boolean): GpsTimingModel => {
       setConfirmingStop(false);
       void stopTrackMode();
     },
+  };
+};
+
+export const useGpsTiming = (visible: boolean): GpsTimingModel => {
+  const recording = useTrackSessionStore((s) => s.recording);
+  const lineSet = useTrackSessionStore((s) => s.startFinishSet);
+  const permission = useGpsFixStore((s) => s.permission);
+  const accuracyM = useGpsFixStore((s) => s.accuracyM);
+  const stopConfirmation = useStopConfirmation();
+  useGpsPreview(useIsFocused() && visible && !recording);
+  return {
+    recording,
+    fix: gpsFix(permission, accuracyM),
+    accuracyM,
+    lineSet,
+    laps: useTimedLaps(),
+    currentLapMs: useCurrentLapMs(),
+    ...stopConfirmation,
+    start: () => void startTrackMode(),
     setLine: () => {
       setLineHere();
     },
