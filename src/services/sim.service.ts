@@ -72,6 +72,34 @@ const boost = (tps: number): number => {
   return currentBoost;
 };
 
+const resetSimulation = (): void => {
+  elapsed = 0;
+  currentRpm = IDLE_RPM;
+  currentBoost = 0;
+  sensors = { ...SENSOR_BASE };
+};
+
+const nextSample = (): TelemetrySample => {
+  elapsed += 0.1;
+  const tps = throttle(elapsed);
+  currentRpm += (targetRpm(tps) - currentRpm) * RPM_RESPONSE;
+  const r = Math.round(currentRpm);
+  return {
+    r,
+    s: speed(r),
+    g: gear(r),
+    tps,
+    ct: Math.round(drift("ct")),
+    ot: Math.round(drift("ot")),
+    op: parseFloat(drift("op").toFixed(1)),
+    fp: parseFloat(drift("fp").toFixed(1)),
+    lam: parseFloat(drift("lam").toFixed(2)),
+    bat: parseFloat(drift("bat").toFixed(1)),
+    bst: parseFloat(boost(tps).toFixed(2)),
+    iat: Math.round(drift("iat")),
+  };
+};
+
 export const start = () => {
   if (simGlobal.__canshiftSimTick) return;
   const { setDevice, setFirmwareStatus, setMode } = useDeviceStore.getState();
@@ -81,33 +109,9 @@ export const start = () => {
   clearBuffer();
   log("info", "Simulation mode started");
 
-  elapsed = 0;
-  currentRpm = IDLE_RPM;
-  currentBoost = 0;
-  sensors = { ...SENSOR_BASE };
+  resetSimulation();
   simGlobal.__canshiftSimTick = setInterval(() => {
-    elapsed += 0.1;
-    const tps = throttle(elapsed);
-    currentRpm += (targetRpm(tps) - currentRpm) * RPM_RESPONSE;
-    const r = Math.round(currentRpm);
-    const s = speed(r);
-    const g = gear(r);
-
-    const sample: TelemetrySample = {
-      r,
-      s,
-      g,
-      tps,
-      ct: Math.round(drift("ct")),
-      ot: Math.round(drift("ot")),
-      op: parseFloat(drift("op").toFixed(1)),
-      fp: parseFloat(drift("fp").toFixed(1)),
-      lam: parseFloat(drift("lam").toFixed(2)),
-      bat: parseFloat(drift("bat").toFixed(1)),
-      bst: parseFloat(boost(tps).toFixed(2)),
-      iat: Math.round(drift("iat")),
-    };
-    useSignalsStore.getState().ingest(sample);
+    useSignalsStore.getState().ingest(nextSample());
   }, 100);
 };
 

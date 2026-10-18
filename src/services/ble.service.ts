@@ -17,7 +17,7 @@ import {
   requestAndroidBlePermissions,
   type AndroidBlePermissionResult,
 } from "./ble-permissions";
-import { BleReconnector } from "./ble-reconnect";
+import { BleReconnector, type BleReconnectDeps } from "./ble-reconnect";
 import { Toast, type ToastShowParams } from "../components/ui/toast";
 import { STRINGS } from "../strings";
 import { errText } from "../lib/error-text";
@@ -55,6 +55,10 @@ export interface BleServiceDeps {
   showToast?: (params: ToastShowParams) => void;
 }
 
+const showRootToast = (params: ToastShowParams): void => {
+  Toast.show(params);
+};
+
 export class BleService {
   private readonly manager: BleManager;
   private readonly requestAndroidPermissions: () => Promise<AndroidBlePermissionResult>;
@@ -68,41 +72,45 @@ export class BleService {
   private activeScan: ActiveScan | null = null;
 
   constructor(deps: BleServiceDeps = {}) {
-    const factory =
-      deps.managerFactory ??
-      (() =>
-        createBleManager((restoredState) => {
-          handleRestoredState(
-            this.link,
-            (deviceId) => {
-              void this.reconnector.run(deviceId);
-            },
-            restoredState,
-          );
-        }));
-    this.manager = factory();
+    this.manager = (deps.managerFactory ?? (() => this.createManager()))();
     this.requestAndroidPermissions =
       deps.requestAndroidPermissions ?? requestAndroidBlePermissions;
-    this.showToast =
-      deps.showToast ??
-      ((params: ToastShowParams) => {
-        Toast.show(params);
-      });
+    this.showToast = deps.showToast ?? showRootToast;
     this.link = new DeviceLink(this.gatt, {
       showToast: this.showToast,
       onLinkLost: (deviceId) => {
         this.reconnectAfterLoss(deviceId);
       },
       onDisconnected: (deviceId) => {
-        if (this.userInitiatedDisconnect) {
-          log("info", `Disconnected from ${deviceId} (user-initiated)`);
-          return;
-        }
-        log("warn", `Device ${deviceId} disconnected unexpectedly`);
-        this.reconnectAfterLoss(deviceId);
+        this.handleDisconnected(deviceId);
       },
     });
-    this.reconnector = new BleReconnector({
+    this.reconnector = new BleReconnector(this.reconnectorDeps());
+  }
+
+  private createManager(): BleManager {
+    return createBleManager((restoredState) => {
+      handleRestoredState(
+        this.link,
+        (deviceId) => {
+          void this.reconnector.run(deviceId);
+        },
+        restoredState,
+      );
+    });
+  }
+
+  private handleDisconnected(deviceId: string): void {
+    if (this.userInitiatedDisconnect) {
+      log("info", `Disconnected from ${deviceId} (user-initiated)`);
+      return;
+    }
+    log("warn", `Device ${deviceId} disconnected unexpectedly`);
+    this.reconnectAfterLoss(deviceId);
+  }
+
+  private reconnectorDeps(): BleReconnectDeps {
+    return {
       connect: (deviceId) => this.connectInternal(deviceId),
       startScan: (onResult) => {
         void this.manager.startDeviceScan(
@@ -116,7 +124,7 @@ export class BleService {
       stopScan: () => {
         void this.manager.stopDeviceScan();
       },
-    });
+    };
   }
 
   async scan(
@@ -149,7 +157,7 @@ export class BleService {
   }
 
   private async connectInternal(deviceId: string): Promise<void> {
-    const { setConnectionState, setDevice } = useDeviceStore.getState();
+    const { setConnectionState } = useDeviceStore.getState();
 
     await this.ensureAndroidBlePermissions();
 
@@ -160,35 +168,38 @@ export class BleService {
     this.link.removeSubscriptions();
 
     try {
-      const device = await this.manager.connectToDevice(deviceId, {
-        autoConnect: false,
-        requestMTU: BLE_PREFERRED_MTU,
-      });
-      await device.discoverAllServicesAndCharacteristics();
-      this.link.setDevice(device);
-
-      await this.link.seedStatus(device);
-      await this.link.seedTimer(device);
-      await this.link.seedAlert(device);
-
-      setDevice(deviceId, device.name ?? BLE_DEVICE_NAME);
-      useDeviceStore.getState().setMode("ble");
-      log(
-        "info",
-        `Connected to ${device.name ?? BLE_DEVICE_NAME} (${deviceId})`,
-      );
-
-      void rememberDevice(deviceId);
-      useReconnectStore.getState().stop();
-
-      this.link.bind(device);
-      this.link.startStalenessTimer();
+      const device = await this.openDevice(deviceId);
+      this.markConnected(deviceId, device);
     } catch (err) {
       this.link.removeSubscriptions();
       this.link.setDevice(null);
       setConnectionState("idle");
       throw err;
     }
+  }
+
+  private async openDevice(deviceId: string): Promise<Device> {
+    const device = await this.manager.connectToDevice(deviceId, {
+      autoConnect: false,
+      requestMTU: BLE_PREFERRED_MTU,
+    });
+    await device.discoverAllServicesAndCharacteristics();
+    this.link.setDevice(device);
+    await this.link.seedStatus(device);
+    await this.link.seedTimer(device);
+    await this.link.seedAlert(device);
+    return device;
+  }
+
+  private markConnected(deviceId: string, device: Device): void {
+    const name = device.name ?? BLE_DEVICE_NAME;
+    useDeviceStore.getState().setDevice(deviceId, name);
+    useDeviceStore.getState().setMode("ble");
+    log("info", `Connected to ${name} (${deviceId})`);
+    void rememberDevice(deviceId);
+    useReconnectStore.getState().stop();
+    this.link.bind(device);
+    this.link.startStalenessTimer();
   }
 
   async disconnect(): Promise<void> {

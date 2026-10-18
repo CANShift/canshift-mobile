@@ -46,72 +46,87 @@ const writeFailureReason = (err: unknown): string | undefined => {
   return undefined;
 };
 
+type ErrorMapper = (err: unknown) => BleConnectionError;
+
+const fixed =
+  (error: BleConnectionError): ErrorMapper =>
+  () => ({ ...error });
+
+const writeFailed: ErrorMapper = (err) => {
+  const reason = writeFailureReason(err);
+  return reason !== undefined
+    ? { kind: "write-failed", reason }
+    : { kind: "write-failed" };
+};
+
+const unknownError: ErrorMapper = (err) => ({
+  kind: "unknown",
+  message: describe(err),
+});
+
+const MAPPER_BY_CODE: Partial<Record<BleErrorCode, ErrorMapper>> = {
+  [BleErrorCode.BluetoothUnauthorized]: () => ({
+    kind: "permission-denied",
+    platform: currentPlatform(),
+  }),
+  [BleErrorCode.BluetoothPoweredOff]: fixed({ kind: "bluetooth-off" }),
+  [BleErrorCode.DeviceNotFound]: fixed({ kind: "not-paired" }),
+  [BleErrorCode.DeviceConnectionFailed]: fixed({ kind: "not-in-range" }),
+  [BleErrorCode.OperationTimedOut]: fixed({ kind: "not-in-range" }),
+  [BleErrorCode.DeviceDisconnected]: fixed({ kind: "disconnected" }),
+  [BleErrorCode.DeviceNotConnected]: fixed({ kind: "disconnected" }),
+  [BleErrorCode.CharacteristicNotFound]: fixed({
+    kind: "characteristic-missing",
+  }),
+  [BleErrorCode.ServiceNotFound]: fixed({ kind: "characteristic-missing" }),
+  [BleErrorCode.CharacteristicsNotDiscovered]: fixed({
+    kind: "characteristic-missing",
+  }),
+  [BleErrorCode.ServicesNotDiscovered]: fixed({
+    kind: "characteristic-missing",
+  }),
+  [BleErrorCode.CharacteristicWriteFailed]: writeFailed,
+  [BleErrorCode.CharacteristicReadFailed]: writeFailed,
+};
+
 export const mapBleError = (err: unknown): BleConnectionError => {
   if (err instanceof BlePermissionDeniedError) {
     return { kind: "permission-denied", platform: "android" };
   }
-
-  if (!hasErrorCode(err)) {
-    return { kind: "unknown", message: describe(err) };
-  }
-
-  switch (err.errorCode) {
-    case BleErrorCode.BluetoothUnauthorized:
-      return { kind: "permission-denied", platform: currentPlatform() };
-    case BleErrorCode.BluetoothPoweredOff:
-      return { kind: "bluetooth-off" };
-    case BleErrorCode.DeviceNotFound:
-      return { kind: "not-paired" };
-    case BleErrorCode.DeviceConnectionFailed:
-    case BleErrorCode.OperationTimedOut:
-      return { kind: "not-in-range" };
-    case BleErrorCode.DeviceDisconnected:
-    case BleErrorCode.DeviceNotConnected:
-      return { kind: "disconnected" };
-    case BleErrorCode.CharacteristicNotFound:
-    case BleErrorCode.ServiceNotFound:
-    case BleErrorCode.CharacteristicsNotDiscovered:
-    case BleErrorCode.ServicesNotDiscovered:
-      return { kind: "characteristic-missing" };
-    case BleErrorCode.CharacteristicWriteFailed:
-    case BleErrorCode.CharacteristicReadFailed: {
-      const reason = writeFailureReason(err);
-      return reason !== undefined
-        ? { kind: "write-failed", reason }
-        : { kind: "write-failed" };
-    }
-    default:
-      return { kind: "unknown", message: describe(err) };
-  }
+  if (!hasErrorCode(err)) return unknownError(err);
+  return (MAPPER_BY_CODE[err.errorCode] ?? unknownError)(err);
 };
 
-export const describeBleError = (err: BleConnectionError): string => {
-  switch (err.kind) {
-    case "permission-denied":
-      return `permission denied (${err.platform})`;
-    case "bluetooth-off":
-      return "bluetooth off";
-    case "not-paired":
-      return "device not paired or not found";
-    case "not-in-range":
-      return "device not in range";
-    case "disconnected":
-      return "device disconnected";
-    case "characteristic-missing":
-      return err.uuid
-        ? `characteristic missing (${err.uuid})`
-        : "characteristic missing";
-    case "write-failed":
-      return err.reason ? `write failed: ${err.reason}` : "write failed";
-    case "telemetry-version":
-      return `telemetry frame version ${String(err.version)} not supported`;
-    case "telemetry-malformed":
-      return "telemetry frames unreadable";
-    case "unknown":
-      return err.message;
-    default: {
-      const _exhaustive: never = err;
-      return _exhaustive;
-    }
-  }
+export type BleErrorKind = BleConnectionError["kind"];
+
+type BleErrorByKind = { [E in BleConnectionError as E["kind"]]: E };
+
+export type BleErrorTable<R> = {
+  [K in BleErrorKind]: (err: BleErrorByKind[K]) => R;
 };
+
+export const dispatchBleError = <R, K extends BleErrorKind>(
+  table: BleErrorTable<R>,
+  err: BleErrorByKind[K] & { kind: K },
+): R => table[err.kind](err);
+
+const DESCRIPTION_BY_KIND: BleErrorTable<string> = {
+  "permission-denied": (err) => `permission denied (${err.platform})`,
+  "bluetooth-off": () => "bluetooth off",
+  "not-paired": () => "device not paired or not found",
+  "not-in-range": () => "device not in range",
+  disconnected: () => "device disconnected",
+  "characteristic-missing": (err) =>
+    err.uuid
+      ? `characteristic missing (${err.uuid})`
+      : "characteristic missing",
+  "write-failed": (err) =>
+    err.reason ? `write failed: ${err.reason}` : "write failed",
+  "telemetry-version": (err) =>
+    `telemetry frame version ${String(err.version)} not supported`,
+  "telemetry-malformed": () => "telemetry frames unreadable",
+  unknown: (err) => err.message,
+};
+
+export const describeBleError = (err: BleConnectionError): string =>
+  dispatchBleError(DESCRIPTION_BY_KIND, err);

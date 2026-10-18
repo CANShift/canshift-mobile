@@ -60,6 +60,43 @@ export interface BleReconnectDeps {
   stopScan: () => void;
 }
 
+type ScanFinish = (outcome: ScanOutcome) => void;
+
+const scanResultHandler =
+  (deviceId: string, finish: ScanFinish) =>
+  (error: unknown, foundDeviceId: string | null): void => {
+    if (error) {
+      finish({ found: false, error });
+      return;
+    }
+    if (foundDeviceId === deviceId) finish({ found: true });
+  };
+
+const watchScan = (
+  deps: BleReconnectDeps,
+  deviceId: string,
+  signal: AbortSignal,
+  resolve: ScanFinish,
+): void => {
+  let settled = false;
+  const finish: ScanFinish = (outcome) => {
+    if (settled) return;
+    settled = true;
+    deps.stopScan();
+    signal.removeEventListener("abort", onAbort);
+    clearTimeout(timer);
+    resolve(outcome);
+  };
+  const onAbort = (): void => {
+    finish({ found: false });
+  };
+  signal.addEventListener("abort", onAbort);
+  const timer = setTimeout(() => {
+    finish({ found: false });
+  }, RECONNECT_SCAN_TIMEOUT_MS);
+  deps.startScan(scanResultHandler(deviceId, finish));
+};
+
 export class BleReconnector {
   private controller: AbortController | null = null;
 
@@ -113,22 +150,27 @@ export class BleReconnector {
     log("info", `Auto-reconnect: starting for ${deviceId}`);
 
     try {
-      for (let attempt = 1; attempt <= RECONNECT_MAX_ATTEMPTS; attempt++) {
-        if (isAborted(signal)) return;
-        const step = await this.runAttempt(deviceId, attempt, signal);
-        if (step !== "retry") return;
-      }
-
-      if (!isAborted(signal)) {
-        log("error", "Auto-reconnect: max attempts reached, giving up");
-        useDeviceStore.getState().setError({ kind: "not-in-range" });
-      }
+      await this.runAttempts(deviceId, signal);
     } finally {
       if (this.controller === controller) {
         this.controller = null;
       }
       useReconnectStore.getState().stop();
     }
+  }
+
+  private async runAttempts(
+    deviceId: string,
+    signal: AbortSignal,
+  ): Promise<void> {
+    for (let attempt = 1; attempt <= RECONNECT_MAX_ATTEMPTS; attempt++) {
+      if (isAborted(signal)) return;
+      const step = await this.runAttempt(deviceId, attempt, signal);
+      if (step !== "retry") return;
+    }
+    if (isAborted(signal)) return;
+    log("error", "Auto-reconnect: max attempts reached, giving up");
+    useDeviceStore.getState().setError({ kind: "not-in-range" });
   }
 
   private async runAttempt(
@@ -188,34 +230,7 @@ export class BleReconnector {
         resolve({ found: false });
         return;
       }
-
-      let settled = false;
-      const finish = (outcome: ScanOutcome) => {
-        if (settled) return;
-        settled = true;
-        this.deps.stopScan();
-        signal.removeEventListener("abort", onAbort);
-        clearTimeout(timer);
-        resolve(outcome);
-      };
-      const onAbort = () => {
-        finish({ found: false });
-      };
-      signal.addEventListener("abort", onAbort);
-
-      const timer = setTimeout(() => {
-        finish({ found: false });
-      }, RECONNECT_SCAN_TIMEOUT_MS);
-
-      this.deps.startScan((error, foundDeviceId) => {
-        if (error) {
-          finish({ found: false, error });
-          return;
-        }
-        if (foundDeviceId === deviceId) {
-          finish({ found: true });
-        }
-      });
+      watchScan(this.deps, deviceId, signal, resolve);
     });
   }
 }
