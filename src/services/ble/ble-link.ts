@@ -113,6 +113,16 @@ export class DeviceLink implements MonitorHost {
 
   bind(device: Device): void {
     this.device = device;
+    this.bindLinkMonitors(device);
+    this.bindTimerMonitors(device);
+    this.bindAlertMonitor(device);
+    this.disconnectSub = device.onDisconnected(() => {
+      this.teardown();
+      this.callbacks.onDisconnected(device.id);
+    });
+  }
+
+  private bindLinkMonitors(device: Device): void {
     this.bindLinkMonitor(
       device,
       BLE_CHAR_TELE,
@@ -131,6 +141,9 @@ export class DeviceLink implements MonitorHost {
         this.statusSub = sub;
       },
     );
+  }
+
+  private bindTimerMonitors(device: Device): void {
     this.bindTimerMonitor(
       device,
       BLE_CHAR_TIMER_STATE,
@@ -149,11 +162,6 @@ export class DeviceLink implements MonitorHost {
         this.timerLapSub = sub;
       },
     );
-    this.bindAlertMonitor(device);
-    this.disconnectSub = device.onDisconnected(() => {
-      this.teardown();
-      this.callbacks.onDisconnected(device.id);
-    });
   }
 
   private bindLinkMonitor(

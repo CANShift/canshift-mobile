@@ -116,53 +116,73 @@ const endSession = async (
   }
 };
 
+interface ControllerRuntime {
+  watcher: GpsWatcher;
+  requestPermission: () => Promise<ForegroundPermissionResult>;
+  publisher: TrackTelemetryPublisher;
+  subscription: GpsSubscription | null;
+  startPromise: Promise<TrackModeStartResult> | null;
+  generation: number;
+}
+
+const runtimeFor = (deps: TrackModeControllerDeps): ControllerRuntime => ({
+  watcher: deps.watcher ?? expoLocationWatcher,
+  requestPermission:
+    deps.requestPermission ?? requestForegroundLocationPermission,
+  publisher: publisherFor(deps),
+  subscription: null,
+  startPromise: null,
+  generation: 0,
+});
+
+const runStart = async (
+  rt: ControllerRuntime,
+  gen: number,
+): Promise<TrackModeStartResult> => {
+  const permission = await rt.requestPermission();
+  if (gen !== rt.generation) return notStarted("cancelled");
+  if (!permission.granted) return notStarted("permission_denied");
+  const gps = await openGps(rt.watcher);
+  if (gps === null) return notStarted("gps_unavailable");
+  if (gen !== rt.generation) {
+    gps.stop();
+    return notStarted("cancelled");
+  }
+  if (!beginSession(gps, rt.publisher)) return notStarted("session_failed");
+  rt.subscription = gps;
+  log("info", "Track mode started");
+  return { started: true };
+};
+
+const startTrackMode = (
+  rt: ControllerRuntime,
+): Promise<TrackModeStartResult> => {
+  if (rt.subscription !== null) return Promise.resolve({ started: true });
+  rt.startPromise ??= runStart(rt, rt.generation).finally(() => {
+    rt.startPromise = null;
+  });
+  return rt.startPromise;
+};
+
+const stopTrackMode = async (rt: ControllerRuntime): Promise<void> => {
+  rt.generation += 1;
+  if (rt.startPromise !== null) await rt.startPromise.catch(() => undefined);
+  if (rt.subscription === null) return;
+  rt.subscription.stop();
+  rt.subscription = null;
+  await endSession(rt.publisher);
+  log("info", "Track mode stopped");
+};
+
 export const createTrackModeController = (
   deps: TrackModeControllerDeps = {},
 ): TrackModeController => {
-  const watcher = deps.watcher ?? expoLocationWatcher;
-  const requestPermission =
-    deps.requestPermission ?? requestForegroundLocationPermission;
-  const publisher = publisherFor(deps);
-
-  let subscription: GpsSubscription | null = null;
-  let startPromise: Promise<TrackModeStartResult> | null = null;
-  let generation = 0;
-
-  const doStart = async (gen: number): Promise<TrackModeStartResult> => {
-    const permission = await requestPermission();
-    if (gen !== generation) return notStarted("cancelled");
-    if (!permission.granted) return notStarted("permission_denied");
-    const gps = await openGps(watcher);
-    if (gps === null) return notStarted("gps_unavailable");
-    if (gen !== generation) {
-      gps.stop();
-      return notStarted("cancelled");
-    }
-    if (!beginSession(gps, publisher)) return notStarted("session_failed");
-    subscription = gps;
-    log("info", "Track mode started");
-    return { started: true };
+  const rt = runtimeFor(deps);
+  return {
+    start: () => startTrackMode(rt),
+    stop: () => stopTrackMode(rt),
+    isActive: () => rt.subscription !== null,
   };
-
-  const start = (): Promise<TrackModeStartResult> => {
-    if (subscription !== null) return Promise.resolve({ started: true });
-    startPromise ??= doStart(generation).finally(() => {
-      startPromise = null;
-    });
-    return startPromise;
-  };
-
-  const stop = async (): Promise<void> => {
-    generation += 1;
-    if (startPromise !== null) await startPromise.catch(() => undefined);
-    if (subscription === null) return;
-    subscription.stop();
-    subscription = null;
-    await endSession(publisher);
-    log("info", "Track mode stopped");
-  };
-
-  return { start, stop, isActive: () => subscription !== null };
 };
 
 export const trackModeController = createTrackModeController();

@@ -22,10 +22,14 @@ export interface GpsPreview {
   stop: () => void;
 }
 
+const withDefaults = (deps: GpsPreviewDeps): Required<GpsPreviewDeps> => ({
+  watcher: deps.watcher ?? expoLocationWatcher,
+  requestPermission:
+    deps.requestPermission ?? requestForegroundLocationPermission,
+});
+
 export const createGpsPreview = (deps: GpsPreviewDeps = {}): GpsPreview => {
-  const watcher = deps.watcher ?? expoLocationWatcher;
-  const requestPermission =
-    deps.requestPermission ?? requestForegroundLocationPermission;
+  const { watcher, requestPermission } = withDefaults(deps);
   let subscription: GpsSubscription | null = null;
   let generation = 0;
 

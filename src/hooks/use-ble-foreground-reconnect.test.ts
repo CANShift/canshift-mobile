@@ -6,6 +6,7 @@ jest.mock("react-native-ble-plx", () => ({
     stopDeviceScan: jest.fn(),
   })),
   State: { PoweredOn: "PoweredOn" },
+  BleErrorCode: {},
 }));
 
 import { STRINGS } from "../strings";
