@@ -4,7 +4,7 @@ import { BigButton, type BigButtonTone } from "../buttons/BigButton";
 const PRIMARY_HEIGHT = 60;
 const SECONDARY_HEIGHT = 52;
 
-export interface ScanAction {
+interface ScanAction {
   label: string;
   onPress: () => void;
   tone?: BigButtonTone;

@@ -3,7 +3,7 @@ import { TouchTarget, UiColors, UiRadius } from "../../theme/ui-tokens";
 
 const OPTION_HIT_SLOP = { top: 6, bottom: 6 };
 
-export interface SegmentedOption<T extends string | number> {
+interface SegmentedOption<T extends string | number> {
   value: T;
   label: string;
 }

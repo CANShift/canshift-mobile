@@ -5,10 +5,10 @@ import { log } from "./log.store";
 import { setBufferCap } from "./telemetry.store";
 import { errText } from "../lib/error-text";
 
-export type ReconnectBehavior = "auto" | "off";
+type ReconnectBehavior = "auto" | "off";
 
 export const TELEMETRY_BUFFER_OPTIONS = [1000, 3000, 6000] as const;
-export type TelemetryBufferSize = (typeof TELEMETRY_BUFFER_OPTIONS)[number];
+type TelemetryBufferSize = (typeof TELEMETRY_BUFFER_OPTIONS)[number];
 
 const STORAGE_KEY = "canshift.mobile.appSettings";
 

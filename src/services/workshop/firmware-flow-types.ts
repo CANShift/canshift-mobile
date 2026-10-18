@@ -30,7 +30,7 @@ export interface BleHandoff {
   waitForDash: (timeoutMs: number) => Promise<string | null>;
 }
 
-export interface NetworkMemory {
+interface NetworkMemory {
   load: () => Promise<WorkshopNetwork>;
   save: (network: WorkshopNetwork) => Promise<void>;
 }

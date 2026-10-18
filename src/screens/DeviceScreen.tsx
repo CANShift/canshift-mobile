@@ -16,7 +16,7 @@ import { PhoneSettingsCard } from "../components/device/PhoneSettingsCard";
 import { DeviceDialogs } from "../components/device/DeviceDialogs";
 import { BackRow } from "../components/controls/BackRow";
 
-export interface DeviceScreenProps {
+interface DeviceScreenProps {
   onOpenConsole: () => void;
   onBack?: () => void;
 }

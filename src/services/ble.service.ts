@@ -312,10 +312,8 @@ export const cancelReconnect = bleService.cancelReconnect.bind(bleService);
 export const pushSettings = bleService.pushSettings.bind(bleService);
 export const readSettings = bleService.readSettings.bind(bleService);
 export const sendCmd = bleService.sendCmd.bind(bleService);
-export const sendTimerCommand = bleService.sendTimerCommand.bind(bleService);
 export const getBlePermissionState =
   bleService.getBlePermissionState.bind(bleService);
-export const isBlePowered = bleService.isBlePowered.bind(bleService);
 export const holdReconnect = bleService.holdReconnect.bind(bleService);
 export const releaseReconnect = bleService.releaseReconnect.bind(bleService);
 export const tryReconnectLastDevice =

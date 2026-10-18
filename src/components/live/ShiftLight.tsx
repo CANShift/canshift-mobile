@@ -14,7 +14,7 @@ const ZONE_COLORS: Record<ShiftZone, string> = {
   red: UiColors.accent,
 };
 
-export interface ShiftLightProps {
+interface ShiftLightProps {
   rpm: number | null;
   height: number;
 }

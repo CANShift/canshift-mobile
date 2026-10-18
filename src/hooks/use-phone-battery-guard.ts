@@ -49,7 +49,7 @@ const resolveDeps = (deps: PhoneBatteryGuardDeps): ResolvedDeps => ({
 
 const DEFAULT_DEPS: PhoneBatteryGuardDeps = Object.freeze({});
 
-export const applyPhoneBatteryLevel = async (
+const applyPhoneBatteryLevel = async (
   fraction: number,
   deps: ResolvedDeps,
 ): Promise<void> => {
@@ -74,9 +74,7 @@ export const applyPhoneBatteryLevel = async (
   });
 };
 
-export const readPhoneBatteryLevel = async (
-  deps: ResolvedDeps,
-): Promise<void> => {
+const readPhoneBatteryLevel = async (deps: ResolvedDeps): Promise<void> => {
   let fraction: number;
   try {
     fraction = await deps.watcher.read();

@@ -1,4 +1,4 @@
-const { withAndroidManifest } = require("@expo/config-plugins");
+const { withAndroidManifest } = require("expo/config-plugins");
 
 const ANDROID_NS = "http://schemas.android.com/apk/res/android";
 

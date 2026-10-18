@@ -41,7 +41,7 @@ export const TILES = {
   intake: tile("iat", "IAT", "Intake air", "°C", "degrees"),
 } satisfies Record<string, LiveTileSpec>;
 
-export type LivePageId = "overview" | "street" | "track" | "engine" | "tuning";
+type LivePageId = "overview" | "street" | "track" | "engine" | "tuning";
 
 export interface LivePage {
   id: LivePageId;

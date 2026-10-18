@@ -1,7 +1,7 @@
 import { StyleSheet, Text } from "react-native";
 import { UiColors } from "../../theme/ui-tokens";
 
-export type FlowTextTone = "body" | "muted" | "warning";
+type FlowTextTone = "body" | "muted" | "warning";
 
 export interface FlowTextProps {
   children: string;

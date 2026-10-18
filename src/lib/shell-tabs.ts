@@ -3,12 +3,7 @@ import { UiColors } from "../theme/ui-tokens";
 
 export type ShellTab = "Live" | "Graph" | "Laps" | "Device";
 
-export const SHELL_TABS: readonly ShellTab[] = [
-  "Live",
-  "Graph",
-  "Laps",
-  "Device",
-];
+const SHELL_TABS: readonly ShellTab[] = ["Live", "Graph", "Laps", "Device"];
 
 export const SHELL_TAB_LABELS: Record<ShellTab, string> = {
   Live: STRINGS.tabs.live,

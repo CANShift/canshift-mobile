@@ -7,7 +7,7 @@ import type {
   SocketHandlers,
 } from "../services/workshop/socket-transport";
 
-export type FakeReply = Record<string, unknown> | null;
+type FakeReply = Record<string, unknown> | null;
 
 export interface FakeDashOptions {
   version?: string;
