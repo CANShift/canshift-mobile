@@ -9,7 +9,7 @@ import { useSignalsStore } from "../../stores/signals.store";
 import { useDeviceStore } from "../../stores/device.store";
 import { useTimerStore } from "../../stores/timer.store";
 import { recordSessionLap } from "../../stores/timer-sessions.store";
-import { parseTelemetry } from "../ble.validators";
+import { parseTelemetry, type TelemetrySample } from "../ble.validators";
 import { decodeBase64, decodeBase64ToBytes } from "../base64";
 import { describeBleError } from "../ble.errors";
 
@@ -32,15 +32,6 @@ const guarded =
     }
     apply(result.value);
   };
-
-const decodeTelemetry = (
-  raw: string,
-): Decoded<NonNullable<ReturnType<typeof parseTelemetry>>> => {
-  const payload = parseTelemetry(decodeBase64ToBytes(raw));
-  return payload
-    ? { ok: true, value: payload }
-    : { ok: false, reason: "invalid" };
-};
 
 const decodeStatus = (raw: string) => {
   const result = parseBleStatus(decodeBase64(raw));
@@ -76,9 +67,7 @@ const applyStatus = (status: {
   if (status.boardId !== undefined) device.setBoardId(status.boardId);
 };
 
-const applyTelemetry = guarded("telemetry", decodeTelemetry, (p) => {
-  useSignalsStore.getState().ingest(p);
-});
+const UNREADABLE_FRAMES_BEFORE_PROBLEM = 10;
 
 const reportVersionMismatch = (version: number): void => {
   const store = useDeviceStore.getState();
@@ -88,6 +77,22 @@ const reportVersionMismatch = (version: number): void => {
   log("error", `BLE: ${describeBleError(problem)}`);
 };
 
+const reportMalformedTelemetry = (): void => {
+  useDeviceStore.getState().countUnreadableFrame();
+  const store = useDeviceStore.getState();
+  if (store.unreadableFramesInARow < UNREADABLE_FRAMES_BEFORE_PROBLEM) return;
+  if (store.linkProblem !== null) return;
+  const problem = { kind: "telemetry-malformed" } as const;
+  store.setLinkProblem(problem);
+  log("error", `BLE: ${describeBleError(problem)}`);
+};
+
+const acceptTelemetry = (payload: TelemetrySample): void => {
+  const store = useDeviceStore.getState();
+  if (store.unreadableFramesInARow > 0) store.markTelemetryReadable();
+  useSignalsStore.getState().ingest(payload);
+};
+
 export const handleTelemetry = (raw: string): void => {
   const bytes = decodeBase64ToBytes(raw);
   const version = bytes[0];
@@ -95,7 +100,12 @@ export const handleTelemetry = (raw: string): void => {
     reportVersionMismatch(version);
     return;
   }
-  applyTelemetry(raw);
+  const payload = parseTelemetry(bytes);
+  if (payload === null) {
+    reportMalformedTelemetry();
+    return;
+  }
+  acceptTelemetry(payload);
 };
 
 export const handleStatus = guarded("status", decodeStatus, applyStatus);

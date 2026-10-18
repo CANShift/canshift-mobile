@@ -17,6 +17,15 @@ const futureFrame = (): string => {
   return toBase64(bytes);
 };
 
+const truncatedFrame = (): string =>
+  toBase64(encodeTelemetryFrame({ r: 3000, op: 4 }).slice(0, -1));
+
+const readableFrame = (): string => toBase64(encodeTelemetryFrame({ r: 3000 }));
+
+const sendTruncated = (count: number): void => {
+  for (let i = 0; i < count; i++) handleTelemetry(truncatedFrame());
+};
+
 const initialDevice = useDeviceStore.getState();
 const initialSignals = useSignalsStore.getState();
 
@@ -59,5 +68,44 @@ describe("handleTelemetry", () => {
     handleTelemetry(futureFrame());
     useDeviceStore.getState().disconnect();
     expect(useDeviceStore.getState().linkProblem).toBeNull();
+  });
+
+  it("raises one device problem after a run of unreadable frames, not a log line per frame", () => {
+    sendTruncated(9);
+    expect(useDeviceStore.getState().linkProblem).toBeNull();
+    sendTruncated(21);
+    expect(useDeviceStore.getState().linkProblem).toEqual({
+      kind: "telemetry-malformed",
+    });
+    expect(useLogStore.getState().entries).toHaveLength(1);
+    expect(getWriteIndex()).toBe(0);
+  });
+
+  it("clears the problem and starts counting again once a frame reads", () => {
+    sendTruncated(10);
+    handleTelemetry(readableFrame());
+    expect(useDeviceStore.getState().linkProblem).toBeNull();
+    sendTruncated(9);
+    expect(useDeviceStore.getState().linkProblem).toBeNull();
+  });
+
+  it("starts counting from zero on the next connection", () => {
+    sendTruncated(10);
+    useDeviceStore.getState().disconnect();
+    sendTruncated(9);
+    expect(useDeviceStore.getState().linkProblem).toBeNull();
+    sendTruncated(1);
+    expect(useDeviceStore.getState().linkProblem).toEqual({
+      kind: "telemetry-malformed",
+    });
+  });
+
+  it("keeps a version mismatch as the problem shown", () => {
+    handleTelemetry(futureFrame());
+    sendTruncated(10);
+    expect(useDeviceStore.getState().linkProblem).toEqual({
+      kind: "telemetry-version",
+      version: FUTURE_VERSION,
+    });
   });
 });
