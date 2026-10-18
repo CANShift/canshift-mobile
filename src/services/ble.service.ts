@@ -9,6 +9,7 @@ import { useDeviceStore } from "../stores/device.store";
 import { clearBuffer } from "../stores/telemetry.store";
 import { log } from "../stores/log.store";
 import { useReconnectStore } from "../stores/reconnect.store";
+import { clearMutedAlerts } from "../stores/alerts.store";
 import { useAppSettingsStore } from "../stores/app-settings.store";
 import type { TimerCommand } from "@canshift/core";
 import { rememberDevice, forgetDevice, getLastDevice } from "./last-device";
@@ -157,6 +158,7 @@ export class BleService {
 
   async connect(deviceId: string): Promise<void> {
     this.cancelReconnect();
+    clearMutedAlerts();
     return this.connectInternal(deviceId);
   }
 

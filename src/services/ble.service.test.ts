@@ -46,6 +46,7 @@ import { BlePermissionDeniedError, mapBleError } from "./ble.errors";
 import { forgetDevice } from "./last-device";
 import { useDeviceStore } from "../stores/device.store";
 import { useReconnectStore } from "../stores/reconnect.store";
+import { muteAlerts, useAlertsStore } from "../stores/alerts.store";
 import { useSignalsStore } from "../stores/signals.store";
 import {
   BLE_CHAR_TELE,
@@ -222,6 +223,10 @@ describe("BleService scan cancellation", () => {
 });
 
 describe("BleService connect", () => {
+  beforeEach(() => {
+    useAlertsStore.setState({ muted: [] });
+  });
+
   it("aborts any in-flight reconnect loop before connecting", async () => {
     const managerStub = {
       destroy: jest.fn(),
@@ -238,6 +243,24 @@ describe("BleService connect", () => {
     await expect(service.connect("dev-1")).rejects.toThrow("unreachable");
 
     expect(cancelSpy).toHaveBeenCalled();
+  });
+
+  it("starts a new alert session, so a mute from the last one is gone", async () => {
+    const managerStub = {
+      destroy: jest.fn(),
+      stopDeviceScan: jest.fn(),
+      connectToDevice: jest.fn(() => Promise.reject(new Error("unreachable"))),
+    } as unknown as BleManager;
+    const service = new BleService({
+      managerFactory: () => managerStub,
+      requestAndroidPermissions: () =>
+        Promise.resolve({ kind: "not_applicable" }),
+    });
+    muteAlerts(["oil_pressure"]);
+
+    await expect(service.connect("dev-1")).rejects.toThrow("unreachable");
+
+    expect(useAlertsStore.getState().muted).toEqual([]);
   });
 });
 
@@ -276,6 +299,8 @@ describe("BleService scan errors", () => {
 });
 
 describe("BleService monitor death", () => {
+  type SeenDash = (error: null, device: { id: string }) => void;
+
   interface MonitorEntry {
     characteristic: string;
     fire: (error: Error | null, value: string | null) => void;
@@ -311,11 +336,13 @@ describe("BleService monitor death", () => {
       onDisconnected: jest.fn(() => ({ remove: jest.fn() })),
       cancelConnection: jest.fn(() => Promise.resolve()),
     };
+    const startDeviceScan = jest.fn();
+    const connectToDevice = jest.fn(() => Promise.resolve(device));
     const managerStub = {
       destroy: jest.fn(),
       stopDeviceScan: jest.fn(),
-      startDeviceScan: jest.fn(),
-      connectToDevice: jest.fn(() => Promise.resolve(device)),
+      startDeviceScan,
+      connectToDevice,
     } as unknown as BleManager;
     const service = new BleService({
       managerFactory: () => managerStub,
@@ -323,7 +350,7 @@ describe("BleService monitor death", () => {
         Promise.resolve({ kind: "not_applicable" }),
       showToast,
     });
-    return { service, monitors, showToast };
+    return { service, monitors, showToast, startDeviceScan, connectToDevice };
   };
 
   const attachedTo = (monitors: MonitorEntry[], characteristic: string) =>
@@ -343,6 +370,7 @@ describe("BleService monitor death", () => {
 
   const MONITOR_ATTACH_ATTEMPTS = 3;
   const MONITOR_REVIVE_MAX_DELAY_MS = 1_000;
+  const RECONNECT_FIRST_ATTEMPT_MAX_DELAY_MS = 1_200;
 
   beforeEach(() => {
     jest.useFakeTimers({ doNotFake: ["setImmediate"] });
@@ -380,6 +408,26 @@ describe("BleService monitor death", () => {
     expect(useDeviceStore.getState().error).toEqual({ kind: "disconnected" });
     expect(useReconnectStore.getState().isReconnecting).toBe(true);
     expect(useReconnectStore.getState().deviceId).toBe("test-device");
+    service.cancelReconnect();
+  });
+
+  it("keeps a mute through the automatic reconnect after a lost link", async () => {
+    const { service, monitors, startDeviceScan, connectToDevice } =
+      makeMonitoredService();
+    await service.connect("test-device");
+    muteAlerts(["oil_pressure"]);
+    startDeviceScan.mockImplementation(
+      (_uuids: unknown, _options: unknown, onResult: SeenDash) => {
+        onResult(null, { id: "test-device" });
+      },
+    );
+
+    await killUntilLost(monitors, BLE_CHAR_TELE);
+    jest.advanceTimersByTime(RECONNECT_FIRST_ATTEMPT_MAX_DELAY_MS);
+    await flush();
+
+    expect(connectToDevice).toHaveBeenCalledTimes(2);
+    expect(useAlertsStore.getState().muted).toEqual(["oil_pressure"]);
     service.cancelReconnect();
   });
 

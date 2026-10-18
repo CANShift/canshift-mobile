@@ -1,5 +1,6 @@
 import {
   acknowledgeAlert,
+  clearMutedAlerts,
   muteAlerts,
   publishAlerts,
   reopenAlert,
@@ -45,12 +46,18 @@ describe("alerts store", () => {
     expect(useAlertsStore.getState().acknowledged).toEqual([]);
   });
 
-  it("keeps a mute for the whole app session, across episodes and feeds", () => {
+  it("keeps a mute across episodes and feeds, so a reconnect does not end it", () => {
     muteAlerts(["oil_pressure"]);
     publishAlerts("local", []);
     switchAlertFeed("dash");
     expect(useAlertsStore.getState().muted).toEqual(["oil_pressure"]);
     unmuteAlert("oil_pressure");
+    expect(useAlertsStore.getState().muted).toEqual([]);
+  });
+
+  it("clears every mute when a new session starts", () => {
+    muteAlerts(["oil_pressure", "coolant_temp"]);
+    clearMutedAlerts();
     expect(useAlertsStore.getState().muted).toEqual([]);
   });
 
