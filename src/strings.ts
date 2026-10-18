@@ -222,6 +222,14 @@ export const STRINGS = {
     samples: (thousands: number): string => `${String(thousands)}k`,
     autoReconnect: "Reconnect automatically",
     simulator: "Simulator",
+    settingsUnreadable: "Your settings couldn’t be read. Using the defaults.",
+    settingsNotSaved:
+      "That setting wasn’t saved. It resets when the app restarts.",
+    disconnectFailed: "The phone couldn’t close the Bluetooth link cleanly.",
+    foregroundReconnectTitle: "Reconnecting",
+    foregroundReconnectBody: "Trying to reach your dashboard…",
+    foregroundReconnectFailed:
+      "Couldn’t reconnect to the dash. Open Scan to connect again.",
   },
   firmware: FIRMWARE_STRINGS,
   console: {

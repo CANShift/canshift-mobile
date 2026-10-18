@@ -1,4 +1,5 @@
 import type { TrackTelemetry } from "@canshift/core";
+import * as trackSession from "../stores/track-session.store";
 import {
   clearAll,
   recordLap,
@@ -111,6 +112,27 @@ describe("createTrackModeController", () => {
     expect(useTrackSessionStore.getState().recording).toBe(true);
     expect(payloads[0]?.trackMode).toBe(true);
     await controller.stop();
+  });
+
+  it("start() rolls the GPS watcher back when the session fails to start", async () => {
+    const { watcher, detached } = makeWatcher();
+    const { write } = makeWriter();
+    jest.spyOn(trackSession, "startSession").mockImplementationOnce(() => {
+      throw new Error("session store refused");
+    });
+    const controller = createTrackModeController({
+      watcher,
+      requestPermission: granted,
+      write,
+      publisherIntervalMs: PUBLISH_INTERVAL_MS,
+    });
+
+    const result = await controller.start();
+
+    expect(result).toEqual({ started: false, reason: "session_failed" });
+    expect(detached()).toBe(true);
+    expect(controller.isActive()).toBe(false);
+    expect(useTrackSessionStore.getState().recording).toBe(false);
   });
 
   it("start() feeds GPS updates into the track-session store", async () => {

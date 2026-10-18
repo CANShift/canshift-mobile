@@ -1,9 +1,10 @@
 import { create } from "zustand";
 import * as SecureStore from "expo-secure-store";
 import { z } from "zod";
-import { log } from "./log.store";
 import { setBufferCap } from "./telemetry.store";
-import { errText } from "../lib/error-text";
+import { reportFailure } from "../lib/report-dash-failure";
+import { STRINGS } from "../strings";
+import { tryParseJson } from "../lib/try-parse-json";
 
 export type ReconnectBehavior = "auto" | "off";
 
@@ -28,18 +29,30 @@ const DEFAULT_SETTINGS: AppSettings = {
   blePromptSeen: false,
 };
 
-const readPersisted = async (): Promise<AppSettings | null> => {
+type PersistedRead =
+  | { kind: "found"; settings: AppSettings }
+  | { kind: "missing" }
+  | { kind: "unreadable" };
+
+const parseSettings = (raw: string | null): PersistedRead => {
+  const json = raw === null ? null : tryParseJson(raw);
+  if (!json?.ok) return { kind: "missing" };
+  const parsed = settingsSchema.safeParse(json.value);
+  return parsed.success
+    ? { kind: "found", settings: parsed.data }
+    : { kind: "missing" };
+};
+
+const readPersisted = async (): Promise<PersistedRead> => {
   try {
-    const raw = await SecureStore.getItemAsync(STORAGE_KEY);
-    if (raw === null) return null;
-    const parsed = settingsSchema.safeParse(JSON.parse(raw) as unknown);
-    return parsed.success ? parsed.data : null;
+    return parseSettings(await SecureStore.getItemAsync(STORAGE_KEY));
   } catch (err) {
-    log(
-      "warn",
-      `Failed to read app settings — using defaults: ${errText(err)}`,
+    reportFailure(
+      "Reading app settings",
+      err,
+      STRINGS.device.settingsUnreadable,
     );
-    return null;
+    return { kind: "unreadable" };
   }
 };
 
@@ -47,7 +60,7 @@ const writePersisted = async (settings: AppSettings): Promise<void> => {
   try {
     await SecureStore.setItemAsync(STORAGE_KEY, JSON.stringify(settings));
   } catch (err) {
-    log("warn", `Failed to persist app settings: ${errText(err)}`);
+    reportFailure("Saving app settings", err, STRINGS.device.settingsNotSaved);
   }
 };
 
@@ -80,14 +93,11 @@ export const useAppSettingsStore = create<AppSettingsState>()((set, get) => {
     hydrate: async () => {
       if (get().hydrated) return;
       const persisted = await readPersisted();
-      if (persisted !== null) {
-        set({ ...persisted, hydrated: true });
-        setBufferCap(persisted.telemetryBufferSize);
-        return;
-      }
-      set({ ...DEFAULT_SETTINGS, hydrated: true });
-      setBufferCap(DEFAULT_SETTINGS.telemetryBufferSize);
-      void writePersisted(DEFAULT_SETTINGS);
+      const settings =
+        persisted.kind === "found" ? persisted.settings : DEFAULT_SETTINGS;
+      set({ ...settings, hydrated: true });
+      setBufferCap(settings.telemetryBufferSize);
+      if (persisted.kind === "missing") void writePersisted(DEFAULT_SETTINGS);
     },
 
     setTelemetryBufferSize: (telemetryBufferSize) => {

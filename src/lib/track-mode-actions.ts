@@ -1,6 +1,7 @@
 import { startFinishLineFromPosition } from "@canshift/core";
 import {
   trackModeController,
+  type TrackModeStartFailure,
   type TrackModeStartResult,
 } from "../services/track-mode-controller";
 import { Toast } from "../components/ui/toast";
@@ -12,10 +13,7 @@ import {
 import { STRINGS } from "../strings";
 import { reportFailure } from "./report-dash-failure";
 
-type StartFailure = Exclude<
-  Extract<TrackModeStartResult, { started: false }>["reason"],
-  "cancelled"
->;
+type StartFailure = Exclude<TrackModeStartFailure, "cancelled">;
 
 const START_FAILURE_COPY: Record<StartFailure, string> = {
   permission_denied: STRINGS.laps.locationOffTitle,

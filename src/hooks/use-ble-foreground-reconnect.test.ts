@@ -8,6 +8,8 @@ jest.mock("react-native-ble-plx", () => ({
   State: { PoweredOn: "PoweredOn" },
 }));
 
+import { STRINGS } from "../strings";
+import type { ToastShowParams } from "../components/ui/toast";
 import { handleAppStateTransition } from "./use-ble-foreground-reconnect";
 import type { ConnectionState } from "../stores/device.store";
 
@@ -17,16 +19,10 @@ interface MakeDepsOverrides {
   isReconnecting?: boolean;
 }
 
-interface ToastParams {
-  type: "info";
-  text1: string;
-  text2?: string;
-}
-
 const makeDeps = (overrides: MakeDepsOverrides = {}) => {
   const tryReconnect: () => Promise<boolean> =
     overrides.tryReconnect ?? (() => Promise.resolve(true));
-  const noopToast = (_params: ToastParams): void => undefined;
+  const noopToast = (_params: ToastShowParams): void => undefined;
   return {
     tryReconnect: jest.fn(tryReconnect),
     showToast: jest.fn(noopToast),
@@ -103,13 +99,17 @@ describe("handleAppStateTransition", () => {
     expect(deps.showToast).not.toHaveBeenCalled();
   });
 
-  it("swallows tryReconnect errors and never shows a toast", async () => {
+  it("tells the user once when the reconnect attempt cannot start", async () => {
     const deps = makeDeps({
       tryReconnect: () => Promise.reject(new Error("boom")),
     });
     await expect(
       handleAppStateTransition("background", "active", deps),
     ).resolves.toBeUndefined();
-    expect(deps.showToast).not.toHaveBeenCalled();
+    expect(deps.showToast).toHaveBeenCalledTimes(1);
+    expect(deps.showToast).toHaveBeenCalledWith({
+      type: "error",
+      text1: STRINGS.device.foregroundReconnectFailed,
+    });
   });
 });

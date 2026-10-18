@@ -69,10 +69,13 @@ export const useTimerStore = create<TimerState>()((set, get) => ({
   },
 
   toggle: () => {
-    const { status, start, pause, resume } = get();
-    if (status === "idle") start();
-    else if (status === "running") pause();
-    else resume();
+    const state = get();
+    const next: Record<TimerStatus, () => void> = {
+      idle: state.start,
+      running: state.pause,
+      paused: state.resume,
+    };
+    next[state.status]();
   },
 
   reset: () => {

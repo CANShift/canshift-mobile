@@ -19,6 +19,7 @@ import {
 } from "./ble-permissions";
 import { BleReconnector } from "./ble-reconnect";
 import { Toast, type ToastShowParams } from "../components/ui/toast";
+import { STRINGS } from "../strings";
 import { errText } from "../lib/error-text";
 import { createBleManager } from "./ble/ble-manager-factory";
 import {
@@ -60,6 +61,7 @@ export class BleService {
   private readonly reconnector: BleReconnector;
   private readonly gatt = new GattQueue();
   private readonly link: DeviceLink;
+  private readonly showToast: (params: ToastShowParams) => void;
 
   private userInitiatedDisconnect = false;
   private reconnectHeld = false;
@@ -81,13 +83,13 @@ export class BleService {
     this.manager = factory();
     this.requestAndroidPermissions =
       deps.requestAndroidPermissions ?? requestAndroidBlePermissions;
-    const showToast =
+    this.showToast =
       deps.showToast ??
       ((params: ToastShowParams) => {
         Toast.show(params);
       });
     this.link = new DeviceLink(this.gatt, {
-      showToast,
+      showToast: this.showToast,
       onLinkLost: (deviceId) => {
         this.reconnectAfterLoss(deviceId);
       },
@@ -115,22 +117,6 @@ export class BleService {
         void this.manager.stopDeviceScan();
       },
     });
-  }
-
-  async dispose(): Promise<void> {
-    this.cancelReconnect();
-    this.link.stopStalenessTimer();
-    this.link.removeSubscriptions();
-    const device = this.link.current;
-    if (device) {
-      try {
-        await device.cancelConnection();
-      } catch (err) {
-        log("warn", `dispose: cancelConnection failed: ${errText(err)}`);
-      }
-      this.link.setDevice(null);
-    }
-    await this.manager.destroy();
   }
 
   async scan(
@@ -216,7 +202,11 @@ export class BleService {
         await device.cancelConnection();
         log("info", `Disconnected from ${device.id}`);
       } catch (err) {
-        log("warn", `disconnect: cancelConnection failed: ${errText(err)}`);
+        log("warn", `Disconnect: cancelConnection failed: ${errText(err)}`);
+        this.showToast({
+          type: "error",
+          text1: STRINGS.device.disconnectFailed,
+        });
       }
       this.link.setDevice(null);
     }

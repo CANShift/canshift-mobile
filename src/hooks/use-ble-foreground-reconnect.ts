@@ -7,9 +7,10 @@ import {
 import { useDeviceStore, type ConnectionState } from "../stores/device.store";
 import { useReconnectStore } from "../stores/reconnect.store";
 import { tryReconnectLastDevice } from "../services/ble.service";
-import { Toast } from "../components/ui/toast";
+import { Toast, type ToastShowParams } from "../components/ui/toast";
 import { log } from "../stores/log.store";
 import { errText } from "../lib/error-text";
+import { STRINGS } from "../strings";
 
 const isReconnectable = (state: ConnectionState): boolean => {
   return state === "idle" || state === "error";
@@ -22,7 +23,7 @@ const isBackgrounded = (state: AppStateStatus): boolean => {
 export interface BleForegroundReconnectDeps {
   appState?: Pick<typeof AppState, "addEventListener" | "currentState">;
   tryReconnect?: () => Promise<boolean>;
-  showToast?: (params: { type: "info"; text1: string; text2?: string }) => void;
+  showToast?: (params: ToastShowParams) => void;
   getConnectionState?: () => ConnectionState;
   getIsReconnecting?: () => boolean;
 }
@@ -30,7 +31,7 @@ export interface BleForegroundReconnectDeps {
 interface ResolvedDeps {
   appState: Pick<typeof AppState, "addEventListener" | "currentState">;
   tryReconnect: () => Promise<boolean>;
-  showToast: (params: { type: "info"; text1: string; text2?: string }) => void;
+  showToast: (params: ToastShowParams) => void;
   getConnectionState: () => ConnectionState;
   getIsReconnecting: () => boolean;
 }
@@ -69,16 +70,19 @@ export const handleAppStateTransition = async (
   try {
     started = await deps.tryReconnect();
   } catch (err) {
-    const msg = errText(err);
-    log("warn", `Foreground reconnect attempt failed: ${msg}`);
+    log("warn", `Foreground reconnect attempt failed: ${errText(err)}`);
+    deps.showToast({
+      type: "error",
+      text1: STRINGS.device.foregroundReconnectFailed,
+    });
     return;
   }
 
   if (started) {
     deps.showToast({
       type: "info",
-      text1: "Reconnecting",
-      text2: "Trying to reach your dashboard…",
+      text1: STRINGS.device.foregroundReconnectTitle,
+      text2: STRINGS.device.foregroundReconnectBody,
     });
   }
 };
