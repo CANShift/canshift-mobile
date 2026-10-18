@@ -70,6 +70,33 @@ export default tseslint.config(
     },
   },
   {
+    files: ["**/*.{js,cjs,ts}"],
+    ignores: ["src/**", "index.ts", "App.tsx"],
+    plugins: { "no-comments": noCommentsPlugin },
+    languageOptions: tseslint.configs.disableTypeChecked.languageOptions,
+    rules: {
+      ...tseslint.configs.disableTypeChecked.rules,
+      "no-comments/no-comments": "error",
+    },
+  },
+  {
+    files: ["**/*.{js,cjs}"],
+    ignores: ["src/**"],
+    languageOptions: {
+      sourceType: "commonjs",
+      globals: {
+        require: "readonly",
+        module: "writable",
+        __dirname: "readonly",
+        process: "readonly",
+        console: "readonly",
+      },
+    },
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
+  {
     ignores: [
       "node_modules/**",
       ".expo/**",
@@ -77,14 +104,7 @@ export default tseslint.config(
       "android/**",
       "assets/**",
       "coverage/**",
-      "plugins/**",
-      "app.config.ts",
-      "babel.config.js",
       "eslint.config.mjs",
-      "jest.config.js",
-      "scripts/**",
-      "metro.config.js",
-      "__mocks__/**",
     ],
   },
 );

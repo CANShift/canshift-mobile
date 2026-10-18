@@ -1,12 +1,3 @@
-// canshift-mobile/scripts/check-overrides.js
-// Blocks npm overrides known to break Expo SDK 52 internals.
-// See issue #588 for context.
-//
-// NOTE: tar v7 cannot be overridden — neither globally nor scoped under
-// @expo/cli or cacache — because @expo/cli uses the tar v6 extract() API
-// internally and upgrading to v7 breaks `expo prebuild`. Track
-// https://github.com/expo/expo/issues/XXXXX for when @expo/cli drops tar@6.
-
 const pkg = require("../package.json");
 const overrides = pkg.overrides || {};
 
@@ -27,7 +18,6 @@ const BLOCKED = [
 
 const failures = [];
 
-// Check top-level overrides
 for (const { name, matches, reason } of BLOCKED) {
   const spec = overrides[name];
   if (typeof spec === "string" && matches(spec)) {
@@ -35,7 +25,6 @@ for (const { name, matches, reason } of BLOCKED) {
   }
 }
 
-// Check scoped overrides (e.g. overrides["@expo/cli"]["tar"])
 for (const [scopeKey, scopeVal] of Object.entries(overrides)) {
   if (typeof scopeVal !== "object" || scopeVal === null) continue;
   for (const { name, matches, reason } of BLOCKED) {
