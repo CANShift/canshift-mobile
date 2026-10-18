@@ -42,6 +42,7 @@ import {
 } from "react-native-ble-plx";
 import type { BleManager, Device } from "react-native-ble-plx";
 import { BleService, isBleAvailable } from "./ble.service";
+import { STRINGS } from "../strings";
 import { BlePermissionDeniedError, mapBleError } from "./ble.errors";
 import { forgetDevice } from "./last-device";
 import { useDeviceStore } from "../stores/device.store";
@@ -85,7 +86,7 @@ const makeStubDevice = (factory: DeferredFactory): Device => {
   return stub as unknown as Device;
 };
 
-const makeService = (): BleService => {
+const makeService = (showToast = jest.fn()): BleService => {
   const managerStub = {
     destroy: jest.fn(),
     stopDeviceScan: jest.fn(),
@@ -94,6 +95,7 @@ const makeService = (): BleService => {
     managerFactory: () => managerStub,
     requestAndroidPermissions: () =>
       Promise.resolve({ kind: "not_applicable" }),
+    showToast,
   });
 };
 
@@ -148,8 +150,9 @@ describe("BleService GATT serializer", () => {
 });
 
 describe("BleService disconnect", () => {
-  it("still clears state and forgets the device when cancelConnection rejects", async () => {
-    const service = makeService();
+  it("still clears state and forgets the device when cancelConnection rejects, and says so once", async () => {
+    const showToast = jest.fn();
+    const service = makeService(showToast);
     const device = {
       id: "test-device",
       cancelConnection: jest.fn(() => Promise.reject(new Error("gatt busy"))),
@@ -160,6 +163,11 @@ describe("BleService disconnect", () => {
 
     expect(jest.mocked(forgetDevice)).toHaveBeenCalled();
     expect(useDeviceStore.getState().connectionState).toBe("idle");
+    expect(showToast).toHaveBeenCalledTimes(1);
+    expect(showToast).toHaveBeenCalledWith({
+      type: "error",
+      text1: STRINGS.device.disconnectFailed,
+    });
   });
 });
 

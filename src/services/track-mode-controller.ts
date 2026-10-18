@@ -11,6 +11,7 @@ import {
 } from "./gps-watcher.expo";
 import {
   createTrackTelemetryPublisher,
+  type TrackTelemetryPublisher,
   type TrackTelemetryWriter,
 } from "./track-telemetry-publisher";
 import { sendCmd, type CmdPayload } from "./ble.service";
@@ -19,16 +20,11 @@ import { startSession, stopSession } from "../stores/track-session.store";
 import { log } from "../stores/log.store";
 import { errText } from "../lib/error-text";
 
+export type TrackModeStartFailure =
+  "permission_denied" | "gps_unavailable" | "session_failed" | "cancelled";
+
 export type TrackModeStartResult =
-  | { started: true }
-  | {
-      started: false;
-      reason:
-        | "permission_denied"
-        | "gps_unavailable"
-        | "session_failed"
-        | "cancelled";
-    };
+  { started: true } | { started: false; reason: TrackModeStartFailure };
 
 export interface TrackModeControllerDeps {
   watcher?: GpsWatcher;
@@ -68,13 +64,13 @@ const writeTrackStateOverBle: TrackTelemetryWriter = async (telemetry) => {
   await sendCmd(DEVICE_COMMANDS.trackState, toTrackStateCmd(telemetry));
 };
 
-export const createTrackModeController = (
-  deps: TrackModeControllerDeps = {},
-): TrackModeController => {
-  const watcher = deps.watcher ?? expoLocationWatcher;
-  const requestPermission =
-    deps.requestPermission ?? requestForegroundLocationPermission;
-  const publisher = createTrackTelemetryPublisher({
+const notStarted = (reason: TrackModeStartFailure): TrackModeStartResult => ({
+  started: false,
+  reason,
+});
+
+const publisherFor = (deps: TrackModeControllerDeps): TrackTelemetryPublisher =>
+  createTrackTelemetryPublisher({
     write: deps.write ?? writeTrackStateOverBle,
     ...(deps.publisherIntervalMs !== undefined
       ? { intervalMs: deps.publisherIntervalMs }
@@ -82,41 +78,68 @@ export const createTrackModeController = (
     ...(deps.now !== undefined ? { now: deps.now } : {}),
   });
 
+const openGps = async (
+  watcher: GpsWatcher,
+): Promise<GpsSubscription | null> => {
+  try {
+    return await startGpsSubscription(watcher);
+  } catch (err) {
+    log("warn", `Track mode: GPS watcher failed to start — ${errText(err)}`);
+    return null;
+  }
+};
+
+const beginSession = (
+  gps: GpsSubscription,
+  publisher: TrackTelemetryPublisher,
+): boolean => {
+  try {
+    startSession();
+    publisher.start();
+    return true;
+  } catch (err) {
+    gps.stop();
+    stopSession();
+    log("warn", `Track mode: session failed to start — ${errText(err)}`);
+    return false;
+  }
+};
+
+const endSession = async (
+  publisher: TrackTelemetryPublisher,
+): Promise<void> => {
+  try {
+    stopSession();
+  } finally {
+    publisher.stop();
+    await publisher.tickNow();
+  }
+};
+
+export const createTrackModeController = (
+  deps: TrackModeControllerDeps = {},
+): TrackModeController => {
+  const watcher = deps.watcher ?? expoLocationWatcher;
+  const requestPermission =
+    deps.requestPermission ?? requestForegroundLocationPermission;
+  const publisher = publisherFor(deps);
+
   let subscription: GpsSubscription | null = null;
   let startPromise: Promise<TrackModeStartResult> | null = null;
   let generation = 0;
 
-  const rollbackStart = (started: GpsSubscription): void => {
-    started.stop();
-    stopSession();
-  };
-
   const doStart = async (gen: number): Promise<TrackModeStartResult> => {
     const permission = await requestPermission();
-    if (gen !== generation) return { started: false, reason: "cancelled" };
-    if (!permission.granted)
-      return { started: false, reason: "permission_denied" };
-    let nextSubscription: GpsSubscription;
-    try {
-      nextSubscription = await startGpsSubscription(watcher);
-    } catch (err) {
-      const detail = errText(err);
-      log("warn", `Track mode: GPS watcher failed to start — ${detail}`);
-      return { started: false, reason: "gps_unavailable" };
-    }
+    if (gen !== generation) return notStarted("cancelled");
+    if (!permission.granted) return notStarted("permission_denied");
+    const gps = await openGps(watcher);
+    if (gps === null) return notStarted("gps_unavailable");
     if (gen !== generation) {
-      nextSubscription.stop();
-      return { started: false, reason: "cancelled" };
+      gps.stop();
+      return notStarted("cancelled");
     }
-    try {
-      startSession();
-      publisher.start();
-    } catch (err) {
-      rollbackStart(nextSubscription);
-      log("warn", `Track mode: session failed to start — ${errText(err)}`);
-      return { started: false, reason: "session_failed" };
-    }
-    subscription = nextSubscription;
+    if (!beginSession(gps, publisher)) return notStarted("session_failed");
+    subscription = gps;
     log("info", "Track mode started");
     return { started: true };
   };
@@ -135,18 +158,11 @@ export const createTrackModeController = (
     if (subscription === null) return;
     subscription.stop();
     subscription = null;
-    try {
-      stopSession();
-    } finally {
-      publisher.stop();
-      await publisher.tickNow();
-    }
+    await endSession(publisher);
     log("info", "Track mode stopped");
   };
 
-  const isActive = (): boolean => subscription !== null;
-
-  return { start, stop, isActive };
+  return { start, stop, isActive: () => subscription !== null };
 };
 
 export const trackModeController = createTrackModeController();
