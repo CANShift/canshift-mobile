@@ -17,6 +17,7 @@ interface DeviceState {
   canHealthy: boolean;
   error: BleConnectionError | null;
   linkProblem: BleConnectionError | null;
+  unreadableFramesInARow: number;
 
   setConnectionState: (s: ConnectionState) => void;
   setMode: (m: DeviceMode) => void;
@@ -25,6 +26,8 @@ interface DeviceState {
   setBoardId: (boardId: string) => void;
   setError: (err: BleConnectionError | null) => void;
   setLinkProblem: (problem: BleConnectionError) => void;
+  countUnreadableFrame: () => void;
+  markTelemetryReadable: () => void;
   clearError: () => void;
   disconnect: () => void;
 }
@@ -40,6 +43,7 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
   canHealthy: false,
   error: null,
   linkProblem: null,
+  unreadableFramesInARow: 0,
 
   setConnectionState: (connectionState) => {
     set({ connectionState });
@@ -75,6 +79,18 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
     set({ linkProblem });
   },
 
+  countUnreadableFrame: () => {
+    set((s) => ({ unreadableFramesInARow: s.unreadableFramesInARow + 1 }));
+  },
+
+  markTelemetryReadable: () => {
+    set((s) => ({
+      unreadableFramesInARow: 0,
+      linkProblem:
+        s.linkProblem?.kind === "telemetry-malformed" ? null : s.linkProblem,
+    }));
+  },
+
   clearError: () => {
     set({ error: null, connectionState: "idle" });
   },
@@ -90,6 +106,7 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
       canHealthy: false,
       error: null,
       linkProblem: null,
+      unreadableFramesInARow: 0,
     });
   },
 }));

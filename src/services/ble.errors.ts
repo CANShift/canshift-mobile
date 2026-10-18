@@ -11,6 +11,7 @@ export type BleConnectionError =
   | { kind: "characteristic-missing"; uuid?: string }
   | { kind: "write-failed"; reason?: string }
   | { kind: "telemetry-version"; version: number }
+  | { kind: "telemetry-malformed" }
   | { kind: "unknown"; message: string };
 
 export class BlePermissionDeniedError extends Error {
@@ -104,6 +105,8 @@ export const describeBleError = (err: BleConnectionError): string => {
       return err.reason ? `write failed: ${err.reason}` : "write failed";
     case "telemetry-version":
       return `telemetry frame version ${String(err.version)} not supported`;
+    case "telemetry-malformed":
+      return "telemetry frames unreadable";
     case "unknown":
       return err.message;
     default: {

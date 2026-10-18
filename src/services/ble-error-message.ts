@@ -51,6 +51,11 @@ export const bleErrorMessage = (err: BleConnectionError): BleErrorMessage => {
         title: "Update needed",
         body: "The dash sends live data in a format this app can’t read. Update the app or the dash firmware.",
       };
+    case "telemetry-malformed":
+      return {
+        title: "Live data unreadable",
+        body: "The dash sends live data this app can’t read. Reconnect, and update the app or the dash firmware if it keeps happening.",
+      };
     case "unknown":
       return { title: "Connection failed", body: STRINGS.genericError };
     default: {
