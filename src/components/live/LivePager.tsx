@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet, View } from "react-native";
 import { LIVE_PAGES } from "../../lib/live-tiles";
 import type { LivePager as Pager } from "../../hooks/use-live-pager";
-import { LiveGrid } from "./LiveGrid";
+import { LivePagerPage } from "./LivePagerPage";
 
 export interface LivePagerProps {
   pager: Pager;
@@ -27,17 +27,16 @@ export const LivePager = ({
       onMomentumScrollEnd={pager.onSwipeEnd}
     >
       {LIVE_PAGES.map((page, index) => (
-        <View key={page.id} style={[styles.page, { width: pager.width }]}>
-          {Math.abs(index - pager.page) > 1 ? null : (
-            <LiveGrid
-              tiles={page.tiles}
-              columns={columns}
-              paused={paused}
-              nowMs={nowMs}
-              valueSize={valueSize}
-            />
-          )}
-        </View>
+        <LivePagerPage
+          key={page.id}
+          width={pager.width}
+          near={Math.abs(index - pager.page) <= 1}
+          tiles={page.tiles}
+          columns={columns}
+          paused={paused}
+          nowMs={nowMs}
+          valueSize={valueSize}
+        />
       ))}
     </ScrollView>
   </View>
@@ -45,5 +44,4 @@ export const LivePager = ({
 
 const styles = StyleSheet.create({
   viewport: { flex: 1 },
-  page: { flex: 1 },
 });

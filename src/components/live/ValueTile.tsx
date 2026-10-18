@@ -1,12 +1,12 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { UiColors, UiFonts, UiRadius } from "../../theme/ui-tokens";
-import { TILE_LOOKS } from "../../lib/tile-look";
+import { UiColors, UiRadius } from "../../theme/ui-tokens";
+import { TILE_LOOKS, type TileLook } from "../../lib/tile-look";
 import type { TileState } from "../../lib/tile-state";
 import { TileTag } from "./TileTag";
+import { TileReading } from "./TileReading";
 
 const LABEL_SIZE = 14;
-const UNIT_SIZE = 16;
 
 interface ValueTileProps {
   label: string;
@@ -17,6 +17,13 @@ interface ValueTileProps {
   accessibilityLabel: string;
   valueSize: number;
 }
+
+const tileFrame = (look: TileLook) => ({
+  backgroundColor: look.background,
+  borderColor: look.borderColor,
+  borderWidth: look.borderWidth,
+  borderStyle: look.borderStyle,
+});
 
 const ValueTile = ({
   label,
@@ -30,15 +37,7 @@ const ValueTile = ({
   const look = TILE_LOOKS[state];
   return (
     <View
-      style={[
-        styles.tile,
-        {
-          backgroundColor: look.background,
-          borderColor: look.borderColor,
-          borderWidth: look.borderWidth,
-          borderStyle: look.borderStyle,
-        },
-      ]}
+      style={[styles.tile, tileFrame(look)]}
       accessible
       accessibilityLabel={accessibilityLabel}
     >
@@ -46,19 +45,12 @@ const ValueTile = ({
         <Text style={[styles.label, { color: look.labelColor }]}>{label}</Text>
         <TileTag tag={tag} look={look} />
       </View>
-      <View style={styles.reading}>
-        <Text
-          style={[
-            styles.value,
-            { color: look.valueColor, fontSize: valueSize },
-          ]}
-          numberOfLines={1}
-          adjustsFontSizeToFit
-        >
-          {value}
-        </Text>
-        <Text style={[styles.unit, { color: look.unitColor }]}>{unit}</Text>
-      </View>
+      <TileReading
+        value={value}
+        unit={unit}
+        look={look}
+        valueSize={valueSize}
+      />
     </View>
   );
 };
@@ -85,12 +77,4 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: LABEL_SIZE * 0.06,
   },
-  reading: { flexDirection: "row", alignItems: "baseline", gap: 6 },
-  value: {
-    flexShrink: 1,
-    fontFamily: UiFonts.numeric,
-    fontWeight: "700",
-    fontVariant: ["tabular-nums"],
-  },
-  unit: { fontSize: UNIT_SIZE },
 });

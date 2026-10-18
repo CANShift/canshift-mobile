@@ -1,53 +1,24 @@
 import { StyleSheet, Text, View } from "react-native";
-import Svg, { Line, Polyline } from "react-native-svg";
+import Svg from "react-native-svg";
 import type { SignalKey } from "../../constants/ble";
 import { STRINGS } from "../../strings";
 import { UiColors, UiRadius } from "../../theme/ui-tokens";
-import { buildPoints } from "../../lib/graph-math";
 import {
   GRAPH_WINDOW_LABELS,
   axisLabels,
-  seriesStyle,
   signalNames,
   type GraphWindow,
 } from "../../lib/graph-config";
 import type { GraphSeries } from "../../hooks/use-graph-series";
-
-const VIEW_W = 334;
-const VIEW_H = 300;
-const GRID_ROWS = [0.25, 0.5, 0.75];
-const TRACE_WIDTH = 2.5;
-const NO_DASH = "0";
+import { VIEW_H, VIEW_W } from "./graph-view-box";
+import { GraphGridLines } from "./GraphGridLines";
+import { GraphTraces } from "./GraphTraces";
 
 export interface GraphChartProps {
   series: GraphSeries;
   signals: readonly SignalKey[];
   window: GraphWindow;
 }
-
-const GridLines = () => (
-  <>
-    {GRID_ROWS.map((row) => (
-      <Line
-        key={row}
-        x1={0}
-        x2={VIEW_W}
-        y1={VIEW_H * row}
-        y2={VIEW_H * row}
-        stroke={UiColors.borderRow}
-        strokeWidth={1}
-      />
-    ))}
-    <Line
-      x1={VIEW_W / 2}
-      x2={VIEW_W / 2}
-      y1={0}
-      y2={VIEW_H}
-      stroke={UiColors.borderRow}
-      strokeWidth={1}
-    />
-  </>
-);
 
 export const GraphChart = ({ series, signals, window }: GraphChartProps) => (
   <View style={styles.figure}>
@@ -63,28 +34,8 @@ export const GraphChart = ({ series, signals, window }: GraphChartProps) => (
           GRAPH_WINDOW_LABELS[window],
         )}
       >
-        <GridLines />
-        {signals.map((key, index) => {
-          const style = seriesStyle(index);
-          return (
-            <Polyline
-              key={key}
-              points={buildPoints(
-                series.rolling,
-                key,
-                series.windowStart,
-                series.windowEnd,
-                VIEW_W,
-                VIEW_H,
-              )}
-              fill="none"
-              stroke={style.color}
-              strokeWidth={TRACE_WIDTH}
-              strokeLinejoin="round"
-              strokeDasharray={style.dash ?? NO_DASH}
-            />
-          );
-        })}
+        <GraphGridLines />
+        <GraphTraces series={series} signals={signals} />
       </Svg>
     </View>
     <View style={styles.axis}>

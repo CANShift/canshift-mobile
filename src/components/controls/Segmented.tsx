@@ -1,12 +1,9 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { TouchTarget, UiColors, UiRadius } from "../../theme/ui-tokens";
-
-const OPTION_HIT_SLOP = { top: 6, bottom: 6 };
-
-interface SegmentedOption<T extends string | number> {
-  value: T;
-  label: string;
-}
+import { StyleSheet, View } from "react-native";
+import { UiColors, UiRadius } from "../../theme/ui-tokens";
+import {
+  SegmentedOptionButton,
+  type SegmentedOption,
+} from "./SegmentedOptionButton";
 
 export interface SegmentedProps<T extends string | number> {
   options: readonly SegmentedOption<T>[];
@@ -28,30 +25,15 @@ export const Segmented = <T extends string | number>({
     accessibilityRole="tablist"
     accessibilityLabel={accessibilityLabel}
   >
-    {options.map((option) => {
-      const selected = option.value === value;
-      return (
-        <Pressable
-          key={String(option.value)}
-          style={[
-            styles.option,
-            stretch ? styles.optionStretch : null,
-            selected ? styles.selected : null,
-          ]}
-          onPress={() => {
-            onChange(option.value);
-          }}
-          hitSlop={OPTION_HIT_SLOP}
-          accessibilityRole="tab"
-          accessibilityState={{ selected }}
-          accessibilityLabel={option.label}
-        >
-          <Text style={selected ? styles.labelSelected : styles.label}>
-            {option.label}
-          </Text>
-        </Pressable>
-      );
-    })}
+    {options.map((option) => (
+      <SegmentedOptionButton
+        key={String(option.value)}
+        option={option}
+        selected={option.value === value}
+        stretch={stretch}
+        onChange={onChange}
+      />
+    ))}
   </View>
 );
 
@@ -65,15 +47,4 @@ const styles = StyleSheet.create({
     backgroundColor: UiColors.surface,
   },
   stretch: { alignSelf: "stretch" },
-  option: {
-    minHeight: TouchTarget.min,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  optionStretch: { flex: 1 },
-  selected: { backgroundColor: UiColors.text },
-  label: { fontSize: 15, color: UiColors.textSecondary },
-  labelSelected: { fontSize: 15, fontWeight: "700", color: UiColors.bg },
 });

@@ -1,14 +1,11 @@
 import { ScrollView, StyleSheet } from "react-native";
-import { SIGNAL_META, type SignalKey } from "../../constants/ble";
 import { STRINGS } from "../../strings";
 import { UiColors, UiRadius } from "../../theme/ui-tokens";
 import type { SignalValues } from "../../stores/telemetry.store";
-import { formatNumber } from "../../lib/graph-math";
-import { seriesStyle } from "../../lib/graph-config";
 import type { GraphSelection } from "../../hooks/use-graph-selection";
 import { BottomSheet } from "../sheet/BottomSheet";
 import { SheetDoneButton } from "../sheet/SheetDoneButton";
-import { PickerRow } from "./PickerRow";
+import { SignalPickerRow } from "./SignalPickerRow";
 import { SearchField } from "../controls/SearchField";
 
 const LIST_MAX_HEIGHT = 440;
@@ -18,46 +15,36 @@ export interface SignalPickerProps {
   latest: SignalValues;
 }
 
-export const SignalPicker = ({ selection, latest }: SignalPickerProps) => {
-  const rowFor = (key: SignalKey) => {
-    const index = selection.signals.indexOf(key);
-    return (
-      <PickerRow
-        key={key}
-        name={SIGNAL_META[key].label}
-        value={formatNumber(key, latest[key])}
-        checked={index >= 0}
-        swatch={index >= 0 ? seriesStyle(index) : null}
-        onPress={() => {
-          selection.toggle(key);
-        }}
+export const SignalPicker = ({ selection, latest }: SignalPickerProps) => (
+  <BottomSheet
+    visible={selection.pickerOpen}
+    title={STRINGS.graph.pickerTitle}
+    subtitle={STRINGS.graph.pickerCount(selection.signals.length)}
+    accessory={
+      <SheetDoneButton
+        label={STRINGS.graph.done}
+        onPress={selection.closePicker}
       />
-    );
-  };
-  return (
-    <BottomSheet
-      visible={selection.pickerOpen}
-      title={STRINGS.graph.pickerTitle}
-      subtitle={STRINGS.graph.pickerCount(selection.signals.length)}
-      accessory={
-        <SheetDoneButton
-          label={STRINGS.graph.done}
-          onPress={selection.closePicker}
+    }
+    onClose={selection.closePicker}
+  >
+    <SearchField
+      value={selection.query}
+      onChange={selection.setQuery}
+      placeholder={STRINGS.graph.searchSignals}
+    />
+    <ScrollView style={styles.list}>
+      {selection.matches.map((key) => (
+        <SignalPickerRow
+          key={key}
+          signal={key}
+          selection={selection}
+          latest={latest}
         />
-      }
-      onClose={selection.closePicker}
-    >
-      <SearchField
-        value={selection.query}
-        onChange={selection.setQuery}
-        placeholder={STRINGS.graph.searchSignals}
-      />
-      <ScrollView style={styles.list}>
-        {selection.matches.map(rowFor)}
-      </ScrollView>
-    </BottomSheet>
-  );
-};
+      ))}
+    </ScrollView>
+  </BottomSheet>
+);
 
 const styles = StyleSheet.create({
   list: {

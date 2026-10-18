@@ -1,15 +1,12 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import {
-  createNativeStackNavigator,
-  type NativeStackScreenProps,
-} from "@react-navigation/native-stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ScanScreen from "../screens/ScanScreen";
-import DeviceScreen from "../screens/DeviceScreen";
-import ConsoleScreen from "../screens/ConsoleScreen";
 import ConnectedNavigator from "./ConnectedNavigator";
 import { navigationRef } from "./navigation-ref";
+import { DeviceRoute } from "./DeviceRoute";
+import { ConsoleRoute } from "./ConsoleRoute";
 import { OverlayHost } from "../components/shell/OverlayHost";
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -32,25 +29,8 @@ const Navigation = () => {
         >
           <Stack.Screen name="Scan" component={ScanScreen} />
           <Stack.Screen name="Connected" component={ConnectedNavigator} />
-          <Stack.Screen name="Device">
-            {({
-              navigation,
-            }: NativeStackScreenProps<RootStackParamList, "Device">) => (
-              <DeviceScreen
-                onBack={navigation.goBack}
-                onOpenConsole={() => {
-                  navigation.navigate("Console");
-                }}
-              />
-            )}
-          </Stack.Screen>
-          <Stack.Screen name="Console">
-            {({
-              navigation,
-            }: NativeStackScreenProps<RootStackParamList, "Console">) => (
-              <ConsoleScreen onBack={navigation.goBack} />
-            )}
-          </Stack.Screen>
+          <Stack.Screen name="Device" component={DeviceRoute} />
+          <Stack.Screen name="Console" component={ConsoleRoute} />
         </Stack.Navigator>
         <OverlayHost />
       </View>

@@ -1,4 +1,4 @@
-import { StyleSheet, Switch, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { STRINGS } from "../../strings";
 import { UiColors } from "../../theme/ui-tokens";
 import {
@@ -7,6 +7,7 @@ import {
 } from "../../stores/app-settings.store";
 import { SurfaceCard } from "../cards/SurfaceCard";
 import { Segmented } from "../controls/Segmented";
+import { AutoReconnectSwitch } from "./AutoReconnectSwitch";
 
 const SAMPLES_PER_K = 1000;
 
@@ -18,8 +19,6 @@ const BUFFER_OPTIONS = TELEMETRY_BUFFER_OPTIONS.map((value) => ({
 export const PhoneSettingsCard = () => {
   const buffer = useAppSettingsStore((s) => s.telemetryBufferSize);
   const setBuffer = useAppSettingsStore((s) => s.setTelemetryBufferSize);
-  const reconnect = useAppSettingsStore((s) => s.reconnectBehavior);
-  const setReconnect = useAppSettingsStore((s) => s.setReconnectBehavior);
   return (
     <SurfaceCard>
       <Text style={styles.title}>{STRINGS.device.phoneTitle}</Text>
@@ -34,14 +33,7 @@ export const PhoneSettingsCard = () => {
       </View>
       <View style={styles.row}>
         <Text style={styles.label}>{STRINGS.device.autoReconnect}</Text>
-        <Switch
-          value={reconnect === "auto"}
-          onValueChange={(on) => {
-            setReconnect(on ? "auto" : "off");
-          }}
-          trackColor={{ true: UiColors.success, false: UiColors.surface2 }}
-          accessibilityLabel={STRINGS.device.autoReconnect}
-        />
+        <AutoReconnectSwitch />
       </View>
     </SurfaceCard>
   );
