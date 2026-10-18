@@ -6,9 +6,14 @@ const BAT_MIN = BAT.below ?? 0;
 const BAT_MAX = BAT.above ?? 0;
 
 describe("isSignalInDanger", () => {
-  it("flags battery undervolt below the low side", () => {
+  it("flags battery undervolt at and below the low side, as the dash does", () => {
     expect(isSignalInDanger("bat", BAT_MIN - 0.1)).toBe(true);
-    expect(isSignalInDanger("bat", BAT_MIN)).toBe(false);
+    expect(isSignalInDanger("bat", BAT_MIN)).toBe(true);
+    expect(isSignalInDanger("bat", BAT_MIN + 0.1)).toBe(false);
+  });
+
+  it("uses the dash battery limits", () => {
+    expect(BAT).toEqual({ below: 11.5, above: 16 });
   });
 
   it("flags battery overvolt at the high side", () => {

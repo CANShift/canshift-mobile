@@ -1,4 +1,4 @@
-import type { TrackTelemetry } from "@canshift/core";
+import { DEVICE_COMMANDS, type TrackTelemetry } from "@canshift/core";
 import {
   startGpsSubscription,
   type GpsSubscription,
@@ -65,7 +65,7 @@ export const toTrackStateCmd = (telemetry: TrackTelemetry): CmdPayload => {
 const writeTrackStateOverBle: TrackTelemetryWriter = async (telemetry) => {
   const { connectionState, mode } = useDeviceStore.getState();
   if (connectionState !== "connected" || mode !== "ble") return;
-  await sendCmd("track_state", toTrackStateCmd(telemetry));
+  await sendCmd(DEVICE_COMMANDS.trackState, toTrackStateCmd(telemetry));
 };
 
 export const createTrackModeController = (

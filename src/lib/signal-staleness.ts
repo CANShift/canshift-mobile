@@ -1,9 +1,10 @@
+import { TELEMETRY_STALE_MS } from "@canshift/core";
 import type { SignalKey } from "../constants/ble";
 import type { SignalStamps, TelemetryPayload } from "../stores/signals.store";
 
 const MS_PER_SECOND = 1000;
 
-export const SIGNAL_STALE_MS = 2000;
+export const SIGNAL_STALE_MS = TELEMETRY_STALE_MS;
 
 export const isSignalFresh = (
   lastAt: number | undefined,
