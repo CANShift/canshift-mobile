@@ -226,10 +226,6 @@ install-time permissions cover BLE there.
 
 Configured in `app.json > expo.plugins`:
 
-- **`./plugins/withGlogFmtFix`** — local config-plugin shim that downgrades
-  `fmt`/`glog` Pods to `gnu++17` so iOS builds compile under Xcode 26 /
-  clang 26 (where `__cpp_consteval` triggers `FMT_USE_CONSTEVAL=1` and
-  breaks the format-security path).
 - **`react-native-ble-plx`** — `isBackgroundEnabled: false`,
   `modes: ["peripheral", "central"]`,
   `bluetoothAlwaysPermission` matching the iOS Info.plist string.
