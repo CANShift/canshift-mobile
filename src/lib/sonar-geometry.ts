@@ -10,15 +10,26 @@ const RADAR_MARGIN_TOP = 16;
 export interface SonarRingSpec {
   inset: number;
   color: string;
+  glow: string;
   width: number;
 }
 
 export type SonarRingName = "outer" | "middle" | "inner";
 
 export const SONAR_RINGS: Record<SonarRingName, SonarRingSpec> = {
-  outer: { inset: 0, color: UiColors.borderRow, width: 1.5 },
-  middle: { inset: 40, color: UiColors.border, width: 1.5 },
-  inner: { inset: 80, color: UiColors.accent, width: 2 },
+  outer: {
+    inset: 0,
+    color: UiColors.borderRow,
+    glow: UiColors.accent,
+    width: 1.5,
+  },
+  middle: {
+    inset: 40,
+    color: UiColors.border,
+    glow: UiColors.accent,
+    width: 1.5,
+  },
+  inner: { inset: 80, color: UiColors.accent, glow: UiColors.text, width: 2 },
 };
 
 export const SONAR_RING_ORDER: readonly SonarRingName[] = [

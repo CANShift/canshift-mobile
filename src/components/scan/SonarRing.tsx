@@ -1,5 +1,4 @@
 import { Animated, StyleSheet, View } from "react-native";
-import { UiColors } from "../../theme/ui-tokens";
 import {
   pulseReach,
   ringFrame,
@@ -38,7 +37,7 @@ export const SonarRing = ({ ring, pulse }: SonarRingProps) => (
         styles.ring,
         styles.glow,
         ringFrame(ring),
-        { opacity: ringGlow(pulse, ring) },
+        { borderColor: ring.glow, opacity: ringGlow(pulse, ring) },
       ]}
     />
   </>
@@ -46,5 +45,5 @@ export const SonarRing = ({ ring, pulse }: SonarRingProps) => (
 
 const styles = StyleSheet.create({
   ring: { position: "absolute" },
-  glow: { borderColor: UiColors.accent, borderWidth: GLOW_WIDTH },
+  glow: { borderWidth: GLOW_WIDTH },
 });
