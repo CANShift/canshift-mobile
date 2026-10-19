@@ -3,7 +3,7 @@ import type { GpsTimingModel } from "../../hooks/use-gps-timing";
 import { BigButton } from "../buttons/BigButton";
 import { StopTrackModeDialog } from "./StopTrackModeDialog";
 import { TrackRun } from "./TrackRun";
-import { StatTiles } from "./StatTiles";
+import { BestLastRow } from "./BestLastRow";
 import { LapLines } from "./LapLines";
 import { LapsSplit } from "./LapsSplit";
 
@@ -19,7 +19,7 @@ export const GpsRunning = ({ gps }: GpsRunningProps) => (
       top={
         <>
           <TrackRun laps={gps.laps} currentLapMs={gps.currentLapMs} />
-          <StatTiles laps={gps.laps} />
+          <BestLastRow laps={gps.laps} />
         </>
       }
       bottom={

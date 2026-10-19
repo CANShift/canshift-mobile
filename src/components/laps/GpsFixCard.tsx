@@ -1,27 +1,17 @@
-import { Linking, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { STRINGS } from "../../strings";
-import {
-  TouchTarget,
-  UiColors,
-  UiFonts,
-  UiRadius,
-} from "../../theme/ui-tokens";
+import { UiColors, UiFonts, UiRadius } from "../../theme/ui-tokens";
 import {
   GPS_READY_ACCURACY_M,
   fixProgress,
   type GpsFix,
 } from "../../lib/gps-fix";
 import { Glyph } from "../icons/Glyph";
-import { BigButton } from "../buttons/BigButton";
 
 export interface GpsFixCardProps {
   fix: GpsFix;
   accuracyM: number | null;
 }
-
-const openSettings = () => {
-  void Linking.openSettings();
-};
 
 const ReadyCard = ({ accuracyM }: GpsFixCardProps) => (
   <View style={[styles.card, styles.ready, styles.row]}>
@@ -55,12 +45,6 @@ const DeniedCard = () => (
   <View style={[styles.card, styles.waiting]}>
     <Text style={styles.waitingTitle}>{STRINGS.laps.locationOffTitle}</Text>
     <Text style={styles.waitingBody}>{STRINGS.laps.locationOffBody}</Text>
-    <BigButton
-      label={STRINGS.laps.openSettings}
-      tone="outline"
-      height={TouchTarget.driving}
-      onPress={openSettings}
-    />
   </View>
 );
 

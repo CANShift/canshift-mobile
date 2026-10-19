@@ -77,6 +77,13 @@ const isDisabled = (view: View, label: string): boolean =>
     }
   ).accessibilityState?.disabled === true;
 
+const gloveHeight = (view: View, label: string): boolean => {
+  const style = StyleSheet.flatten(
+    view.getByLabelText(label).props.style as StyleProp<ViewStyle>,
+  );
+  return (style?.height as number) >= 88;
+};
+
 const initialTimer = useTimerStore.getState();
 
 describe("Laps screen — GPS timing", () => {
@@ -86,30 +93,60 @@ describe("Laps screen — GPS timing", () => {
     useGpsFixStore.setState({ permission: "granted", accuracyM: null });
   });
 
-  it("waits for a fix and keeps Start disabled with the reason", async () => {
+  it("waits for a fix with Start as the only action, disabled", async () => {
     useGpsFixStore.setState({ accuracyM: 18 });
     const view = await renderLaps();
     expect(view.getByText(STRINGS.laps.waitingForGps)).toBeTruthy();
     expect(view.getByText(STRINGS.laps.accuracy(18, 5))).toBeTruthy();
+    expect(view.getByText(STRINGS.laps.lineNotSet)).toBeTruthy();
     expect(isDisabled(view, STRINGS.laps.startTrackMode)).toBe(true);
-    expect(view.getByText(STRINGS.laps.needsFixAndLine)).toBeTruthy();
+    expect(view.queryByLabelText(STRINGS.laps.setLineHere)).toBeNull();
+    expect(view.queryByText(STRINGS.laps.noLapsYet)).toBeNull();
+  });
+
+  it("asks to set the line once the fix is good", async () => {
+    useGpsFixStore.setState({ accuracyM: 3 });
+    const view = await renderLaps();
+    expect(view.getByText(STRINGS.laps.gpsReady)).toBeTruthy();
+    expect(view.getByText(STRINGS.laps.setLineHint)).toBeTruthy();
+    expect(view.queryByLabelText(STRINGS.laps.startTrackMode)).toBeNull();
+    expect(gloveHeight(view, STRINGS.laps.setLineHere)).toBe(true);
   });
 
   it("starts track mode once the fix is good and the line is set", async () => {
     useGpsFixStore.setState({ accuracyM: 3 });
     useTrackSessionStore.setState({ startFinishSet: true });
     const view = await renderLaps();
-    expect(view.getByText(STRINGS.laps.gpsReady)).toBeTruthy();
     expect(view.getByText(STRINGS.laps.lineSet)).toBeTruthy();
+    expect(view.queryByLabelText(STRINGS.laps.setLineHere)).toBeNull();
+    expect(gloveHeight(view, STRINGS.laps.startTrackMode)).toBe(true);
     await press(view, STRINGS.laps.startTrackMode);
     expect(mockStart).toHaveBeenCalled();
   });
 
-  it("offers Open Settings when location is refused", async () => {
+  it("keeps Reset line as a secondary action", async () => {
+    useGpsFixStore.setState({ accuracyM: 3 });
+    useTrackSessionStore.setState({ startFinishSet: true });
+    const view = await renderLaps();
+    await press(view, STRINGS.laps.resetLine);
+    expect(useTrackSessionStore.getState().startFinishSet).toBe(false);
+    expect(view.getByLabelText(STRINGS.laps.setLineHere)).toBeTruthy();
+  });
+
+  it("offers Open Settings as the only action when location is refused", async () => {
     useGpsFixStore.setState({ permission: "denied" });
     const view = await renderLaps();
     expect(view.getByText(STRINGS.laps.locationOffTitle)).toBeTruthy();
-    expect(view.getByLabelText(STRINGS.laps.openSettings)).toBeTruthy();
+    expect(gloveHeight(view, STRINGS.laps.openSettings)).toBe(true);
+    expect(view.queryByLabelText(STRINGS.laps.startTrackMode)).toBeNull();
+    expect(view.queryByText(STRINGS.laps.line)).toBeNull();
+  });
+
+  it("lists the kept laps after track mode stops", async () => {
+    useGpsFixStore.setState({ accuracyM: 3 });
+    recordLap(0, 74_070);
+    const view = await renderLaps();
+    expect(view.getByText("Lap 1")).toBeTruthy();
   });
 
   it("shows the running lap, the best lap and asks before stopping", async () => {
@@ -124,6 +161,8 @@ describe("Laps screen — GPS timing", () => {
     expect(view.getAllByText("Lap 3").length).toBeGreaterThan(0);
     expect(view.getByText(STRINGS.laps.bestTag)).toBeTruthy();
     expect(view.getByText("+2.17")).toBeTruthy();
+    expect(view.getByText(STRINGS.laps.best)).toBeTruthy();
+    expect(view.getByText(STRINGS.laps.last)).toBeTruthy();
     await press(view, STRINGS.laps.stopTrackMode);
     expect(view.getByText(STRINGS.laps.stopTrackModeTitle)).toBeTruthy();
     await press(view, STRINGS.laps.stop);

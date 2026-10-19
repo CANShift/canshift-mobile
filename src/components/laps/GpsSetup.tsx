@@ -1,43 +1,33 @@
-import { StyleSheet, Text } from "react-native";
-import { STRINGS } from "../../strings";
-import { UiColors } from "../../theme/ui-tokens";
 import type { GpsTimingModel } from "../../hooks/use-gps-timing";
+import { GPS_SETUP_VIEWS } from "../../lib/gps-setup";
 import { GpsFixCard } from "./GpsFixCard";
-import { StartLineCard } from "./StartLineCard";
-import { LapLines } from "./LapLines";
+import { StartLineRow } from "./StartLineRow";
+import { SetupLaps } from "./SetupLaps";
 import { LapsSplit } from "./LapsSplit";
-import { StartTrackModeButton } from "./StartTrackModeButton";
+import { GpsSetupAction } from "./GpsSetupAction";
 
 export interface GpsSetupProps {
   gps: GpsTimingModel;
 }
 
 export const GpsSetup = ({ gps }: GpsSetupProps) => {
-  const canStart = gps.fix === "ready" && gps.lineSet;
+  const view = GPS_SETUP_VIEWS[gps.step];
   return (
     <LapsSplit
       top={
         <>
           <GpsFixCard fix={gps.fix} accuracyM={gps.accuracyM} />
-          <StartLineCard
-            lineSet={gps.lineSet}
-            canSet={gps.fix === "ready"}
-            onSet={gps.setLine}
-            onReset={gps.resetLine}
-          />
+          {view.showsLine ? (
+            <StartLineRow lineSet={gps.lineSet} onReset={gps.resetLine} />
+          ) : null}
         </>
       }
       bottom={
         <>
-          <Text style={styles.label}>{STRINGS.laps.laps}</Text>
-          <LapLines laps={gps.laps} />
-          <StartTrackModeButton canStart={canStart} onStart={gps.start} />
+          <SetupLaps laps={gps.laps} />
+          <GpsSetupAction view={view} onPress={gps[view.action]} />
         </>
       }
     />
   );
 };
-
-const styles = StyleSheet.create({
-  label: { fontSize: 15, color: UiColors.textMuted },
-});
