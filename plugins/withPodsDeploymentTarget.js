@@ -4,8 +4,8 @@ const PATCH = `
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
         current = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
-        if current.nil? || Gem::Version.new(current) < Gem::Version.new('15.1')
-          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
+        if current.nil? || Gem::Version.new(current) < Gem::Version.new('16.4')
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.4'
         end
       end
     end
