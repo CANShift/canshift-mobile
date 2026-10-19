@@ -42,5 +42,5 @@ export const BottomSheet = ({
 
 const styles = StyleSheet.create({
   root: { flex: 1, justifyContent: "flex-end" },
-  scrim: { ...StyleSheet.absoluteFillObject, backgroundColor: "#000000AA" },
+  scrim: { ...StyleSheet.absoluteFill, backgroundColor: "#000000AA" },
 });
