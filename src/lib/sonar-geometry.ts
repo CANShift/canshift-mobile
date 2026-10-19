@@ -1,0 +1,38 @@
+import { UiColors } from "../theme/ui-tokens";
+
+export const RADAR_SIZE = 240;
+export const DOT_SIZE = 24;
+export const PULSE_SIZE = 280;
+
+export interface SonarRingSpec {
+  inset: number;
+  color: string;
+  width: number;
+}
+
+export const SONAR_RINGS: readonly SonarRingSpec[] = [
+  { inset: 0, color: UiColors.borderRow, width: 1.5 },
+  { inset: 40, color: UiColors.border, width: 1.5 },
+  { inset: 80, color: UiColors.accent, width: 2 },
+];
+
+export const ringFrame = (ring: SonarRingSpec) => ({
+  top: ring.inset,
+  left: ring.inset,
+  right: ring.inset,
+  bottom: ring.inset,
+  borderRadius: (RADAR_SIZE - ring.inset * 2) / 2,
+});
+
+export const pulseReach = (ring: SonarRingSpec): number =>
+  (RADAR_SIZE / 2 - ring.inset - DOT_SIZE / 2) /
+  (PULSE_SIZE / 2 - DOT_SIZE / 2);
+
+export const centeredSquare = (size: number) => ({
+  position: "absolute" as const,
+  left: (RADAR_SIZE - size) / 2,
+  top: (RADAR_SIZE - size) / 2,
+  width: size,
+  height: size,
+  borderRadius: size / 2,
+});

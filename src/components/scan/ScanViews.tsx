@@ -94,7 +94,7 @@ const ScanningView = ({ model }: ScanViewProps) => (
     <Text style={styles.title} accessibilityRole="header">
       {STRINGS.connect.scanning}
     </Text>
-    <ScanRadar />
+    <ScanRadar active={model.scan.scanning} />
     <Text style={styles.centered}>{STRINGS.connect.scanningHint}</Text>
     <ScanActions
       primary={{
