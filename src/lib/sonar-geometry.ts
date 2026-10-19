@@ -3,6 +3,9 @@ import { UiColors } from "../theme/ui-tokens";
 export const RADAR_SIZE = 240;
 export const DOT_SIZE = 24;
 export const PULSE_SIZE = 280;
+export const RADAR_SCALE = { full: 1, compact: 0.45 } as const;
+
+const RADAR_MARGIN_TOP = 16;
 
 export interface SonarRingSpec {
   inset: number;
@@ -44,3 +47,21 @@ export const centeredSquare = (size: number) => ({
   height: size,
   borderRadius: size / 2,
 });
+
+export const radarFrame = (scale: number) => ({
+  width: RADAR_SIZE * scale,
+  height: RADAR_SIZE * scale,
+  marginTop: RADAR_MARGIN_TOP * scale,
+});
+
+export const radarLayerFrame = (scale: number) => {
+  const offset = (RADAR_SIZE * (scale - 1)) / 2;
+  return {
+    position: "absolute" as const,
+    left: offset,
+    top: offset,
+    width: RADAR_SIZE,
+    height: RADAR_SIZE,
+    transform: [{ scale }],
+  };
+};

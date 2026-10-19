@@ -4,14 +4,12 @@ import { DashCard } from "./DashCard";
 
 interface FoundDashListProps {
   scan: DeviceScan;
-  header: React.JSX.Element;
 }
 
-export const FoundDashList = ({ scan, header }: FoundDashListProps) => (
+export const FoundDashList = ({ scan }: FoundDashListProps) => (
   <FlatList
     style={styles.list}
     contentContainerStyle={styles.listContent}
-    ListHeaderComponent={header}
     data={scan.devices}
     keyExtractor={(dash) => dash.id}
     renderItem={({ item }) => (
