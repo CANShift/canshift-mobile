@@ -6,7 +6,7 @@
 
 ## Stack
 
-Expo SDK 54 (bare workflow via prebuild), React Native 0.81, TypeScript, `react-native-ble-plx` for Bluetooth. iOS is the primary target; the Android build works but gets less testing, and iPad is intentionally disabled (`supportsTablet: false`). The look follows the [redesign handoff](redesign/HANDOFF.md): dark only, read at arm's length, 56 pt targets on driving screens.
+Expo SDK 57 (bare workflow via prebuild), React Native 0.86, TypeScript, `react-native-ble-plx` for Bluetooth. iOS is the primary target; the Android build works but gets less testing, and iPad is intentionally disabled (`supportsTablet: false`). The look follows the [redesign handoff](redesign/HANDOFF.md): dark only, read at arm's length, 56 pt targets on driving screens.
 
 ## What's in it today
 
