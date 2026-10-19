@@ -10,6 +10,7 @@ import { usePhoneBatteryGuard } from "@/hooks/use-phone-battery-guard";
 import { useAppSettingsStore } from "@/stores/app-settings.store";
 import { hydrateTimerSessions } from "@/stores/timer-sessions.store";
 import { startAlertServices } from "@/services/alert-services";
+import { startNotificationServices } from "@/services/notifications/notification-services";
 import { startFirmwareReleaseWatch } from "@/services/workshop/firmware-release-watch";
 import { markFirstScreenReady } from "./diag/cold-start";
 
@@ -17,6 +18,7 @@ const App = () => {
   useBleForegroundReconnect();
   usePhoneBatteryGuard();
   useEffect(() => startAlertServices(), []);
+  useEffect(() => startNotificationServices(), []);
   useEffect(() => startFirmwareReleaseWatch(), []);
   useEffect(() => {
     void useAppSettingsStore.getState().hydrate();

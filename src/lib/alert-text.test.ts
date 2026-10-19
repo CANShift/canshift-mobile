@@ -1,6 +1,7 @@
 import { entryFromDash } from "./alert-model";
 import {
   alertLimit,
+  alertNotificationBody,
   alertSince,
   alertSpoken,
   alertStripLine,
@@ -22,6 +23,13 @@ describe("alert text", () => {
   it("names the signal and the side it crossed", () => {
     expect(alertTitle(OIL)).toBe("OIL PRESSURE LOW");
     expect(alertLimit(OIL)).toBe("Limit: below 1.0 bar");
+  });
+
+  it("writes the notification body as the reading and the limit", () => {
+    expect(alertNotificationBody(OIL)).toBe("0.8 bar · limit below 1.0");
+    expect(alertNotificationBody({ ...OIL, limit: null })).toBe(
+      "0.8 bar · out of the safe range",
+    );
   });
 
   it("writes the time since onset as m:ss", () => {

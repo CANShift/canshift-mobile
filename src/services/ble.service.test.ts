@@ -317,6 +317,8 @@ describe("BleService monitor death", () => {
   const makeMonitoredService = () => {
     const monitors: MonitorEntry[] = [];
     const showToast = jest.fn();
+    const onDashLost = jest.fn();
+    const dropped: (() => void)[] = [];
     const device = {
       id: "test-device",
       name: "CANShift-test",
@@ -341,7 +343,10 @@ describe("BleService monitor death", () => {
           return { remove: jest.fn() };
         },
       ),
-      onDisconnected: jest.fn(() => ({ remove: jest.fn() })),
+      onDisconnected: jest.fn((cb: () => void) => {
+        dropped.push(cb);
+        return { remove: jest.fn() };
+      }),
       cancelConnection: jest.fn(() => Promise.resolve()),
     };
     const startDeviceScan = jest.fn();
@@ -357,8 +362,22 @@ describe("BleService monitor death", () => {
       requestAndroidPermissions: () =>
         Promise.resolve({ kind: "not_applicable" }),
       showToast,
+      onDashLost,
     });
-    return { service, monitors, showToast, startDeviceScan, connectToDevice };
+    const dropLink = () => {
+      dropped.forEach((cb) => {
+        cb();
+      });
+    };
+    return {
+      service,
+      monitors,
+      showToast,
+      onDashLost,
+      dropLink,
+      startDeviceScan,
+      connectToDevice,
+    };
   };
 
   const attachedTo = (monitors: MonitorEntry[], characteristic: string) =>
@@ -440,15 +459,46 @@ describe("BleService monitor death", () => {
   });
 
   it("does not chase a dash that left for workshop mode while the hold is on", async () => {
-    const { service, monitors } = makeMonitoredService();
+    const { service, monitors, onDashLost } = makeMonitoredService();
     await service.connect("test-device");
     service.holdReconnect();
 
     await killUntilLost(monitors, BLE_CHAR_TELE);
 
+    expect(onDashLost).not.toHaveBeenCalled();
     expect(useReconnectStore.getState().isReconnecting).toBe(false);
     await expect(service.tryReconnectLastDevice()).resolves.toBe(false);
     service.releaseReconnect();
+  });
+
+  it("reports a dash lost when the link drops on its own", async () => {
+    const { service, onDashLost, dropLink } = makeMonitoredService();
+    await service.connect("test-device");
+
+    dropLink();
+
+    expect(onDashLost).toHaveBeenCalledTimes(1);
+    service.cancelReconnect();
+  });
+
+  it("reports a dash lost when a monitor never comes back", async () => {
+    const { service, monitors, onDashLost } = makeMonitoredService();
+    await service.connect("test-device");
+
+    await killUntilLost(monitors, BLE_CHAR_TELE);
+
+    expect(onDashLost).toHaveBeenCalledTimes(1);
+    service.cancelReconnect();
+  });
+
+  it("doesn't report a dash lost when the user disconnects", async () => {
+    const { service, onDashLost, dropLink } = makeMonitoredService();
+    await service.connect("test-device");
+
+    await service.disconnect();
+    dropLink();
+
+    expect(onDashLost).not.toHaveBeenCalled();
   });
 
   it("declares the link lost so the dash starts its hold on the last values", async () => {

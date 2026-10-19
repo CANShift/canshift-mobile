@@ -11,6 +11,10 @@ The repo keeps zero comments, so the reasons behind the native config plugins an
 | `withPodfilePostInstall`            | Shared helper: inserts a patch once, before the `end` that closes `post_install`, guarded by a marker line | Lets each Podfile plugin run on every prebuild without stacking duplicates. It fails loudly when the Expo template changes shape.                                                                                                                                 |
 | `withBluetoothScanNeverForLocation` | Android: flags `BLUETOOTH_SCAN` as `neverForLocation` and caps `ACCESS_FINE_LOCATION` at API 30            | The app never derives location from BLE. Without it, Play review flags location use and Android 12+ users get a location prompt the BLE stack no longer needs.                                                                                                    |
 
+## Notifications (`expo-notifications`)
+
+Alerts and the lost-link warning are local notifications only: no push server, no time-sensitive or critical-alert entitlement. The plugin runs with `enableRemoteNotifications: false`, which keeps `aps-environment` out of the entitlements, so the app still signs with a free personal team that has no push capability.
+
 ## iOS scene lifecycle
 
 Prebuild generates `SceneDelegate.swift` and the `UIApplicationSceneManifest` in Info.plist, which the Expo SDK 58 template provides. The iOS 27 SDK enforces scene adoption: an app without it stops at launch with `EXC_BREAKPOINT` in `_UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption`. A config plugin that patches `AppDelegate.swift` must keep the scene delegate wiring intact.

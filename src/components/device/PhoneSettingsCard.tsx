@@ -8,6 +8,7 @@ import {
 import { SurfaceCard } from "../cards/SurfaceCard";
 import { Segmented } from "../controls/Segmented";
 import { AutoReconnectSwitch } from "./AutoReconnectSwitch";
+import { NotificationsOffRow } from "./NotificationsOffRow";
 
 const SAMPLES_PER_K = 1000;
 
@@ -35,6 +36,7 @@ export const PhoneSettingsCard = () => {
         <Text style={styles.label}>{STRINGS.device.autoReconnect}</Text>
         <AutoReconnectSwitch />
       </View>
+      <NotificationsOffRow />
     </SurfaceCard>
   );
 };

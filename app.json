@@ -54,6 +54,12 @@
       ],
       "expo-secure-store",
       [
+        "expo-notifications",
+        {
+          "enableRemoteNotifications": false
+        }
+      ],
+      [
         "expo-location",
         {
           "locationWhenInUsePermission": "CANShift uses your location to record laps and detect start/finish crossings on the circuit."
