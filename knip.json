@@ -6,6 +6,7 @@
     "react-native-reanimated",
     "react-native-worklets",
     "@babel/core",
+    "@react-native/metro-config",
     "expo-updates",
     "expo-system-ui"
   ]
