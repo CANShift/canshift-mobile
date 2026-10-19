@@ -3,7 +3,7 @@ import {
   parseBleStatus,
   parseTimerLap,
   parseTimerState,
-} from "@canshift/core";
+} from "@canshift/core/wire";
 import { log } from "../../stores/log.store";
 import { useSignalsStore } from "../../stores/signals.store";
 import { useDeviceStore } from "../../stores/device.store";

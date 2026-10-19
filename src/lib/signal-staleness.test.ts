@@ -1,4 +1,4 @@
-import { TELEMETRY_KEEPALIVE_MS } from "@canshift/core";
+import { TELEMETRY_KEEPALIVE_MS } from "@canshift/core/wire";
 import {
   SIGNAL_STALE_MS,
   ageSeconds,

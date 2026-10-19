@@ -1,4 +1,4 @@
-import { TELEMETRY_FIELDS } from "@canshift/core";
+import { TELEMETRY_FIELDS } from "@canshift/core/wire";
 import { SIGNAL_META } from "./ble";
 
 describe("SIGNAL_META", () => {

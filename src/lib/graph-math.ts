@@ -1,4 +1,4 @@
-import { STALE_PLACEHOLDER } from "@canshift/core";
+import { STALE_PLACEHOLDER } from "@canshift/core/widget-metrics";
 import type { TelemetrySample } from "../stores/telemetry.store";
 import { SIGNAL_META, type SignalKey } from "../constants/ble";
 

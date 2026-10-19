@@ -1,5 +1,6 @@
 import { Buffer } from "buffer";
-import { encodeAlertFrame, sensorDefaultDangerBand } from "@canshift/core";
+import { encodeAlertFrame } from "@canshift/core/wire";
+import { sensorDefaultDangerBand } from "@canshift/core/widget-metrics";
 import {
   fallBackToLocalAlerts,
   handleAlertFrame,

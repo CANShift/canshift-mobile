@@ -2,7 +2,7 @@ import {
   SHIFT_LIGHT,
   sensorDefaultRange,
   shiftLightLitSegments,
-} from "@canshift/core";
+} from "@canshift/core/widget-metrics";
 
 const SHIFT_FULL_RPM = sensorDefaultRange("rpm").max;
 const GREEN_CELLS = 6;

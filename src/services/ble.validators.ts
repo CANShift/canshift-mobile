@@ -1,4 +1,4 @@
-import { decodeTelemetryFrame } from "@canshift/core";
+import { decodeTelemetryFrame } from "@canshift/core/wire";
 
 import { type SignalKey } from "../constants/ble";
 import { tryParseJson } from "../lib/try-parse-json";

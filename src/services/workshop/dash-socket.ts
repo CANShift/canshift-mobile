@@ -1,5 +1,5 @@
-import { parseUntrustedJsonObject, parseUsbStatus } from "@canshift/core";
-import type { UsbStatus } from "@canshift/core";
+import { parseUntrustedJsonObject, parseUsbStatus } from "@canshift/core/wire";
+import type { UsbStatus } from "@canshift/core/wire";
 import {
   ACK_TIMEOUT_MS,
   CLOSE_BUSY,

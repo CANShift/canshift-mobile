@@ -1,11 +1,11 @@
 import {
   BUILT_IN_ALERT_SIGNALS,
-  MAXXECU_SIGNAL_UNITS,
   type ActiveAlert,
   type AlertLimit,
   type AlertOrigin,
   type BuiltInAlertSource,
-} from "@canshift/core";
+} from "@canshift/core/wire";
+import { MAXXECU_SIGNAL_UNITS } from "@canshift/core/ecu-profiles";
 import { SIGNAL_META, type SignalKey } from "../constants/ble";
 
 export type AlertFeed = "local" | "dash";

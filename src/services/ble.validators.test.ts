@@ -1,4 +1,4 @@
-import { encodeTelemetryFrame } from "@canshift/core";
+import { encodeTelemetryFrame } from "@canshift/core/wire";
 
 import { parseDeviceSettings, parseTelemetry } from "./ble.validators";
 

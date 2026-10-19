@@ -1,4 +1,4 @@
-import { SHIFT_LIGHT } from "@canshift/core";
+import { SHIFT_LIGHT } from "@canshift/core/widget-metrics";
 import {
   SHIFT_CELL_INDEXES,
   shiftCellZone,

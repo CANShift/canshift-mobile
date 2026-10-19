@@ -1,10 +1,9 @@
 import {
   isOutsideDangerBand,
   sensorDefaultDangerBand,
-  type AlertLimit,
-  type BuiltInAlertSource,
   type SensorDangerBand,
-} from "@canshift/core";
+} from "@canshift/core/widget-metrics";
+import { type AlertLimit, type BuiltInAlertSource } from "@canshift/core/wire";
 import type { SignalKey } from "../constants/ble";
 import type { TelemetryPayload } from "../stores/signals.store";
 import { signalKeyToSensorKind } from "../theme/signal-colors";

@@ -1,6 +1,6 @@
 import { SIGNAL_META, type SignalKey } from "../constants/ble";
 import { STRINGS } from "../strings";
-import { gearGlyph } from "@canshift/core";
+import { gearGlyph } from "@canshift/core/widget-metrics";
 import { formatWidgetValue } from "../components/widgets/widget-value";
 import { isSignalInDanger } from "./signal-danger";
 import { ageSeconds, isSignalFresh } from "./signal-staleness";

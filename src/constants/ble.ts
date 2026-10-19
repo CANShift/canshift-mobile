@@ -1,4 +1,4 @@
-import type { TelemetryFieldKey } from "@canshift/core";
+import type { TelemetryFieldKey } from "@canshift/core/wire";
 
 export const BLE_SERVICE_UUID = "4fa0b6a0-0000-0000-0000-000000000001" as const;
 
