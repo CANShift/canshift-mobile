@@ -52,8 +52,8 @@ export const fileTimerSessionStorage: TimerSessionStorage = {
   save: async (sessions) => {
     const { failed } = await persist(
       "Persisting the timer sessions",
-      () => {
-        sessionsFile().write(JSON.stringify(sessions));
+      async () => {
+        await sessionsFile().write(JSON.stringify(sessions));
       },
       undefined,
     );

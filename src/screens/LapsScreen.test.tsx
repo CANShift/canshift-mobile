@@ -159,10 +159,10 @@ describe("Laps screen — Dash timer", () => {
     const view = await openTimer();
     expect(view.getByText(STRINGS.laps.synced)).toBeTruthy();
     const capture = view.getByLabelText(STRINGS.laps.captureLap);
-    const style: ViewStyle = StyleSheet.flatten(
+    const style = StyleSheet.flatten(
       capture.props.style as StyleProp<ViewStyle>,
     );
-    expect(style.height).toBeGreaterThanOrEqual(88);
+    expect(style?.height).toBeGreaterThanOrEqual(88);
   });
 
   it("asks before resetting a paused timer", async () => {

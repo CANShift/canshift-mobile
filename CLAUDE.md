@@ -1,6 +1,6 @@
 # canshift-mobile — Project Rules
 
-iPhone companion app for the CANShift dashboard (org: github.com/CANShift). Expo SDK 57 (prebuild) · React Native 0.86 · React 19 · Zustand · react-native-ble-plx. iOS-first; the package is currently deferred — verify in-simulator only unless told otherwise.
+iPhone companion app for the CANShift dashboard (org: github.com/CANShift). Expo SDK 58 (prebuild) · React Native 0.88 · React 19 · Zustand · react-native-ble-plx. iOS-first; the package is currently deferred — verify in-simulator only unless told otherwise.
 
 ## Commands
 

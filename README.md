@@ -7,9 +7,9 @@ dash's critical alerts on your phone. See the
 📖 **[Documentation](docs/README.md)** — what the app does today, and how BLE
 pairing works.
 
-**Stack:** Expo SDK 57 (bare workflow via prebuild) · React Native 0.86.3 ·
-React 19.2 · TypeScript 6 · Zustand 5 · `react-native-ble-plx` 3.5.1 ·
-`expo-secure-store` 57 · React Navigation 7. Styling is plain `StyleSheet`
+**Stack:** Expo SDK 58 (bare workflow via prebuild) · React Native 0.88.0 ·
+React 19.3 · TypeScript 6 · Zustand 5 · `react-native-ble-plx` 3.5.1 ·
+`expo-secure-store` 58 · React Navigation 7. Styling is plain `StyleSheet`
 with the tokens in `src/theme/ui-tokens.ts` (dark only, system fonts, Menlo
 numbers). The design spec is [docs/redesign/HANDOFF.md](docs/redesign/HANDOFF.md).
 

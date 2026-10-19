@@ -12,9 +12,9 @@ The repo keeps zero comments, so the reasons behind the native config plugins an
 | `withPodfilePostInstall`            | Shared helper: inserts a patch once, before the `end` that closes `post_install`, guarded by a marker line | Lets each Podfile plugin run on every prebuild without stacking duplicates. It fails loudly when the Expo template changes shape.                                                                                                                                                                                      |
 | `withBluetoothScanNeverForLocation` | Android: flags `BLUETOOTH_SCAN` as `neverForLocation` and caps `ACCESS_FINE_LOCATION` at API 30            | The app never derives location from BLE. Without it, Play review flags location use and Android 12+ users get a location prompt the BLE stack no longer needs.                                                                                                                                                         |
 
-## iOS scene lifecycle (`expo-build-properties`)
+## iOS scene lifecycle
 
-`ios.enableSceneSupport` makes prebuild generate a scene-based app: the `UIApplicationSceneManifest` in Info.plist and Expo's scene delegate, which starts React Native. The iOS 27 SDK enforces scene adoption, and an app without it stops at launch with `EXC_BREAKPOINT` in `_UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption`. SDK 58's template adopts scenes on its own, so the option goes away with that upgrade.
+Prebuild generates `SceneDelegate.swift` and the `UIApplicationSceneManifest` in Info.plist, which the Expo SDK 58 template provides. The iOS 27 SDK enforces scene adoption: an app without it stops at launch with `EXC_BREAKPOINT` in `_UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption`. A config plugin that patches `AppDelegate.swift` must keep the scene delegate wiring intact.
 
 ## Dependency overrides (`scripts/check-overrides.js`)
 
