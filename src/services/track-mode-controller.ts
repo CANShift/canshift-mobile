@@ -1,4 +1,5 @@
-import { DEVICE_COMMANDS, type TrackTelemetry } from "@canshift/core";
+import { DEVICE_COMMANDS } from "@canshift/core/wire";
+import { type TrackTelemetry } from "@canshift/core/track";
 import {
   startGpsSubscription,
   type GpsSubscription,

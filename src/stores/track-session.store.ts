@@ -4,7 +4,7 @@ import {
   type LapCrossingDetector,
   type LapCrossingDetectorOptions,
   type LineSegment,
-} from "@canshift/core";
+} from "@canshift/core/track";
 
 export const MAX_GPS_SAMPLES = 9000;
 

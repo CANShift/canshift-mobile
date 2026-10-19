@@ -11,7 +11,7 @@ import { log } from "../stores/log.store";
 import { useReconnectStore } from "../stores/reconnect.store";
 import { clearMutedAlerts } from "../stores/alerts.store";
 import { useAppSettingsStore } from "../stores/app-settings.store";
-import type { TimerCommand } from "@canshift/core";
+import type { TimerCommand } from "@canshift/core/wire";
 import { rememberDevice, forgetDevice, getLastDevice } from "./last-device";
 import {
   requestAndroidBlePermissions,

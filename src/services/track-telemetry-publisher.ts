@@ -1,5 +1,8 @@
 import type { z } from "zod";
-import { TrackTelemetrySchema, type TrackTelemetry } from "@canshift/core";
+import {
+  TrackTelemetrySchema,
+  type TrackTelemetry,
+} from "@canshift/core/track";
 import { log } from "../stores/log.store";
 import { useTrackSessionStore } from "../stores/track-session.store";
 import { buildTrackTelemetry } from "./track-telemetry";

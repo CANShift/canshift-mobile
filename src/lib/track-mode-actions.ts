@@ -1,4 +1,4 @@
-import { startFinishLineFromPosition } from "@canshift/core";
+import { startFinishLineFromPosition } from "@canshift/core/track";
 import {
   trackModeController,
   type TrackModeStartFailure,

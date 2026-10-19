@@ -1,4 +1,4 @@
-import { TELEMETRY_STALE_MS } from "@canshift/core";
+import { TELEMETRY_STALE_MS } from "@canshift/core/wire";
 import type { SignalKey } from "../constants/ble";
 import type { SignalStamps, TelemetryPayload } from "../stores/signals.store";
 

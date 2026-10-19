@@ -5,7 +5,7 @@ import {
   acknowledgeAlert,
   useAlertsStore,
 } from "../stores/alerts.store";
-import type { BuiltInAlertSource } from "@canshift/core";
+import type { BuiltInAlertSource } from "@canshift/core/wire";
 import { builtInOrigin, type AlertEntry } from "../lib/alert-model";
 
 const mockPlay = jest.fn();

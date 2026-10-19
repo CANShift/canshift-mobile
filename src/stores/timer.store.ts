@@ -1,5 +1,5 @@
 import { create, type StoreApi } from "zustand";
-import type { TimerBleLap, TimerBleState } from "@canshift/core";
+import type { TimerBleLap, TimerBleState } from "@canshift/core/wire";
 import {
   insertLap,
   type IncomingLap,

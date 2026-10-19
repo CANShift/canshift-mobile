@@ -1,5 +1,5 @@
 import type { SignalValues, TelemetrySample } from "../stores/telemetry.store";
-import { STALE_PLACEHOLDER } from "@canshift/core";
+import { STALE_PLACEHOLDER } from "@canshift/core/widget-metrics";
 import { SIGNAL_RANGE, buildPoints, formatNumber } from "./graph-math";
 
 describe("formatNumber", () => {

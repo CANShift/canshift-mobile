@@ -1,4 +1,4 @@
-import type { TrackTelemetry } from "@canshift/core";
+import type { TrackTelemetry } from "@canshift/core/track";
 import { lapStartMs, type LapRecord } from "../stores/track-session.store";
 
 export interface BuildTrackTelemetryInput {

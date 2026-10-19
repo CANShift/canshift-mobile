@@ -1,5 +1,5 @@
 import { alertViews, clearedSources } from "./alert-views";
-import type { BuiltInAlertSource } from "@canshift/core";
+import type { BuiltInAlertSource } from "@canshift/core/wire";
 import { builtInOrigin, type AlertEntry } from "./alert-model";
 
 const entry = (

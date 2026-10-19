@@ -1,4 +1,4 @@
-import type { BuiltInAlertSource } from "@canshift/core";
+import type { BuiltInAlertSource } from "@canshift/core/wire";
 import { builtInOrigin, type AlertEntry } from "./alert-model";
 import {
   NO_ALERT_NOTIFICATIONS,

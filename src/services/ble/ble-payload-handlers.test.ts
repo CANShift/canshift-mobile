@@ -1,5 +1,5 @@
 import { Buffer } from "buffer";
-import { encodeTelemetryFrame } from "@canshift/core";
+import { encodeTelemetryFrame } from "@canshift/core/wire";
 import { handleTelemetry } from "./ble-payload-handlers";
 import { useDeviceStore } from "../../stores/device.store";
 import { useLogStore } from "../../stores/log.store";

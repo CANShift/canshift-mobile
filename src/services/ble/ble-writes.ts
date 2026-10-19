@@ -1,5 +1,5 @@
 import type { Device } from "react-native-ble-plx";
-import { encodeTimerCommand, type TimerCommand } from "@canshift/core";
+import { encodeTimerCommand, type TimerCommand } from "@canshift/core/wire";
 import {
   BLE_SERVICE_UUID,
   BLE_CHAR_SETTINGS,

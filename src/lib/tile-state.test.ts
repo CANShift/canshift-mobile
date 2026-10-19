@@ -1,4 +1,4 @@
-import { sensorDefaultDangerBand } from "@canshift/core";
+import { sensorDefaultDangerBand } from "@canshift/core/widget-metrics";
 import {
   LIVE_PAGES,
   TILES,

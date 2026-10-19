@@ -1,4 +1,7 @@
-import { isOutsideDangerBand, sensorDefaultDangerBand } from "@canshift/core";
+import {
+  isOutsideDangerBand,
+  sensorDefaultDangerBand,
+} from "@canshift/core/widget-metrics";
 import type { SignalKey } from "../constants/ble";
 import { signalKeyToSensorKind } from "../theme/signal-colors";
 import { toSensorKindValue } from "../theme/sensor-units";

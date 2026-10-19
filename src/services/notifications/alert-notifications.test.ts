@@ -1,5 +1,5 @@
 import { AppState } from "react-native";
-import type { BuiltInAlertSource } from "@canshift/core";
+import type { BuiltInAlertSource } from "@canshift/core/wire";
 import { startAlertNotifications } from "./alert-notifications";
 import {
   acknowledgeAlert,

@@ -1,4 +1,4 @@
-import type { SensorKind } from "@canshift/core";
+import type { SensorKind } from "@canshift/core/widget-metrics";
 import type { SignalKey } from "../constants/ble";
 
 const KEY_TO_SENSOR_KIND: Record<string, SensorKind> = {

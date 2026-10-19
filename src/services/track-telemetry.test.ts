@@ -1,4 +1,4 @@
-import { TrackTelemetrySchema } from "@canshift/core";
+import { TrackTelemetrySchema } from "@canshift/core/track";
 import type { LapRecord } from "../stores/track-session.store";
 import { buildTrackTelemetry } from "./track-telemetry";
 

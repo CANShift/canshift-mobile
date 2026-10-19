@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { CURRENT_SCHEMA_VERSION } from "@canshift/core";
+import { CURRENT_SCHEMA_VERSION } from "@canshift/core/schema-version";
 import { useDeviceStore } from "../stores/device.store";
 import { useSignalValue } from "../stores/signals.store";
 import { readAppVersion } from "../lib/expo-version";

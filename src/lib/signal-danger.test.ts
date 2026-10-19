@@ -1,4 +1,4 @@
-import { sensorDefaultDangerBand } from "@canshift/core";
+import { sensorDefaultDangerBand } from "@canshift/core/widget-metrics";
 import { isSignalInDanger } from "./signal-danger";
 
 const BAT = sensorDefaultDangerBand("battery_volts");

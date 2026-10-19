@@ -1,4 +1,4 @@
-import { ALERT_ACK_COMMAND, alertSourceId } from "@canshift/core";
+import { ALERT_ACK_COMMAND, alertSourceId } from "@canshift/core/wire";
 import { sendCmd } from "./ble.service";
 import { useDeviceStore } from "../stores/device.store";
 import {

@@ -1,4 +1,4 @@
-import { decodeAlertFrame } from "@canshift/core";
+import { decodeAlertFrame } from "@canshift/core/wire";
 import { useSignalsStore } from "../stores/signals.store";
 import {
   publishAlerts,

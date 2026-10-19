@@ -1,4 +1,4 @@
-import type { TrackTelemetry } from "@canshift/core";
+import type { TrackTelemetry } from "@canshift/core/track";
 import * as trackSession from "../stores/track-session.store";
 import {
   clearAll,
