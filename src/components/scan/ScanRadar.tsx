@@ -1,51 +1,76 @@
-import { StyleSheet, View } from "react-native";
+import { Animated, StyleSheet, View, type ViewStyle } from "react-native";
 import { UiColors } from "../../theme/ui-tokens";
+import { useSonarPulse, type SonarMode } from "../../hooks/use-sonar-pulse";
+import {
+  DOT_SIZE,
+  PULSE_SIZE,
+  RADAR_SIZE,
+  SONAR_RINGS,
+  centeredSquare,
+} from "../../lib/sonar-geometry";
+import { SonarRing } from "./SonarRing";
 
-const SIZE = 240;
-const RINGS = [
-  { inset: 0, color: UiColors.borderRow, width: 1.5 },
-  { inset: 40, color: UiColors.border, width: 1.5 },
-  { inset: 80, color: UiColors.accent, width: 2 },
-];
-const DOT = 24;
+export interface ScanRadarProps {
+  active: boolean;
+}
 
-export const ScanRadar = () => (
-  <View
-    style={styles.radar}
-    accessibilityElementsHidden
-    importantForAccessibility="no-hide-descendants"
-  >
-    {RINGS.map((ring) => (
-      <View
-        key={ring.inset}
-        style={[
-          styles.ring,
-          {
-            top: ring.inset,
-            left: ring.inset,
-            right: ring.inset,
-            bottom: ring.inset,
-            borderRadius: (SIZE - ring.inset * 2) / 2,
-            borderColor: ring.color,
-            borderWidth: ring.width,
-          },
-        ]}
-      />
-    ))}
-    <View style={styles.dot} />
-  </View>
-);
+type AnimatedStyle = Animated.WithAnimatedValue<ViewStyle>;
+
+const PULSE_WIDTH = 2;
+const PULSE_PEAK_OPACITY = 0.8;
+const PULSE_FADE_IN = 0.04;
+const BREATH_MIN_OPACITY = 0.7;
+const BREATH_MAX_SCALE = 1.15;
+
+const between = (value: Animated.Value, from: number, to: number) =>
+  value.interpolate({ inputRange: [0, 1], outputRange: [from, to] });
+
+const pulseStyle = (pulse: Animated.Value): AnimatedStyle => ({
+  opacity: pulse.interpolate({
+    inputRange: [0, PULSE_FADE_IN, 1],
+    outputRange: [0, PULSE_PEAK_OPACITY, 0],
+  }),
+  transform: [{ scale: between(pulse, DOT_SIZE / PULSE_SIZE, 1) }],
+});
+
+const DOT_STYLES: Record<SonarMode, (breath: Animated.Value) => AnimatedStyle> =
+  {
+    idle: () => ({}),
+    calm: (breath) => ({ opacity: between(breath, 1, BREATH_MIN_OPACITY) }),
+    sweep: (breath) => ({
+      opacity: between(breath, 1, BREATH_MIN_OPACITY),
+      transform: [{ scale: between(breath, 1, BREATH_MAX_SCALE) }],
+    }),
+  };
+
+export const ScanRadar = ({ active }: ScanRadarProps) => {
+  const { mode, pulse, breath } = useSonarPulse(active);
+  return (
+    <View
+      style={styles.radar}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
+      {SONAR_RINGS.map((ring) => (
+        <SonarRing key={ring.inset} ring={ring} pulse={pulse} />
+      ))}
+      <Animated.View style={[styles.pulse, pulseStyle(pulse)]} />
+      <Animated.View style={[styles.dot, DOT_STYLES[mode](breath)]} />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-  radar: { alignSelf: "center", width: SIZE, height: SIZE, marginTop: 16 },
-  ring: { position: "absolute" },
-  dot: {
-    position: "absolute",
-    left: (SIZE - DOT) / 2,
-    top: (SIZE - DOT) / 2,
-    width: DOT,
-    height: DOT,
-    borderRadius: DOT / 2,
-    backgroundColor: UiColors.accent,
+  radar: {
+    alignSelf: "center",
+    width: RADAR_SIZE,
+    height: RADAR_SIZE,
+    marginTop: 16,
   },
+  pulse: {
+    ...centeredSquare(PULSE_SIZE),
+    borderWidth: PULSE_WIDTH,
+    borderColor: UiColors.accent,
+  },
+  dot: { ...centeredSquare(DOT_SIZE), backgroundColor: UiColors.accent },
 });
