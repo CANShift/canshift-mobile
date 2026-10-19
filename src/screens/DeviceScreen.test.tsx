@@ -3,7 +3,9 @@ import { act, fireEvent, render } from "@testing-library/react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import DeviceScreen from "./DeviceScreen";
 import { useDeviceStore } from "../stores/device.store";
+import { Linking } from "react-native";
 import { useTrackSessionStore } from "../stores/track-session.store";
+import { useNotificationPermissionStore } from "../stores/notification-permission.store";
 import { STRINGS } from "../strings";
 
 const mockDisconnect = jest.fn(() => Promise.resolve());
@@ -127,5 +129,20 @@ describe("DeviceScreen", () => {
     const view = await renderScreen();
     await press(view, STRINGS.device.console);
     expect(onOpenConsole).toHaveBeenCalled();
+  });
+
+  it("says when notifications are off and opens Settings", async () => {
+    const openSettings = jest
+      .spyOn(Linking, "openSettings")
+      .mockResolvedValue(undefined);
+    const allowed = await renderScreen();
+    expect(allowed.queryByText(STRINGS.notifications.off)).toBeNull();
+    await allowed.unmount();
+    useNotificationPermissionStore.setState({ permission: "denied" });
+    const view = await renderScreen();
+    expect(view.getByText(STRINGS.notifications.off)).toBeTruthy();
+    await press(view, STRINGS.notifications.openSettings);
+    expect(openSettings).toHaveBeenCalled();
+    useNotificationPermissionStore.setState({ permission: "unknown" });
   });
 });

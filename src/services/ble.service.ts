@@ -43,6 +43,7 @@ import {
 } from "./ble/ble-permission-state";
 import { handleRestoredState } from "./ble/ble-restore";
 import { DeviceLink } from "./ble/ble-link";
+import { notifyDashLost } from "./notifications/dash-loss-notifications";
 
 export type { ScanResult } from "./ble/ble-scan";
 export type { CmdPayload } from "./ble/ble-writes";
@@ -53,6 +54,7 @@ export interface BleServiceDeps {
   managerFactory?: () => BleManager;
   requestAndroidPermissions?: () => Promise<AndroidBlePermissionResult>;
   showToast?: (params: ToastShowParams) => void;
+  onDashLost?: () => void;
 }
 
 const showRootToast = (params: ToastShowParams): void => {
@@ -66,6 +68,7 @@ export class BleService {
   private readonly gatt = new GattQueue();
   private readonly link: DeviceLink;
   private readonly showToast: (params: ToastShowParams) => void;
+  private readonly onDashLost: () => void;
 
   private userInitiatedDisconnect = false;
   private reconnectHeld = false;
@@ -76,6 +79,7 @@ export class BleService {
     this.requestAndroidPermissions =
       deps.requestAndroidPermissions ?? requestAndroidBlePermissions;
     this.showToast = deps.showToast ?? showRootToast;
+    this.onDashLost = deps.onDashLost ?? notifyDashLost;
     this.link = new DeviceLink(this.gatt, {
       showToast: this.showToast,
       onLinkLost: (deviceId) => {
@@ -288,6 +292,7 @@ export class BleService {
       log("info", `Dash ${deviceId} left for workshop mode — not reconnecting`);
       return;
     }
+    this.onDashLost();
     if (useAppSettingsStore.getState().reconnectBehavior === "off") {
       log(
         "info",

@@ -46,3 +46,17 @@ export const alertStripLine = (entry: AlertEntry): string => {
 
 export const alertSpoken = (entry: AlertEntry): string =>
   `${alertTitle(entry)}, ${withUnit(alertValue(entry), entry.unit)}, ${alertLimit(entry)}`;
+
+const notificationLimit = (entry: AlertEntry): string => {
+  if (entry.limit === null) return STRINGS.notifications.limitUnknown;
+  const limit = formatWidgetValue(entry.limit.value, entry.decimals);
+  return entry.limit.direction === "below"
+    ? STRINGS.notifications.limitBelow(limit)
+    : STRINGS.notifications.limitAbove(limit);
+};
+
+export const alertNotificationBody = (entry: AlertEntry): string =>
+  STRINGS.notifications.alertBody(
+    withUnit(alertValue(entry), entry.unit),
+    notificationLimit(entry),
+  );

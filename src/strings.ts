@@ -283,4 +283,17 @@ export const STRINGS = {
     unmute: "Unmute",
     backToNormal: (signal: string): string => `${signal} is back to normal.`,
   },
+  notifications: {
+    alertBody: (value: string, limit: string): string => `${value} · ${limit}`,
+    limitBelow: (limit: string): string => `limit below ${limit}`,
+    limitAbove: (limit: string): string => `limit above ${limit}`,
+    limitUnknown: "out of the safe range",
+    dashLostTitle: "Dash disconnected",
+    dashLostBody: "The Bluetooth link to the dash dropped.",
+    off: "Notifications are off, so alerts only show while CANShift is open.",
+    openSettings: "Open Settings",
+    postFailed: "The phone couldn’t show a notification.",
+    permissionFailed: "The phone couldn’t check notification access.",
+    settingsFailed: "The phone couldn’t open Settings.",
+  },
 } as const;
