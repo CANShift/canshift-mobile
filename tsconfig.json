@@ -5,9 +5,9 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "noImplicitReturns": true,
-    "baseUrl": ".",
+    "types": ["jest", "node"],
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "exclude": [
