@@ -4,12 +4,14 @@ import { DashCard } from "./DashCard";
 
 interface FoundDashListProps {
   scan: DeviceScan;
+  header: React.JSX.Element;
 }
 
-export const FoundDashList = ({ scan }: FoundDashListProps) => (
+export const FoundDashList = ({ scan, header }: FoundDashListProps) => (
   <FlatList
     style={styles.list}
     contentContainerStyle={styles.listContent}
+    ListHeaderComponent={header}
     data={scan.devices}
     keyExtractor={(dash) => dash.id}
     renderItem={({ item }) => (
@@ -23,6 +25,6 @@ export const FoundDashList = ({ scan }: FoundDashListProps) => (
 );
 
 const styles = StyleSheet.create({
-  list: { flexGrow: 0 },
+  list: { flexGrow: 0, flexShrink: 1 },
   listContent: { gap: 10 },
 });

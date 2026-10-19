@@ -131,6 +131,19 @@ describe("Scan", () => {
     expect(view.getByText(STRINGS.connect.pairingTitle)).toBeTruthy();
   });
 
+  it("shows each found dash as a blip on the radar that connects on tap", async () => {
+    mockConnect.mockImplementationOnce(() => new Promise(() => undefined));
+    const view = await renderScan();
+    await press(view, STRINGS.connect.scan);
+    await act(() => {
+      mockFound({ id: "dash-b", name: "CANShift-91C0", rssi: -80 });
+      mockFound({ id: "dash-a", name: "CANShift-4F2A", rssi: -50 });
+    });
+    expect(view.getByLabelText("CANShift-4F2A")).toBeTruthy();
+    await press(view, "CANShift-91C0");
+    expect(mockConnect).toHaveBeenCalledWith("dash-b");
+  });
+
   it("shows the denied state with Open Settings", async () => {
     mockPermission = { kind: "unauthorized", platform: "ios" };
     const view = await renderScan();

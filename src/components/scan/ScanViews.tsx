@@ -17,6 +17,14 @@ const bluetoothIcon = (
   <Glyph name="bluetooth" size={40} color={UiColors.text} strokeWidth={2} />
 );
 
+const ModelRadar = ({ model }: ScanViewProps) => (
+  <ScanRadar
+    active={model.scan.scanning}
+    dashes={model.scan.devices}
+    onSelect={(dash) => void model.scan.connectTo(dash)}
+  />
+);
+
 const PermissionView = ({ model }: ScanViewProps) => (
   <>
     <ScanHero
@@ -94,7 +102,7 @@ const ScanningView = ({ model }: ScanViewProps) => (
     <Text style={styles.title} accessibilityRole="header">
       {STRINGS.connect.scanning}
     </Text>
-    <ScanRadar active={model.scan.scanning} />
+    <ModelRadar model={model} />
     <Text style={styles.centered}>{STRINGS.connect.scanningHint}</Text>
     <ScanActions
       primary={{
@@ -112,7 +120,7 @@ const FoundView = ({ model }: ScanViewProps) => (
       {STRINGS.connect.foundTitle}
     </Text>
     <Text style={styles.hint}>{STRINGS.connect.tapToConnect}</Text>
-    <FoundDashList scan={model.scan} />
+    <FoundDashList scan={model.scan} header={<ModelRadar model={model} />} />
     {model.scan.scanning ? null : (
       <Text style={styles.hint}>
         {STRINGS.connect.searchFinished(model.scan.devices.length)}
