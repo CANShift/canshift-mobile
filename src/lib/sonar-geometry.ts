@@ -29,7 +29,7 @@ export const SONAR_RINGS: Record<SonarRingName, SonarRingSpec> = {
     glow: UiColors.accent,
     width: 1.5,
   },
-  inner: { inset: 80, color: UiColors.accent, glow: UiColors.text, width: 2 },
+  inner: { inset: 80, color: UiColors.border, glow: UiColors.accent, width: 2 },
 };
 
 export const SONAR_RING_ORDER: readonly SonarRingName[] = [
