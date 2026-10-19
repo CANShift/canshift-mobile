@@ -10,10 +10,18 @@ export interface SonarRingSpec {
   width: number;
 }
 
-export const SONAR_RINGS: readonly SonarRingSpec[] = [
-  { inset: 0, color: UiColors.borderRow, width: 1.5 },
-  { inset: 40, color: UiColors.border, width: 1.5 },
-  { inset: 80, color: UiColors.accent, width: 2 },
+export type SonarRingName = "outer" | "middle" | "inner";
+
+export const SONAR_RINGS: Record<SonarRingName, SonarRingSpec> = {
+  outer: { inset: 0, color: UiColors.borderRow, width: 1.5 },
+  middle: { inset: 40, color: UiColors.border, width: 1.5 },
+  inner: { inset: 80, color: UiColors.accent, width: 2 },
+};
+
+export const SONAR_RING_ORDER: readonly SonarRingName[] = [
+  "outer",
+  "middle",
+  "inner",
 ];
 
 export const ringFrame = (ring: SonarRingSpec) => ({

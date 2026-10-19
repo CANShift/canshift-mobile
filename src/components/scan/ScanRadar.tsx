@@ -1,17 +1,22 @@
 import { Animated, StyleSheet, View, type ViewStyle } from "react-native";
 import { UiColors } from "../../theme/ui-tokens";
+import type { ScanResult } from "../../services/ble.service";
 import { useSonarPulse, type SonarMode } from "../../hooks/use-sonar-pulse";
 import {
   DOT_SIZE,
   PULSE_SIZE,
   RADAR_SIZE,
   SONAR_RINGS,
+  SONAR_RING_ORDER,
   centeredSquare,
 } from "../../lib/sonar-geometry";
 import { SonarRing } from "./SonarRing";
+import { SonarBlip } from "./SonarBlip";
 
 export interface ScanRadarProps {
   active: boolean;
+  dashes: readonly ScanResult[];
+  onSelect: (dash: ScanResult) => void;
 }
 
 type AnimatedStyle = Animated.WithAnimatedValue<ViewStyle>;
@@ -43,19 +48,24 @@ const DOT_STYLES: Record<SonarMode, (breath: Animated.Value) => AnimatedStyle> =
     }),
   };
 
-export const ScanRadar = ({ active }: ScanRadarProps) => {
+export const ScanRadar = ({ active, dashes, onSelect }: ScanRadarProps) => {
   const { mode, pulse, breath } = useSonarPulse(active);
   return (
-    <View
-      style={styles.radar}
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-    >
-      {SONAR_RINGS.map((ring) => (
-        <SonarRing key={ring.inset} ring={ring} pulse={pulse} />
+    <View style={styles.radar}>
+      <View
+        style={StyleSheet.absoluteFill}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        {SONAR_RING_ORDER.map((name) => (
+          <SonarRing key={name} ring={SONAR_RINGS[name]} pulse={pulse} />
+        ))}
+        <Animated.View style={[styles.pulse, pulseStyle(pulse)]} />
+        <Animated.View style={[styles.dot, DOT_STYLES[mode](breath)]} />
+      </View>
+      {dashes.map((dash) => (
+        <SonarBlip key={dash.id} dash={dash} onPress={onSelect} />
       ))}
-      <Animated.View style={[styles.pulse, pulseStyle(pulse)]} />
-      <Animated.View style={[styles.dot, DOT_STYLES[mode](breath)]} />
     </View>
   );
 };
