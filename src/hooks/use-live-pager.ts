@@ -3,14 +3,14 @@ import type {
   LayoutChangeEvent,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  ScrollView,
+  ScrollViewInstance,
 } from "react-native";
 import { LIVE_PAGES } from "../lib/live-tiles";
 
 export interface LivePager {
   page: number;
   width: number;
-  scrollRef: React.RefObject<ScrollView | null>;
+  scrollRef: React.RefObject<ScrollViewInstance | null>;
   onLayout: (event: LayoutChangeEvent) => void;
   onSwipeEnd: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
   select: (page: number) => void;
@@ -20,7 +20,7 @@ const clampPage = (page: number): number =>
   Math.min(LIVE_PAGES.length - 1, Math.max(0, page));
 
 export const useLivePager = (): LivePager => {
-  const scrollRef = useRef<ScrollView | null>(null);
+  const scrollRef = useRef<ScrollViewInstance | null>(null);
   const [page, setPage] = useState(0);
   const [width, setWidth] = useState(0);
   useEffect(() => {

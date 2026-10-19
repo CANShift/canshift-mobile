@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import {
   AppState,
   type AppStateStatus,
-  type NativeEventSubscription,
+  type EventSubscription,
 } from "react-native";
 import { useDeviceStore, type ConnectionState } from "../stores/device.store";
 import { useReconnectStore } from "../stores/reconnect.store";
@@ -16,7 +16,9 @@ const isReconnectable = (state: ConnectionState): boolean => {
   return state === "idle" || state === "error";
 };
 
-const isBackgrounded = (state: AppStateStatus): boolean => {
+type ObservedAppState = (typeof AppState)["currentState"];
+
+const isBackgrounded = (state: ObservedAppState): boolean => {
   return state === "background" || state === "inactive";
 };
 
@@ -57,7 +59,7 @@ const resolveDeps = (deps: BleForegroundReconnectDeps): ResolvedDeps => {
 const DEFAULT_DEPS: BleForegroundReconnectDeps = Object.freeze({});
 
 export const handleAppStateTransition = async (
-  prev: AppStateStatus,
+  prev: ObservedAppState,
   next: AppStateStatus,
   deps: ResolvedDeps,
 ): Promise<void> => {
@@ -91,15 +93,17 @@ export const useBleForegroundReconnect = (
   deps: BleForegroundReconnectDeps = DEFAULT_DEPS,
 ): void => {
   const resolved = useMemo(() => resolveDeps(deps), [deps]);
-  const lastStateRef = useRef<AppStateStatus>(resolved.appState.currentState);
+  const lastStateRef = useRef<ObservedAppState>(resolved.appState.currentState);
 
   useEffect(() => {
-    const subscription: NativeEventSubscription =
-      resolved.appState.addEventListener("change", (next) => {
+    const subscription: EventSubscription = resolved.appState.addEventListener(
+      "change",
+      (next) => {
         const prev = lastStateRef.current;
         lastStateRef.current = next;
         void handleAppStateTransition(prev, next, resolved);
-      });
+      },
+    );
 
     return () => {
       subscription.remove();

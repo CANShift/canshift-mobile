@@ -27,6 +27,6 @@ export const exportGraphCsv = async (
   signals: readonly SignalKey[],
 ): Promise<void> => {
   const file = new File(Paths.cache, EXPORT_FILE_NAME);
-  file.write(buildGraphCsv(samples, signals));
+  await file.write(buildGraphCsv(samples, signals));
   await Share.share({ url: file.uri, title: "CANShift graph export" });
 };

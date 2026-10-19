@@ -5,10 +5,11 @@ import type { AndroidBlePermissionResult } from "./ble-permissions";
 const ANDROID_API_LEVEL_S = 31;
 
 const bleRuntimePermissions = (): Permission[] => {
-  return [
+  const candidates: (Permission | undefined)[] = [
     PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
     PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-  ].filter((p): p is Permission => typeof p === "string");
+  ];
+  return candidates.filter((p): p is Permission => typeof p === "string");
 };
 
 export const requestAndroidBlePermissions =
