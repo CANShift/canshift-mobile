@@ -6,25 +6,37 @@ import { useBlipPopIn } from "../../hooks/use-blip-pop-in";
 
 export interface SonarBlipProps {
   dash: ScanResult;
+  scale: number;
   onPress: (dash: ScanResult) => void;
 }
 
 const BLIP_SIZE = 14;
+const MIN_BLIP_SIZE = 9;
 const RIPPLE_SCALE = 3.2;
 const RIPPLE_OPACITY = 0.7;
 
 const between = (value: Animated.Value, from: number, to: number) =>
   value.interpolate({ inputRange: [0, 1], outputRange: [from, to] });
 
-export const SonarBlip = ({ dash, onPress }: SonarBlipProps) => {
+const targetFrame = (dash: ScanResult, scale: number) => {
   const { x, y } = blipPlacement(dash.rssi, dash.id);
+  return {
+    left: x * scale - TouchTarget.min / 2,
+    top: y * scale - TouchTarget.min / 2,
+  };
+};
+
+const blipFrame = (scale: number) => {
+  const size = Math.max(MIN_BLIP_SIZE, BLIP_SIZE * scale);
+  return { width: size, height: size, borderRadius: size / 2 };
+};
+
+export const SonarBlip = ({ dash, scale, onPress }: SonarBlipProps) => {
   const { pop, ripple } = useBlipPopIn();
+  const frame = blipFrame(scale);
   return (
     <Pressable
-      style={[
-        styles.target,
-        { left: x - TouchTarget.min / 2, top: y - TouchTarget.min / 2 },
-      ]}
+      style={[styles.target, targetFrame(dash, scale)]}
       onPress={() => {
         onPress(dash);
       }}
@@ -35,13 +47,16 @@ export const SonarBlip = ({ dash, onPress }: SonarBlipProps) => {
         style={[
           styles.blip,
           styles.ripple,
+          frame,
           {
             opacity: between(ripple, RIPPLE_OPACITY, 0),
             transform: [{ scale: between(ripple, 1, RIPPLE_SCALE) }],
           },
         ]}
       />
-      <Animated.View style={[styles.blip, { transform: [{ scale: pop }] }]} />
+      <Animated.View
+        style={[styles.blip, frame, { transform: [{ scale: pop }] }]}
+      />
     </Pressable>
   );
 };
@@ -56,9 +71,6 @@ const styles = StyleSheet.create({
   },
   blip: {
     position: "absolute",
-    width: BLIP_SIZE,
-    height: BLIP_SIZE,
-    borderRadius: BLIP_SIZE / 2,
     backgroundColor: UiColors.text,
   },
   ripple: {

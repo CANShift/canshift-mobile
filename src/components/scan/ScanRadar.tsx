@@ -5,16 +5,18 @@ import { useSonarPulse, type SonarMode } from "../../hooks/use-sonar-pulse";
 import {
   DOT_SIZE,
   PULSE_SIZE,
-  RADAR_SIZE,
   SONAR_RINGS,
   SONAR_RING_ORDER,
   centeredSquare,
+  radarFrame,
+  radarLayerFrame,
 } from "../../lib/sonar-geometry";
 import { SonarRing } from "./SonarRing";
 import { SonarBlip } from "./SonarBlip";
 
 export interface ScanRadarProps {
   active: boolean;
+  scale: number;
   dashes: readonly ScanResult[];
   onSelect: (dash: ScanResult) => void;
 }
@@ -48,12 +50,17 @@ const DOT_STYLES: Record<SonarMode, (breath: Animated.Value) => AnimatedStyle> =
     }),
   };
 
-export const ScanRadar = ({ active, dashes, onSelect }: ScanRadarProps) => {
+export const ScanRadar = ({
+  active,
+  scale,
+  dashes,
+  onSelect,
+}: ScanRadarProps) => {
   const { mode, pulse, breath } = useSonarPulse(active);
   return (
-    <View style={styles.radar}>
+    <View style={[styles.radar, radarFrame(scale)]}>
       <View
-        style={StyleSheet.absoluteFill}
+        style={radarLayerFrame(scale)}
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
       >
@@ -64,19 +71,14 @@ export const ScanRadar = ({ active, dashes, onSelect }: ScanRadarProps) => {
         <Animated.View style={[styles.dot, DOT_STYLES[mode](breath)]} />
       </View>
       {dashes.map((dash) => (
-        <SonarBlip key={dash.id} dash={dash} onPress={onSelect} />
+        <SonarBlip key={dash.id} dash={dash} scale={scale} onPress={onSelect} />
       ))}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  radar: {
-    alignSelf: "center",
-    width: RADAR_SIZE,
-    height: RADAR_SIZE,
-    marginTop: 16,
-  },
+  radar: { alignSelf: "center" },
   pulse: {
     ...centeredSquare(PULSE_SIZE),
     borderWidth: PULSE_WIDTH,
