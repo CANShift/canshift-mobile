@@ -3,8 +3,6 @@
   "entry": ["plugins/*.js"],
   "ignoreDependencies": [
     "buffer",
-    "react-native-reanimated",
-    "react-native-worklets",
     "@babel/core",
     "@react-native/metro-config",
     "expo-updates",
