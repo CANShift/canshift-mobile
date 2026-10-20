@@ -43,6 +43,7 @@ import {
 } from "./ble/ble-permission-state";
 import { handleRestoredState } from "./ble/ble-restore";
 import { DeviceLink } from "./ble/ble-link";
+import { CanMonitorFeed } from "./ble/ble-can-monitor";
 import { notifyDashLost } from "./notifications/dash-loss-notifications";
 
 export type { ScanResult } from "./ble/ble-scan";
@@ -67,6 +68,7 @@ export class BleService {
   private readonly reconnector: BleReconnector;
   private readonly gatt = new GattQueue();
   private readonly link: DeviceLink;
+  readonly canMonitor: CanMonitorFeed;
   private readonly showToast: (params: ToastShowParams) => void;
   private readonly onDashLost: () => void;
 
@@ -89,6 +91,7 @@ export class BleService {
         this.handleDisconnected(deviceId);
       },
     });
+    this.canMonitor = new CanMonitorFeed(this.link, () => this.link.current);
     this.reconnector = new BleReconnector(this.reconnectorDeps());
   }
 
@@ -324,6 +327,10 @@ export const pushSettings = bleService.pushSettings.bind(bleService);
 export const readSettings = bleService.readSettings.bind(bleService);
 export const sendCmd = bleService.sendCmd.bind(bleService);
 export const refreshDashPages = bleService.refreshDashPages.bind(bleService);
+export const startCanMonitor = () => bleService.canMonitor.start();
+export const stopCanMonitor = () => {
+  bleService.canMonitor.stop();
+};
 export const getBlePermissionState =
   bleService.getBlePermissionState.bind(bleService);
 export const holdReconnect = bleService.holdReconnect.bind(bleService);
