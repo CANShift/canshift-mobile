@@ -4,11 +4,20 @@ import ConsoleScreen from "./ConsoleScreen";
 import { log, useLogStore } from "../stores/log.store";
 import { useDeviceStore } from "../stores/device.store";
 import { STRINGS } from "../strings";
+import { useCanMonitorStore } from "../stores/can-monitor.store";
+import { stopSimCan } from "../services/sim-can.service";
+import { sortedCanRows } from "../lib/can-monitor-model";
 
 const mockSendCmd = jest.fn((_cmd: string) => Promise.resolve());
+const mockStartCanMonitor = jest.fn(() => true);
+const mockStopCanMonitor = jest.fn();
 
 jest.mock("../services/ble.service", () => ({
   sendCmd: (cmd: string) => mockSendCmd(cmd),
+  startCanMonitor: () => mockStartCanMonitor(),
+  stopCanMonitor: () => {
+    mockStopCanMonitor();
+  },
 }));
 
 const renderConsole = () => render(<ConsoleScreen onBack={jest.fn()} />);
@@ -28,6 +37,9 @@ describe("Console", () => {
     useLogStore.getState().clear();
     useDeviceStore.setState(initialDevice, true);
     mockSendCmd.mockClear();
+    mockStartCanMonitor.mockClear();
+    mockStopCanMonitor.mockClear();
+    useCanMonitorStore.getState().reset();
   });
 
   it("filters the log by level", async () => {
@@ -82,9 +94,70 @@ describe("Console", () => {
     expect(view.getByText(STRINGS.console.sendUnavailable)).toBeTruthy();
   });
 
-  it("explains why the CAN view is empty", async () => {
+  it("asks for a dash on the CAN tab while nothing is linked", async () => {
     const view = await renderConsole();
     await press(view, STRINGS.console.can);
-    expect(view.getByText(STRINGS.console.canEmptyTitle)).toBeTruthy();
+    expect(view.getByText(STRINGS.console.canOffTitle)).toBeTruthy();
+    expect(mockStartCanMonitor).not.toHaveBeenCalled();
+  });
+
+  it("subscribes to the dash's CAN monitor only while the tab is open", async () => {
+    useDeviceStore.setState({ mode: "ble", connectionState: "connected" });
+    const view = await renderConsole();
+    expect(mockStartCanMonitor).not.toHaveBeenCalled();
+    await press(view, STRINGS.console.can);
+    expect(mockStartCanMonitor).toHaveBeenCalledTimes(1);
+    await press(view, STRINGS.console.log);
+    expect(mockStopCanMonitor).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("Console CAN tab in demo mode", () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    useDeviceStore.setState({ ...initialDevice, mode: "sim" }, true);
+    useCanMonitorStore.getState().reset();
+  });
+
+  afterEach(() => {
+    stopSimCan();
+    jest.useRealTimers();
+  });
+
+  const tick = async (ms: number) => {
+    await act(() => {
+      jest.advanceTimersByTime(ms);
+    });
+  };
+
+  it("lists the simulated ids and filters them live", async () => {
+    const view = await renderConsole();
+    await press(view, STRINGS.console.can);
+    await tick(1000);
+    expect(view.getByText("360")).toBeTruthy();
+    expect(view.getByText("3E0")).toBeTruthy();
+    await act(() => {
+      void fireEvent.changeText(
+        view.getByLabelText(STRINGS.console.canFilter),
+        "3e",
+      );
+    });
+    expect(view.queryByText("360")).toBeNull();
+    expect(view.getByText("3E0")).toBeTruthy();
+  });
+
+  it("freezes the table on pause while frames keep arriving", async () => {
+    const view = await renderConsole();
+    await press(view, STRINGS.console.can);
+    await tick(100);
+    expect(view.queryByText("3E0")).toBeNull();
+    await press(view, STRINGS.console.pause);
+    await tick(1000);
+    expect(sortedCanRows(useCanMonitorStore.getState().snapshot)).toHaveLength(
+      9,
+    );
+    expect(view.queryByText("3E0")).toBeNull();
+    await press(view, STRINGS.console.resume);
+    expect(view.getByText("3E0")).toBeTruthy();
   });
 });
