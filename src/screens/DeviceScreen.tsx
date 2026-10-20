@@ -7,19 +7,21 @@ import { useFirmwareCard } from "../hooks/use-firmware-card";
 import { disconnectDash, endDemo } from "../lib/device-actions";
 import { DeviceLinkCard } from "../components/device/DeviceLinkCard";
 import { LoggingCard } from "../components/device/LoggingCard";
-import { ConsoleLinkCard } from "../components/device/ConsoleLinkCard";
+import {
+  DeviceNavCards,
+  type DeviceNavCardsProps,
+} from "../components/device/DeviceNavCards";
 import { InfoCard } from "../components/device/InfoCard";
 import { FirmwareCard } from "../components/device/FirmwareCard";
 import { PhoneSettingsCard } from "../components/device/PhoneSettingsCard";
 import { DeviceDialogs } from "../components/device/DeviceDialogs";
 import { BackRow } from "../components/controls/BackRow";
 
-interface DeviceScreenProps {
-  onOpenConsole: () => void;
+interface DeviceScreenProps extends DeviceNavCardsProps {
   onBack?: () => void;
 }
 
-const DeviceScreen = ({ onOpenConsole, onBack }: DeviceScreenProps) => {
+const DeviceScreen = ({ onBack, ...nav }: DeviceScreenProps) => {
   const device = useDeviceScreen();
   const logging = useLoggingCard();
   const firmware = useFirmwareCard();
@@ -33,7 +35,7 @@ const DeviceScreen = ({ onOpenConsole, onBack }: DeviceScreenProps) => {
       </Text>
       <DeviceLinkCard device={device} />
       <LoggingCard {...logging} />
-      <ConsoleLinkCard onPress={onOpenConsole} />
+      <DeviceNavCards {...nav} />
       <InfoCard rows={device.rows} />
       {device.link === "demo" ? null : <FirmwareCard {...firmware} />}
       <PhoneSettingsCard />

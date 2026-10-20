@@ -1,20 +1,20 @@
 import { Pressable, StyleSheet, Text } from "react-native";
 import { Glyph } from "../icons/Glyph";
-import { STRINGS } from "../../strings";
 import { TouchTarget, UiColors, UiRadius } from "../../theme/ui-tokens";
 
-export interface ConsoleLinkCardProps {
+export interface LinkRowCardProps {
+  label: string;
   onPress: () => void;
 }
 
-export const ConsoleLinkCard = ({ onPress }: ConsoleLinkCardProps) => (
+export const LinkRowCard = ({ label, onPress }: LinkRowCardProps) => (
   <Pressable
     style={styles.row}
     onPress={onPress}
     accessibilityRole="button"
-    accessibilityLabel={STRINGS.device.console}
+    accessibilityLabel={label}
   >
-    <Text style={styles.label}>{STRINGS.device.console}</Text>
+    <Text style={styles.label}>{label}</Text>
     <Glyph
       name="chevron"
       size={20}

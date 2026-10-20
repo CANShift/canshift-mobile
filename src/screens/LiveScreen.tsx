@@ -8,7 +8,11 @@ import { useLivePager } from "../hooks/use-live-pager";
 import { LinkFooter } from "../components/live/LinkFooter";
 import { DisplaySheet } from "../components/live/DisplaySheet";
 
-const LiveScreen = () => {
+interface LiveScreenProps {
+  onOpenPages: () => void;
+}
+
+const LiveScreen = ({ onOpenPages }: LiveScreenProps) => {
   const live = useLiveScreen();
   const pager = useLivePager();
   return (
@@ -24,7 +28,7 @@ const LiveScreen = () => {
           valueSize={live.layout.valueSize}
         />
       </View>
-      <LinkFooter onDisplay={live.openDisplay} />
+      <LinkFooter onDisplay={live.openDisplay} onPages={onOpenPages} />
       <DisplaySheet
         visible={live.displayOpen}
         dashConnected={live.dashConnected}

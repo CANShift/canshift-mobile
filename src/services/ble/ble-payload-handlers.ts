@@ -7,6 +7,7 @@ import {
 import { log } from "../../stores/log.store";
 import { useSignalsStore } from "../../stores/signals.store";
 import { useDeviceStore } from "../../stores/device.store";
+import { useDashPagesStore } from "../../stores/dash-pages.store";
 import { useTimerStore } from "../../stores/timer.store";
 import { recordSessionLap } from "../../stores/timer-sessions.store";
 import { parseTelemetry, type TelemetrySample } from "../ble.validators";
@@ -58,6 +59,7 @@ const applyStatus = (status: {
   firmwareVersion?: string;
   boardId?: string;
   canHealthy?: boolean;
+  pageId?: string | null;
 }): void => {
   const device = useDeviceStore.getState();
   device.setFirmwareStatus(
@@ -65,6 +67,8 @@ const applyStatus = (status: {
     status.canHealthy ?? false,
   );
   if (status.boardId !== undefined) device.setBoardId(status.boardId);
+  if (status.pageId !== undefined)
+    useDashPagesStore.getState().setOnScreen(status.pageId);
 };
 
 const UNREADABLE_FRAMES_BEFORE_PROBLEM = 10;

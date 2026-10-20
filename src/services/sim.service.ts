@@ -1,5 +1,6 @@
 import { useDeviceStore } from "../stores/device.store";
 import { useSignalsStore } from "../stores/signals.store";
+import { useDashPagesStore } from "../stores/dash-pages.store";
 import { clearBuffer } from "../stores/telemetry.store";
 import { log } from "../stores/log.store";
 import { type TelemetrySample } from "./ble.validators";
@@ -72,6 +73,21 @@ const boost = (tps: number): number => {
   return currentBoost;
 };
 
+const DEMO_PAGE_IDS = [
+  "street",
+  "track",
+  "engine",
+  "tuning",
+  "timing",
+  "controls",
+] as const;
+
+const showDemoPages = (): void => {
+  const pages = useDashPagesStore.getState();
+  pages.setPages(DEMO_PAGE_IDS);
+  pages.setOnScreen(DEMO_PAGE_IDS[0]);
+};
+
 const resetSimulation = (): void => {
   elapsed = 0;
   currentRpm = IDLE_RPM;
@@ -106,6 +122,7 @@ export const start = () => {
   setDevice("SIM", "CANShift (sim)");
   setFirmwareStatus("sim", true);
   setMode("sim");
+  showDemoPages();
   clearBuffer();
   log("info", "Simulation mode started");
 
@@ -121,6 +138,7 @@ export const stop = () => {
     delete simGlobal.__canshiftSimTick;
   }
   useDeviceStore.getState().disconnect();
+  useDashPagesStore.getState().reset();
   useSignalsStore.getState().markStale();
   clearBuffer();
   log("info", "Simulation mode stopped");

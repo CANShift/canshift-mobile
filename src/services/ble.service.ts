@@ -192,6 +192,7 @@ export class BleService {
     await this.link.seedStatus(device);
     await this.link.seedTimer(device);
     await this.link.seedAlert(device);
+    await this.link.seedPages(device);
     return device;
   }
 
@@ -250,6 +251,10 @@ export class BleService {
 
   async sendCmd(cmd: string, payload?: CmdPayload): Promise<void> {
     await writeCmd(this.gatt, this.requireDevice(), cmd, payload);
+  }
+
+  async refreshDashPages(): Promise<void> {
+    await this.link.seedPages(this.requireDevice());
   }
 
   _test_setConnectedDevice(device: Device | null): void {
@@ -318,6 +323,7 @@ export const cancelReconnect = bleService.cancelReconnect.bind(bleService);
 export const pushSettings = bleService.pushSettings.bind(bleService);
 export const readSettings = bleService.readSettings.bind(bleService);
 export const sendCmd = bleService.sendCmd.bind(bleService);
+export const refreshDashPages = bleService.refreshDashPages.bind(bleService);
 export const getBlePermissionState =
   bleService.getBlePermissionState.bind(bleService);
 export const holdReconnect = bleService.holdReconnect.bind(bleService);

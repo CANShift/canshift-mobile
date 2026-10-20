@@ -2,6 +2,7 @@ import * as React from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { act, fireEvent, render } from "@testing-library/react-native";
 import LiveScreen from "./LiveScreen";
+import { PAGES_STRINGS } from "../pages-strings";
 import { useDeviceStore } from "../stores/device.store";
 import { useReconnectStore } from "../stores/reconnect.store";
 import { useSignalsStore } from "../stores/signals.store";
@@ -32,10 +33,12 @@ const metrics = {
 
 const NOW = 1_000_000;
 
+const onOpenPages = jest.fn();
+
 const renderLive = () =>
   render(
     <SafeAreaProvider initialMetrics={metrics}>
-      <LiveScreen />
+      <LiveScreen onOpenPages={onOpenPages} />
     </SafeAreaProvider>,
   );
 
@@ -118,5 +121,13 @@ describe("Live screen", () => {
       );
     });
     expect(useAppSettingsStore.getState().keepScreenOn).toBe(false);
+  });
+
+  it("opens the dash pages from the footer", async () => {
+    const view = await renderLive();
+    await act(() => {
+      void fireEvent.press(view.getByLabelText(PAGES_STRINGS.open));
+    });
+    expect(onOpenPages).toHaveBeenCalled();
   });
 });
