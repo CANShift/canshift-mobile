@@ -23,7 +23,7 @@ export const BLE_CHAR_TIMER_LAP =
 export const BLE_CHAR_ALERT = "4fa0b6a0-0000-0000-0000-000000000009" as const;
 
 export const BLE_CHAR_CAN_MONITOR =
-  "4fa0b6a0-0000-0000-0000-00000000000a" as const;
+  "4fa0b6a0-0000-0000-0000-00000000000b" as const;
 
 export const BLE_DEVICE_NAME = "CANShift" as const;
 

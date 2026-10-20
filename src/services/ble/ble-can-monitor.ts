@@ -1,9 +1,14 @@
 import type { Device, Subscription } from "react-native-ble-plx";
-import { decodeCanMonitorFrame } from "@canshift/core/wire";
-import { BLE_CHAR_CAN_MONITOR } from "../../constants/ble";
+import {
+  decodeCanMonitorFrame,
+  encodeCanMonitorFilter,
+  type CanIdFilter,
+} from "@canshift/core/wire";
+import { BLE_CHAR_CAN_MONITOR, BLE_SERVICE_UUID } from "../../constants/ble";
 import { log } from "../../stores/log.store";
 import { useCanMonitorStore } from "../../stores/can-monitor.store";
-import { decodeBase64ToBytes } from "../base64";
+import { decodeBase64ToBytes, encodeBytesBase64 } from "../base64";
+import { withGattRetry } from "../ble.retry";
 import { attachMonitor, type MonitorHost } from "./ble-monitors";
 
 const handleCanMonitorFrame = (raw: string): void => {
@@ -48,6 +53,21 @@ export class CanMonitorFeed {
       0,
     );
     return true;
+  }
+
+  async setFilter(filters: readonly CanIdFilter[]): Promise<void> {
+    const device = this.currentDevice();
+    const bytes = encodeCanMonitorFilter(filters);
+    if (!device || bytes === null) return;
+    await withGattRetry(() =>
+      this.host.runGatt(() =>
+        device.writeCharacteristicWithResponseForService(
+          BLE_SERVICE_UUID,
+          BLE_CHAR_CAN_MONITOR,
+          encodeBytesBase64(bytes),
+        ),
+      ),
+    );
   }
 
   stop(): void {
