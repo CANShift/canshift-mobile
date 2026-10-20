@@ -4,7 +4,7 @@ import { useCanMonitorStore } from "../stores/can-monitor.store";
 import { startCanMonitor, stopCanMonitor } from "../services/ble.service";
 import { startSimCan, stopSimCan } from "../services/sim-can.service";
 
-type CanSource = "ble" | "sim" | "none";
+export type CanSource = "ble" | "sim" | "none";
 
 const CAN_SOURCES: Record<CanSource, () => () => void> = {
   ble: () => {
@@ -26,10 +26,11 @@ const sourceFor = (mode: string, connected: boolean): CanSource => {
   return mode === "ble" && connected ? "ble" : "none";
 };
 
-export const useCanFeed = (): void => {
+export const useCanFeed = (): CanSource => {
   const mode = useDeviceStore((s) => s.mode);
   const connected = useDeviceStore((s) => s.connectionState === "connected");
   const deviceId = useDeviceStore((s) => s.deviceId);
   const source = sourceFor(mode, connected);
   useEffect(() => CAN_SOURCES[source](), [source, deviceId]);
+  return source;
 };

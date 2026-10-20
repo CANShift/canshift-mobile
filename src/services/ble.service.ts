@@ -11,7 +11,7 @@ import { log } from "../stores/log.store";
 import { useReconnectStore } from "../stores/reconnect.store";
 import { clearMutedAlerts } from "../stores/alerts.store";
 import { useAppSettingsStore } from "../stores/app-settings.store";
-import type { TimerCommand } from "@canshift/core/wire";
+import type { CanIdFilter, TimerCommand } from "@canshift/core/wire";
 import { rememberDevice, forgetDevice, getLastDevice } from "./last-device";
 import {
   requestAndroidBlePermissions,
@@ -331,6 +331,8 @@ export const startCanMonitor = () => bleService.canMonitor.start();
 export const stopCanMonitor = () => {
   bleService.canMonitor.stop();
 };
+export const setCanMonitorFilter = (filters: readonly CanIdFilter[]) =>
+  bleService.canMonitor.setFilter(filters);
 export const getBlePermissionState =
   bleService.getBlePermissionState.bind(bleService);
 export const holdReconnect = bleService.holdReconnect.bind(bleService);

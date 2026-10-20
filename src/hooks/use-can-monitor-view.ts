@@ -19,6 +19,7 @@ export interface CanMonitorView {
   idCount: number;
   busHz: number;
   overflow: boolean;
+  dashFilterFailed: boolean;
   filter: string;
   setFilter: (filter: string) => void;
   paused: boolean;
@@ -33,6 +34,7 @@ const viewState = (feed: CanFeedState, idCount: number): CanViewState => {
 export const useCanMonitorView = (): CanMonitorView => {
   const snapshot = useCanMonitorStore((s) => s.snapshot);
   const feed = useCanMonitorStore((s) => s.feed);
+  const dashFilterFailed = useCanMonitorStore((s) => s.dashFilterFailed);
   const [frozen, setFrozen] = useState<CanMonitorSnapshot | null>(null);
   const [filter, setFilter] = useState("");
   const all = useMemo(
@@ -49,6 +51,7 @@ export const useCanMonitorView = (): CanMonitorView => {
     idCount: all.length,
     busHz: busRateHz(all),
     overflow: (frozen ?? snapshot).overflow,
+    dashFilterFailed,
     filter,
     setFilter,
     paused: frozen !== null,

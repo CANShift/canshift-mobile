@@ -14,12 +14,14 @@ interface FakeDevice {
   emit: (value: string) => void;
   fail: () => void;
   removed: jest.Mock;
+  written: string[];
   monitored: () => string[];
 }
 
 const fakeDevice = (): FakeDevice => {
   let listener: Listener | null = null;
   const removed = jest.fn();
+  const written: string[] = [];
   const characteristics: string[] = [];
   const device = {
     monitorCharacteristicForService: (
@@ -31,12 +33,21 @@ const fakeDevice = (): FakeDevice => {
       listener = next;
       return { remove: removed };
     },
+    writeCharacteristicWithResponseForService: (
+      _service: string,
+      _characteristic: string,
+      value: string,
+    ) => {
+      written.push(value);
+      return Promise.resolve();
+    },
   } as unknown as Device;
   return {
     device,
     emit: (value) => listener?.(null, { value }),
     fail: () => listener?.(new Error("not found"), null),
     removed,
+    written,
     monitored: () => characteristics,
   };
 };
@@ -105,5 +116,16 @@ describe("CanMonitorFeed", () => {
       jest.runOnlyPendingTimers();
     }
     expect(useCanMonitorStore.getState().feed).toBe("unavailable");
+  });
+
+  it("writes the encoded ID filter to CANMON", async () => {
+    const fake = fakeDevice();
+    const feed = new CanMonitorFeed(hostFor(fake), () => fake.device);
+    await feed.setFilter([{ id: 0x360, extended: false, mask: 0x7f0 }]);
+    expect(fake.written).toEqual([
+      encodeBytesBase64(
+        Uint8Array.from([0x01, 0x01, 0x60, 0x03, 0, 0, 0xf0, 0x07, 0, 0x80]),
+      ),
+    ]);
   });
 });
