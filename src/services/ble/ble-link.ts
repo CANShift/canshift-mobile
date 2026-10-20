@@ -10,6 +10,7 @@ import { log } from "../../stores/log.store";
 import { useDeviceStore } from "../../stores/device.store";
 import { useSignalsStore } from "../../stores/signals.store";
 import { useTimerStore } from "../../stores/timer.store";
+import { useDashPagesStore } from "../../stores/dash-pages.store";
 import { SIGNAL_STALE_MS } from "../../lib/signal-staleness";
 import { fallBackToLocalAlerts, handleAlertFrame } from "../alert-feeds";
 import type { ToastShowParams } from "../../components/ui/toast";
@@ -27,6 +28,7 @@ import {
   handleInitialStatus,
   handleInitialTimerState,
 } from "./ble-payload-handlers";
+import { readDashPages } from "./ble-pages";
 
 const STALENESS_CHECK_INTERVAL_MS = 250;
 
@@ -109,6 +111,10 @@ export class DeviceLink implements MonitorHost {
       "alert",
       handleAlertFrame,
     );
+  }
+
+  seedPages(device: Device): Promise<void> {
+    return readDashPages(this, device);
   }
 
   bind(device: Device): void {
@@ -259,6 +265,7 @@ export class DeviceLink implements MonitorHost {
     useSignalsStore.getState().markStale();
     useDeviceStore.getState().disconnect();
     useTimerStore.getState().clearDeviceSync();
+    useDashPagesStore.getState().reset();
     fallBackToLocalAlerts();
   }
 

@@ -1,6 +1,7 @@
 import { Buffer } from "buffer";
 import { encodeTelemetryFrame } from "@canshift/core/wire";
-import { handleTelemetry } from "./ble-payload-handlers";
+import { handleStatus, handleTelemetry } from "./ble-payload-handlers";
+import { useDashPagesStore } from "../../stores/dash-pages.store";
 import { useDeviceStore } from "../../stores/device.store";
 import { useLogStore } from "../../stores/log.store";
 import { DISPLAY_FLUSH_MS, useSignalsStore } from "../../stores/signals.store";
@@ -107,5 +108,26 @@ describe("handleTelemetry", () => {
       kind: "telemetry-version",
       version: FUTURE_VERSION,
     });
+  });
+});
+
+describe("handleStatus", () => {
+  beforeEach(() => {
+    useDashPagesStore.getState().reset();
+  });
+
+  const status = (json: string): string => Buffer.from(json).toString("base64");
+
+  it("follows the page the dash reports on screen", () => {
+    handleStatus(status('{"ver":"0.22.0","can":1,"page":"track"}'));
+    expect(useDashPagesStore.getState().onScreenId).toBe("track");
+    handleStatus(status('{"ver":"0.22.0","can":1,"page":""}'));
+    expect(useDashPagesStore.getState().onScreenId).toBeNull();
+  });
+
+  it("leaves the page alone on firmware that doesn't report it", () => {
+    useDashPagesStore.getState().setOnScreen("street");
+    handleStatus(status('{"ver":"0.21.0","can":1}'));
+    expect(useDashPagesStore.getState().onScreenId).toBe("street");
   });
 });

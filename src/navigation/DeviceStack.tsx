@@ -4,9 +4,16 @@ import {
 } from "@react-navigation/native-stack";
 import DeviceScreen from "../screens/DeviceScreen";
 import ConsoleScreen from "../screens/ConsoleScreen";
+import PagesScreen from "../screens/PagesScreen";
+import { PAGES_STRINGS } from "../pages-strings";
 import { UiColors } from "../theme/ui-tokens";
 
-type DeviceStackParamList = Record<"DeviceHome" | "Console", undefined>;
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type DeviceStackParamList = {
+  DeviceHome: undefined;
+  Console: undefined;
+  Pages: { returnTo?: "Live" } | undefined;
+};
 
 const Stack = createNativeStackNavigator<DeviceStackParamList>();
 
@@ -17,6 +24,9 @@ const DeviceHome = ({
     onOpenConsole={() => {
       navigation.navigate("Console");
     }}
+    onOpenPages={() => {
+      navigation.navigate("Pages");
+    }}
   />
 );
 
@@ -25,6 +35,26 @@ const DeviceConsole = ({
 }: NativeStackScreenProps<DeviceStackParamList, "Console">) => (
   <ConsoleScreen onBack={navigation.goBack} />
 );
+
+const DevicePages = ({
+  navigation,
+  route,
+}: NativeStackScreenProps<DeviceStackParamList, "Pages">) => {
+  const returnTo = route.params?.returnTo;
+  if (returnTo === undefined)
+    return (
+      <PagesScreen backLabel={PAGES_STRINGS.back} onBack={navigation.goBack} />
+    );
+  return (
+    <PagesScreen
+      backLabel={PAGES_STRINGS.backToLive}
+      onBack={() => {
+        navigation.popToTop();
+        navigation.getParent()?.navigate(returnTo);
+      }}
+    />
+  );
+};
 
 const DeviceStack = () => (
   <Stack.Navigator
@@ -35,6 +65,7 @@ const DeviceStack = () => (
   >
     <Stack.Screen name="DeviceHome" component={DeviceHome} />
     <Stack.Screen name="Console" component={DeviceConsole} />
+    <Stack.Screen name="Pages" component={DevicePages} />
   </Stack.Navigator>
 );
 

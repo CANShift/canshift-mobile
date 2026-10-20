@@ -2,6 +2,7 @@ import * as React from "react";
 import { act, fireEvent, render } from "@testing-library/react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import DeviceScreen from "./DeviceScreen";
+import { PAGES_STRINGS } from "../pages-strings";
 import { useDeviceStore } from "../stores/device.store";
 import { Linking } from "react-native";
 import { useTrackSessionStore } from "../stores/track-session.store";
@@ -44,11 +45,12 @@ const metrics = {
 };
 
 const onOpenConsole = jest.fn();
+const onOpenPages = jest.fn();
 
 const renderScreen = () =>
   render(
     <SafeAreaProvider initialMetrics={metrics}>
-      <DeviceScreen onOpenConsole={onOpenConsole} />
+      <DeviceScreen onOpenConsole={onOpenConsole} onOpenPages={onOpenPages} />
     </SafeAreaProvider>,
   );
 
@@ -125,10 +127,12 @@ describe("DeviceScreen", () => {
     expect(mockStopTrack).toHaveBeenCalled();
   });
 
-  it("opens the console", async () => {
+  it("opens the console and the dash pages", async () => {
     const view = await renderScreen();
     await press(view, STRINGS.device.console);
     expect(onOpenConsole).toHaveBeenCalled();
+    await press(view, PAGES_STRINGS.title);
+    expect(onOpenPages).toHaveBeenCalled();
   });
 
   it("says when notifications are off and opens Settings", async () => {
