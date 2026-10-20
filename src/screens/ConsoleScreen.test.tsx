@@ -7,10 +7,14 @@ import { STRINGS } from "../strings";
 import { useCanMonitorStore } from "../stores/can-monitor.store";
 import { stopSimCan } from "../services/sim-can.service";
 import { sortedCanRows } from "../lib/can-monitor-model";
+import { DASH_FILTER_DEBOUNCE_MS } from "../hooks/use-can-dash-filter";
 
 const mockSendCmd = jest.fn((_cmd: string) => Promise.resolve());
 const mockStartCanMonitor = jest.fn(() => true);
 const mockStopCanMonitor = jest.fn();
+const mockSetCanMonitorFilter = jest.fn((_filters: unknown) =>
+  Promise.resolve(),
+);
 
 jest.mock("../services/ble.service", () => ({
   sendCmd: (cmd: string) => mockSendCmd(cmd),
@@ -18,6 +22,7 @@ jest.mock("../services/ble.service", () => ({
   stopCanMonitor: () => {
     mockStopCanMonitor();
   },
+  setCanMonitorFilter: (filters: unknown) => mockSetCanMonitorFilter(filters),
 }));
 
 const renderConsole = () => render(<ConsoleScreen onBack={jest.fn()} />);
@@ -39,6 +44,7 @@ describe("Console", () => {
     mockSendCmd.mockClear();
     mockStartCanMonitor.mockClear();
     mockStopCanMonitor.mockClear();
+    mockSetCanMonitorFilter.mockClear();
     useCanMonitorStore.getState().reset();
   });
 
@@ -109,6 +115,62 @@ describe("Console", () => {
     expect(mockStartCanMonitor).toHaveBeenCalledTimes(1);
     await press(view, STRINGS.console.log);
     expect(mockStopCanMonitor).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("Console CAN tab on a Bluetooth dash", () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    useDeviceStore.setState(
+      { ...initialDevice, mode: "ble", connectionState: "connected" },
+      true,
+    );
+    useCanMonitorStore.getState().reset();
+    mockSetCanMonitorFilter.mockClear();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  const typeFilter = async (view: View, text: string) => {
+    await act(() => {
+      void fireEvent.changeText(
+        view.getByLabelText(STRINGS.console.canFilter),
+        text,
+      );
+    });
+    await act(() => {
+      jest.advanceTimersByTime(DASH_FILTER_DEBOUNCE_MS);
+    });
+  };
+
+  it("filters on the dash once the field holds a complete id", async () => {
+    const view = await renderConsole();
+    await press(view, STRINGS.console.can);
+    await typeFilter(view, "3E");
+    expect(mockSetCanMonitorFilter).not.toHaveBeenCalled();
+    await typeFilter(view, "3E0");
+    expect(mockSetCanMonitorFilter).toHaveBeenLastCalledWith([
+      { id: 0x3e0, extended: false, mask: 0x7ff },
+    ]);
+    await typeFilter(view, "3E");
+    expect(mockSetCanMonitorFilter).toHaveBeenLastCalledWith([]);
+    expect(mockSetCanMonitorFilter).toHaveBeenCalledTimes(2);
+  });
+
+  it("says so when the dash refuses the filter", async () => {
+    mockSetCanMonitorFilter.mockRejectedValueOnce(new Error("write failed"));
+    const view = await renderConsole();
+    await press(view, STRINGS.console.can);
+    useCanMonitorStore.getState().ingest({
+      deviceMs: 100,
+      overflow: false,
+      filtered: false,
+      entries: [{ id: 0x3e0, extended: false, data: [1], count: 1, ageMs: 0 }],
+    });
+    await typeFilter(view, "3E0");
+    expect(view.getByText(STRINGS.console.canDashFilterFailed)).toBeTruthy();
   });
 });
 

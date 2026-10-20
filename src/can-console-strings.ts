@@ -7,6 +7,8 @@ export const CAN_CONSOLE_STRINGS = {
   canColumnData: "Data",
   canColumnRate: "Rate",
   canOverflow: "The dash tracks 64 IDs. Newer ones are left out.",
+  canDashFilterFailed:
+    "The dash didn’t take the ID filter. The phone filters on its own.",
   canOffTitle: "Connect to a dash to watch its CAN bus.",
   canOffBody: "Frames show up here once the phone is linked.",
   canUnavailableTitle: "This dash doesn’t stream CAN frames.",

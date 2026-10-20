@@ -18,6 +18,9 @@ export const CanSummary = ({ view }: CanSummaryProps) => (
     {view.overflow ? (
       <Text style={styles.warning}>{STRINGS.console.canOverflow}</Text>
     ) : null}
+    {view.dashFilterFailed ? (
+      <Text style={styles.warning}>{STRINGS.console.canDashFilterFailed}</Text>
+    ) : null}
   </View>
 );
 

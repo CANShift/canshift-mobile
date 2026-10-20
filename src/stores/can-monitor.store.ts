@@ -11,6 +11,8 @@ export type CanFeedState = "off" | "listening" | "unavailable";
 interface CanMonitorState {
   snapshot: CanMonitorSnapshot;
   feed: CanFeedState;
+  dashFilterFailed: boolean;
+  setDashFilterFailed: (failed: boolean) => void;
   ingest: (frame: CanMonitorFrame) => void;
   setFeed: (feed: CanFeedState) => void;
   reset: () => void;
@@ -19,6 +21,10 @@ interface CanMonitorState {
 export const useCanMonitorStore = create<CanMonitorState>()((set) => ({
   snapshot: EMPTY_CAN_SNAPSHOT,
   feed: "off",
+  dashFilterFailed: false,
+  setDashFilterFailed: (dashFilterFailed) => {
+    set({ dashFilterFailed });
+  },
   ingest: (frame) => {
     set((state) => ({ snapshot: applyCanFrame(state.snapshot, frame) }));
   },
@@ -26,6 +32,6 @@ export const useCanMonitorStore = create<CanMonitorState>()((set) => ({
     set({ feed });
   },
   reset: () => {
-    set({ snapshot: EMPTY_CAN_SNAPSHOT, feed: "off" });
+    set({ snapshot: EMPTY_CAN_SNAPSHOT, feed: "off", dashFilterFailed: false });
   },
 }));

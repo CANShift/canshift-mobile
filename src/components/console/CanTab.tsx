@@ -1,6 +1,7 @@
 import { STRINGS } from "../../strings";
 import { UiColors } from "../../theme/ui-tokens";
 import { useCanFeed } from "../../hooks/use-can-feed";
+import { useCanDashFilter } from "../../hooks/use-can-dash-filter";
 import {
   useCanMonitorView,
   type CanMonitorView,
@@ -49,8 +50,9 @@ const CanBody = ({ view }: { view: CanMonitorView }) => {
 };
 
 export const CanTab = () => {
-  useCanFeed();
+  const source = useCanFeed();
   const view = useCanMonitorView();
+  useCanDashFilter(source, view.filter);
   return (
     <>
       <CanToolbar view={view} />
