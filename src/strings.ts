@@ -1,4 +1,5 @@
 import { FIRMWARE_STRINGS } from "./firmware-strings";
+import { CAN_CONSOLE_STRINGS } from "./can-console-strings";
 
 const plural = (n: number, one: string, many: string): string =>
   `${String(n)} ${n === 1 ? one : many}`;
@@ -231,6 +232,7 @@ export const STRINGS = {
   },
   firmware: FIRMWARE_STRINGS,
   console: {
+    ...CAN_CONSOLE_STRINGS,
     log: "Log",
     send: "Send",
     can: "CAN",
@@ -244,8 +246,6 @@ export const STRINGS = {
     clear: "Clear",
     command: "Command",
     sendHint: "Commands go straight to the dash. Only use ones you know.",
-    canEmptyTitle: "Raw CAN frames aren’t sent over Bluetooth yet.",
-    canEmptyBody: "A future dash update will add them.",
     title: "Console",
     back: "Device",
     level: "Level",
