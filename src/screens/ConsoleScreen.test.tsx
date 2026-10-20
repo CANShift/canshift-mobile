@@ -18,11 +18,15 @@ const mockSetCanMonitorFilter = jest.fn((_filters: unknown) =>
 
 jest.mock("../services/ble.service", () => ({
   sendCmd: (cmd: string) => mockSendCmd(cmd),
-  startCanMonitor: () => mockStartCanMonitor(),
-  stopCanMonitor: () => {
-    mockStopCanMonitor();
+  bleService: {
+    canMonitor: {
+      start: () => mockStartCanMonitor(),
+      stop: () => {
+        mockStopCanMonitor();
+      },
+      setFilter: (filters: unknown) => mockSetCanMonitorFilter(filters),
+    },
   },
-  setCanMonitorFilter: (filters: unknown) => mockSetCanMonitorFilter(filters),
 }));
 
 const renderConsole = () => render(<ConsoleScreen onBack={jest.fn()} />);

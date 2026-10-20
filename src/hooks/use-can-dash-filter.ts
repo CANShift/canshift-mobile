@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import { setCanMonitorFilter } from "../services/ble.service";
+import { bleService } from "../services/ble.service";
 import { useCanMonitorStore } from "../stores/can-monitor.store";
 import { log } from "../stores/log.store";
 import { errText } from "../lib/error-text";
@@ -13,7 +13,7 @@ const pushFilter = async (
 ): Promise<void> => {
   const { setDashFilterFailed } = useCanMonitorStore.getState();
   try {
-    await setCanMonitorFilter(filters);
+    await bleService.canMonitor.setFilter(filters);
     setDashFilterFailed(false);
   } catch (err) {
     log("warn", `BLE: the dash CAN filter was not set — ${errText(err)}`);
