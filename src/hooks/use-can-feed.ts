@@ -1,15 +1,17 @@
 import { useEffect } from "react";
 import { useDeviceStore } from "../stores/device.store";
 import { useCanMonitorStore } from "../stores/can-monitor.store";
-import { startCanMonitor, stopCanMonitor } from "../services/ble.service";
+import { bleService } from "../services/ble.service";
 import { startSimCan, stopSimCan } from "../services/sim-can.service";
 
 export type CanSource = "ble" | "sim" | "none";
 
 const CAN_SOURCES: Record<CanSource, () => () => void> = {
   ble: () => {
-    if (!startCanMonitor()) useCanMonitorStore.getState().reset();
-    return stopCanMonitor;
+    if (!bleService.canMonitor.start()) useCanMonitorStore.getState().reset();
+    return () => {
+      bleService.canMonitor.stop();
+    };
   },
   sim: () => {
     startSimCan();
