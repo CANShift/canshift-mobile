@@ -10,6 +10,7 @@ import {
   type StoredTimerSession,
   type TimerSessionStorage,
 } from "../services/timer-session-storage";
+import { relabel, withoutSession } from "../lib/session-label";
 
 export const MAX_STORED_SESSIONS = 50;
 
@@ -78,6 +79,7 @@ const openNewSession = (
   const session: StoredTimerSession = {
     key: activeKey,
     startedAt: nowMs - lap.totalMs,
+    label: "",
     laps: [lapEntry],
   };
   return {
@@ -130,4 +132,22 @@ export const clearTimerSessions = (): void => {
     activeBucket: null,
   });
   persistSessions([]);
+};
+
+const replaceSessions = (sessions: StoredTimerSession[]): void => {
+  useTimerSessionsStore.setState({ sessions });
+  persistSessions(sessions);
+};
+
+export const renameTimerSession = (key: string, label: string): void => {
+  replaceSessions(
+    relabel(useTimerSessionsStore.getState().sessions, key, label),
+  );
+};
+
+export const deleteTimerSession = (key: string): void => {
+  const { activeKey, sessions } = useTimerSessionsStore.getState();
+  if (activeKey === key)
+    useTimerSessionsStore.setState({ activeKey: null, activeBucket: null });
+  replaceSessions(withoutSession(sessions, key));
 };

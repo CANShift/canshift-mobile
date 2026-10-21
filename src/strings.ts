@@ -1,7 +1,7 @@
 import { FIRMWARE_STRINGS } from "./firmware-strings";
 import { CAN_CONSOLE_STRINGS } from "./can-console-strings";
 
-const plural = (n: number, one: string, many: string): string =>
+export const plural = (n: number, one: string, many: string): string =>
   `${String(n)} ${n === 1 ? one : many}`;
 
 export const STRINGS = {

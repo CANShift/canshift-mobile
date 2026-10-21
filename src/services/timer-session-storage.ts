@@ -1,9 +1,5 @@
-import { File, Paths } from "expo-file-system";
 import { z } from "zod";
-import { log } from "../stores/log.store";
-import { persist } from "../lib/persist";
-
-const SESSIONS_FILE_NAME = "canshift-timer-sessions.json";
+import { createJsonFileStorage } from "../lib/json-file-storage";
 
 const sessionLapSchema = z.object({
   index: z.number().int().positive(),
@@ -14,10 +10,9 @@ const sessionLapSchema = z.object({
 const sessionSchema = z.object({
   key: z.string().min(1),
   startedAt: z.number(),
+  label: z.string().default(""),
   laps: z.array(sessionLapSchema),
 });
-
-const sessionsSchema = z.array(sessionSchema);
 
 export type StoredTimerSession = z.infer<typeof sessionSchema>;
 
@@ -26,37 +21,14 @@ export interface TimerSessionStorage {
   save: (sessions: readonly StoredTimerSession[]) => Promise<boolean>;
 }
 
-const sessionsFile = (): File => new File(Paths.document, SESSIONS_FILE_NAME);
+const timerSessionsFile = createJsonFileStorage<readonly StoredTimerSession[]>({
+  fileName: "canshift-timer-sessions.json",
+  what: "timer sessions",
+  schema: z.array(sessionSchema),
+  empty: [],
+});
 
 export const fileTimerSessionStorage: TimerSessionStorage = {
-  load: async () => {
-    const { value } = await persist(
-      "Reading the stored timer sessions",
-      async () => {
-        const file = sessionsFile();
-        if (!file.exists) return [];
-        const parsed = sessionsSchema.safeParse(
-          JSON.parse(await file.text()) as unknown,
-        );
-        if (!parsed.success) {
-          log("warn", "Stored timer sessions malformed — starting empty");
-          return [];
-        }
-        return parsed.data;
-      },
-      [] as StoredTimerSession[],
-    );
-    return value;
-  },
-
-  save: async (sessions) => {
-    const { failed } = await persist(
-      "Persisting the timer sessions",
-      async () => {
-        await sessionsFile().write(JSON.stringify(sessions));
-      },
-      undefined,
-    );
-    return !failed;
-  },
+  load: async () => [...(await timerSessionsFile.load()).value],
+  save: timerSessionsFile.save,
 };

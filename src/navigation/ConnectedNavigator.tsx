@@ -5,7 +5,7 @@ import {
 import type { NavigatorScreenParams } from "@react-navigation/native";
 import LiveScreen from "../screens/LiveScreen";
 import GraphScreen from "../screens/GraphScreen";
-import LapsScreen from "../screens/LapsScreen";
+import LapsStack from "./LapsStack";
 import DeviceStack, { type DeviceStackParamList } from "./DeviceStack";
 import { ShellTabBar } from "../components/shell/ShellTabBar";
 import { ShellHeader } from "../components/shell/ShellHeader";
@@ -52,7 +52,7 @@ const ConnectedNavigator = () => {
     >
       <Tab.Screen name="Live" component={LiveTab} />
       <Tab.Screen name="Graph" component={GraphScreen} />
-      <Tab.Screen name="Laps" component={LapsScreen} />
+      <Tab.Screen name="Laps" component={LapsStack} />
       <Tab.Screen name="Device" component={DeviceStack} />
     </Tab.Navigator>
   );

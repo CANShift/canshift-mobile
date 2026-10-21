@@ -6,7 +6,7 @@ import {
   useTimerSessionsStore,
 } from "../stores/timer-sessions.store";
 import { timerControl } from "../services/timer-control";
-import type { TimedLap } from "../lib/lap-deltas";
+import { timerTimedLaps, type TimedLap } from "../lib/lap-deltas";
 import { useTimerElapsed } from "./use-timer-elapsed";
 
 export interface DashTimerModel {
@@ -24,10 +24,7 @@ export interface DashTimerModel {
 
 const useTimerLaps = (): readonly TimedLap[] => {
   const laps = useTimerStore((s) => s.laps);
-  return useMemo(
-    () => laps.map((lap) => ({ number: lap.index, ms: lap.lapMs })),
-    [laps],
-  );
+  return useMemo(() => timerTimedLaps(laps), [laps]);
 };
 
 export const useDashTimer = (): DashTimerModel => {

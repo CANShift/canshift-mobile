@@ -11,6 +11,12 @@ import {
   toTrackStateCmd,
 } from "./track-mode-controller";
 
+const mockRecordFinished = jest.fn(() => Promise.resolve());
+
+jest.mock("./gps-session-recorder", () => ({
+  recordFinishedGpsSession: () => mockRecordFinished(),
+}));
+
 const PUBLISH_INTERVAL_MS = 60_000;
 
 const makeWatcher = (): {
@@ -88,6 +94,7 @@ describe("toTrackStateCmd", () => {
 describe("createTrackModeController", () => {
   beforeEach(() => {
     clearAll();
+    mockRecordFinished.mockClear();
   });
 
   const granted = () => Promise.resolve({ granted: true as const });
@@ -244,6 +251,7 @@ describe("createTrackModeController", () => {
     expect(useTrackSessionStore.getState().recording).toBe(false);
     expect(useTrackSessionStore.getState().laps).toHaveLength(1);
     expect(payloads.at(-1)).toEqual({ trackMode: false });
+    expect(mockRecordFinished).toHaveBeenCalledTimes(1);
   });
 
   it("stop() before start() is a no-op", async () => {
@@ -257,6 +265,7 @@ describe("createTrackModeController", () => {
 
     await expect(controller.stop()).resolves.toBeUndefined();
     expect(write).not.toHaveBeenCalled();
+    expect(mockRecordFinished).not.toHaveBeenCalled();
   });
 
   it("restarts cleanly after a stop", async () => {
