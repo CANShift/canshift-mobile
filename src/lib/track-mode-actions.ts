@@ -47,6 +47,10 @@ export const stopTrackMode = async (): Promise<void> => {
 export const setLineHere = (): boolean => {
   const sample = getLatestSample();
   if (sample === undefined) return false;
+  if (sample.headingDeg < 0) {
+    Toast.show({ type: "error", text1: STRINGS.laps.setLineHint });
+    return false;
+  }
   const placed = startFinishLineFromPosition(sample);
   armStartFinishLine(placed.line, {
     forwardBearingDeg: placed.forwardBearingDeg,

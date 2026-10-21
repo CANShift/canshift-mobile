@@ -161,7 +161,7 @@ export const STRINGS = {
     line: "Start/finish line",
     lineNotSet: "Not set",
     setLineHere: "Set line here",
-    setLineHint: "Drive to the line, stop, then tap Set line here.",
+    setLineHint: "Tap Set line here while rolling across the line.",
     resetLine: "Reset line",
     lineSet: "Line set",
     startTrackMode: "Start track mode",
