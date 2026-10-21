@@ -89,6 +89,10 @@ export const FIRMWARE_STRINGS = {
   signatureAdvice: "Download the update again, then try again.",
   otherDash: (version: string): string =>
     `This firmware is for a different dash. ${stillRuns(version)}`,
+  differentDash: (version: string): string =>
+    `The phone reached a different dash over Wi-Fi. ${stillRuns(version)}`,
+  differentDashAdvice:
+    "Join the Wi-Fi shown on the dash you’re updating, then try again.",
   refused: (version: string): string =>
     `The dash refused the update. ${stillRuns(version)}`,
   refusedAdvice: "Restart the dash and try again.",

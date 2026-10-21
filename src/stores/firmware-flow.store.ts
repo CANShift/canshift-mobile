@@ -17,6 +17,7 @@ import {
   EMPTY_NETWORK,
   type WorkshopNetwork,
 } from "../services/workshop/workshop-network";
+import type { UsbStatus } from "@canshift/core/wire";
 import type { DashSocket, OpenResult } from "../services/workshop/dash-socket";
 import type {
   FirmwareFlowDeps,
@@ -29,7 +30,11 @@ interface FirmwareFlowState {
   pkg: FirmwarePackage | null;
   runningVersion: string;
   network: WorkshopNetwork;
-  open: (pkg: FirmwarePackage, runningVersion: string) => Promise<void>;
+  open: (
+    pkg: FirmwarePackage,
+    runningVersion: string,
+    boardId: string | null,
+  ) => Promise<void>;
   inWorkshop: () => void;
   setNetwork: (network: WorkshopNetwork) => void;
   join: () => Promise<void>;
@@ -46,6 +51,7 @@ type Get = () => FirmwareFlowState;
 interface Session {
   socket: DashSocket | null;
   joinedSsid: string | null;
+  boardId: string | null;
   inWorkshop: boolean;
   cancelRequested: boolean;
   generation: number;
@@ -89,16 +95,38 @@ const settleStaleOpen = async (opened: OpenResult): Promise<void> => {
   if (opened.kind === "open") await leaveWorkshop(opened.socket);
 };
 
+const isLinkedDash = (
+  dash: UsbStatus,
+  runningVersion: string,
+  boardId: string | null,
+): boolean =>
+  dash.firmwareVersion === runningVersion &&
+  (boardId === null || dash.boardId === undefined || dash.boardId === boardId);
+
+const refuseDifferentDash = ({ session, set }: Flow, socket: DashSocket) => {
+  socket.close();
+  session.socket = null;
+  set({ view: { kind: "failed", failure: { kind: "differentDash" } } });
+};
+
 const connect = async (
-  { deps, session, set }: Flow,
-  generation = session.generation,
+  flow: Flow,
+  generation = flow.session.generation,
 ): Promise<void> => {
+  const { deps, session, set, get } = flow;
   if (session.generation !== generation) return;
   set({ view: { kind: "connecting" } });
   session.socket?.close();
   session.socket = null;
   const opened = await openWithRetries(deps);
   if (session.generation !== generation) return settleStaleOpen(opened);
+  const differs =
+    opened.kind === "open" &&
+    !isLinkedDash(opened.dash, get().runningVersion, session.boardId);
+  if (differs) {
+    refuseDifferentDash(flow, opened.socket);
+    return;
+  }
   session.socket = opened.kind === "open" ? opened.socket : null;
   set({ view: VIEW_AFTER_OPEN[opened.kind] });
 };
@@ -210,8 +238,10 @@ const openFlow = async (
   { deps, session, set }: Flow,
   pkg: FirmwarePackage,
   runningVersion: string,
+  boardId: string | null,
 ): Promise<void> => {
   session.generation += 1;
+  session.boardId = boardId;
   deps.ble.hold();
   set({ view: { kind: "prepare" }, pkg, runningVersion });
   set({ network: await deps.network.load() });
@@ -237,8 +267,11 @@ const close = async (flow: Flow): Promise<void> => {
 };
 
 const actions = (flow: Flow) => ({
-  open: (pkg: FirmwarePackage, runningVersion: string) =>
-    openFlow(flow, pkg, runningVersion),
+  open: (
+    pkg: FirmwarePackage,
+    runningVersion: string,
+    boardId: string | null,
+  ) => openFlow(flow, pkg, runningVersion, boardId),
   inWorkshop: () => {
     flow.session.inWorkshop = true;
     flow.set({ view: { kind: "wifi", joining: false, problem: null } });
@@ -263,6 +296,7 @@ export const createFirmwareFlowStore = (
     const session: Session = {
       socket: null,
       joinedSsid: null,
+      boardId: null,
       inWorkshop: false,
       cancelRequested: false,
       generation: 0,

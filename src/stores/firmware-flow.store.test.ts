@@ -17,6 +17,7 @@ import type {
   FlowView,
 } from "../services/workshop/firmware-flow-types";
 
+const BOARD = "waveshare_s3_28";
 const NETWORK = { ssid: "CANShift-k7m2", password: "abcdefgh2345" };
 const PKG = {
   bytes: buildAppImage("0.21.0", 20_000),
@@ -63,7 +64,7 @@ const setup = (
 };
 
 const toReady = async ({ store }: ReturnType<typeof setup>) => {
-  await store.getState().open(PKG, "0.20.2");
+  await store.getState().open(PKG, "0.20.2", BOARD);
   store.getState().inWorkshop();
   await store.getState().join();
 };
@@ -83,6 +84,28 @@ describe("the firmware update flow", () => {
     expect(flow.deps.network.save).toHaveBeenCalledWith(NETWORK);
     expect(flow.store.getState().view).toEqual({ kind: "ready" });
     expect(flow.views).toEqual(["prepare", "wifi", "connecting", "ready"]);
+  });
+
+  it("refuses a dash on the Wi-Fi that is not the one linked over Bluetooth", async () => {
+    const flow = setup([{ version: "0.19.0" }]);
+    await toReady(flow);
+    expect(flow.store.getState().view).toEqual({
+      kind: "failed",
+      failure: { kind: "differentDash" },
+    });
+    await flow.store.getState().install();
+    expect(cmds(flow.opened[0])).toEqual([0x10]);
+  });
+
+  it("refuses a dash of another board", async () => {
+    const flow = setup();
+    await flow.store.getState().open(PKG, "0.20.2", "crowpanel_43");
+    flow.store.getState().inWorkshop();
+    await flow.store.getState().join();
+    expect(flow.store.getState().view).toEqual({
+      kind: "failed",
+      failure: { kind: "differentDash" },
+    });
   });
 
   it("installs, takes the dash out of workshop mode and confirms the version over Bluetooth", async () => {
@@ -216,7 +239,7 @@ describe("the firmware update flow", () => {
 
   it("only gives Bluetooth back when closed before the dash entered workshop mode", async () => {
     const flow = setup();
-    await flow.store.getState().open(PKG, "0.20.2");
+    await flow.store.getState().open(PKG, "0.20.2", BOARD);
     await flow.store.getState().close();
     expect(flow.opened).toHaveLength(0);
     expect(flow.deps.wifi.forget).not.toHaveBeenCalled();
@@ -233,7 +256,7 @@ describe("the firmware update flow", () => {
           void realOpen().then(resolve);
         };
       });
-    await flow.store.getState().open(PKG, "0.20.2");
+    await flow.store.getState().open(PKG, "0.20.2", BOARD);
     flow.store.getState().inWorkshop();
     const joining = flow.store.getState().join();
     await Promise.resolve();
@@ -256,7 +279,7 @@ describe("the firmware update flow", () => {
           finishJoin = resolve;
         }),
     );
-    await flow.store.getState().open(PKG, "0.20.2");
+    await flow.store.getState().open(PKG, "0.20.2", BOARD);
     const joining = flow.store.getState().join();
     await flow.store.getState().close();
     finishJoin("joined");

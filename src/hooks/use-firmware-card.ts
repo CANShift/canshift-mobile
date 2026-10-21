@@ -30,7 +30,8 @@ const ACTIONS: Record<
   download: () => void useFirmwareReleaseStore.getState().download(),
   update: (card, running) => {
     if (card.kind !== "ready") return;
-    void useFirmwareFlowStore.getState().open(card.pkg, running);
+    const { boardId } = useDeviceStore.getState();
+    void useFirmwareFlowStore.getState().open(card.pkg, running, boardId);
   },
 };
 
