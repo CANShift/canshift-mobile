@@ -36,6 +36,8 @@ const COPY: Record<CopyKind, (version: string) => FailureCopy> = {
   otherDash: (version) =>
     failed(F.otherDash(version), F.signatureAdvice, false),
   refused: (version) => failed(F.refused(version), F.refusedAdvice, true),
+  differentDash: (version) =>
+    failed(F.differentDash(version), F.differentDashAdvice, true),
   dropped: (version) =>
     failed(F.wifiDropped(version), F.wifiDroppedAdvice, true),
   rolledBack: (version) =>

@@ -9,6 +9,7 @@ export type WifiProblem = "denied" | "invalid" | "failed";
 export type FlowFailure =
   | { kind: "refused"; code: string; detail: string | null }
   | { kind: "dropped" }
+  | { kind: "differentDash" }
   | { kind: "rolledBack"; running: string }
   | { kind: "notBack" };
 
