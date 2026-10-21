@@ -5,19 +5,17 @@ import { MAX_LABEL_LENGTH } from "../../lib/session-label";
 
 export interface SessionLabelFieldProps {
   label: string;
-  placeholder: string;
   onRename: (label: string) => void;
 }
 
 export const SessionLabelField = ({
   label,
-  placeholder,
   onRename,
 }: SessionLabelFieldProps) => (
   <TextInput
     style={styles.field}
     defaultValue={label}
-    placeholder={placeholder}
+    placeholder={HISTORY_STRINGS.labelPlaceholder}
     placeholderTextColor={UiColors.textMuted}
     maxLength={MAX_LABEL_LENGTH}
     returnKeyType="done"
