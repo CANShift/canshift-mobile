@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import { UiColors } from "../../theme/ui-tokens";
 import type { SessionDetailModel } from "../../hooks/use-session-detail";
-import { SOURCE_TAGS, sessionDate } from "../../lib/session-view";
+import { SOURCE_TAGS, sessionMeta } from "../../lib/session-view";
 import { StatusTag } from "../laps/StatusTag";
 import { CantSaveNote } from "../laps/CantSaveNote";
 import { SessionLabelField } from "./SessionLabelField";
@@ -14,7 +14,6 @@ export interface SessionSummaryPaneProps {
 export const SessionSummaryPane = ({ detail }: SessionSummaryPaneProps) => {
   const { session } = detail;
   const tag = SOURCE_TAGS[session.source];
-  const date = sessionDate(session.startedAt);
   return (
     <>
       {detail.storageNote === null ? null : (
@@ -26,12 +25,11 @@ export const SessionSummaryPane = ({ detail }: SessionSummaryPaneProps) => {
       <SessionLabelField
         key={session.key}
         label={session.label}
-        placeholder={date}
         onRename={detail.rename}
       />
       <View style={styles.meta}>
         <StatusTag label={tag.label} tone={tag.tone} />
-        <Text style={styles.date}>{date}</Text>
+        <Text style={styles.date}>{sessionMeta(session)}</Text>
       </View>
       <StatGrid tiles={detail.tiles} />
     </>
