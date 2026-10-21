@@ -68,7 +68,7 @@ describe("Session detail screen", () => {
       },
     });
     setTimerSessionStorage({
-      load: () => Promise.resolve([]),
+      load: () => Promise.resolve({ value: [], failed: false }),
       save: () => Promise.resolve(true),
     });
   });
