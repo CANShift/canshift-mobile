@@ -2,8 +2,10 @@ import {
   MAX_STORED_SESSIONS,
   acknowledgePersistFailure,
   clearTimerSessions,
+  deleteTimerSession,
   hydrateTimerSessions,
   recordSessionLap,
+  renameTimerSession,
   setTimerSessionStorage,
   useTimerSessionsStore,
 } from "./timer-sessions.store";
@@ -36,6 +38,7 @@ describe("timer sessions store", () => {
       {
         key: "s-1-1",
         startedAt: 100,
+        label: "",
         laps: [{ index: 1, lapMs: 900, totalMs: 900 }],
       },
     ];
@@ -55,6 +58,7 @@ describe("timer sessions store", () => {
       {
         key: "old",
         startedAt: 1,
+        label: "",
         laps: [{ index: 1, lapMs: 500, totalMs: 500 }],
       },
     ];
@@ -178,5 +182,36 @@ describe("timer sessions store", () => {
     await Promise.resolve();
     await Promise.resolve();
     expect(useTimerSessionsStore.getState().persistFailed).toBe(false);
+  });
+
+  it("renames a session and persists the trimmed label", async () => {
+    const { storage, snapshot } = createMemoryStorage();
+    setTimerSessionStorage(storage);
+    await hydrateTimerSessions();
+    recordSessionLap({ sessionId: 1, index: 1, lapMs: 900, totalMs: 900 });
+    const key = useTimerSessionsStore.getState().sessions[0]?.key ?? "";
+
+    renameTimerSession(key, "  Dijon heat 2  ");
+
+    expect(useTimerSessionsStore.getState().sessions[0]?.label).toBe(
+      "Dijon heat 2",
+    );
+    expect(snapshot()[0]?.label).toBe("Dijon heat 2");
+  });
+
+  it("deletes the active session so the next lap opens a new one", async () => {
+    const { storage, snapshot } = createMemoryStorage();
+    setTimerSessionStorage(storage);
+    await hydrateTimerSessions();
+    recordSessionLap({ sessionId: 1, index: 1, lapMs: 900, totalMs: 900 });
+    const key = useTimerSessionsStore.getState().sessions[0]?.key ?? "";
+
+    deleteTimerSession(key);
+    expect(snapshot()).toEqual([]);
+
+    recordSessionLap({ sessionId: 1, index: 2, lapMs: 950, totalMs: 1_850 });
+    const sessions = useTimerSessionsStore.getState().sessions;
+    expect(sessions).toHaveLength(1);
+    expect(sessions[0]?.laps.map((lap) => lap.index)).toEqual([2]);
   });
 });

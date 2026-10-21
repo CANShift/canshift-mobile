@@ -5,16 +5,20 @@ import { Glyph } from "../icons/Glyph";
 
 export interface CantSaveNoteProps {
   onDismiss: () => void;
+  message?: string;
 }
 
-export const CantSaveNote = ({ onDismiss }: CantSaveNoteProps) => (
+export const CantSaveNote = ({
+  onDismiss,
+  message = STRINGS.laps.cantSave,
+}: CantSaveNoteProps) => (
   <Pressable
     style={styles.note}
     onPress={onDismiss}
     accessibilityRole="alert"
     accessibilityHint={STRINGS.banners.dismiss}
   >
-    <Text style={styles.text}>{STRINGS.laps.cantSave}</Text>
+    <Text style={styles.text}>{message}</Text>
     <Glyph name="close" size={18} color={UiColors.warningTextStrong} />
   </Pressable>
 );

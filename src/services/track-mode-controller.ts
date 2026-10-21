@@ -19,6 +19,7 @@ import { sendCmd, type CmdPayload } from "./ble.service";
 import { useDeviceStore } from "../stores/device.store";
 import { startSession, stopSession } from "../stores/track-session.store";
 import { log } from "../stores/log.store";
+import { recordFinishedGpsSession } from "./gps-session-recorder";
 import { errText } from "../lib/error-text";
 
 export type TrackModeStartFailure =
@@ -33,6 +34,7 @@ export interface TrackModeControllerDeps {
   write?: TrackTelemetryWriter;
   publisherIntervalMs?: number;
   now?: () => number;
+  onSessionEnd?: () => Promise<void>;
 }
 
 export interface TrackModeController {
@@ -106,21 +108,21 @@ const beginSession = (
   }
 };
 
-const endSession = async (
-  publisher: TrackTelemetryPublisher,
-): Promise<void> => {
+const endSession = async (rt: ControllerRuntime): Promise<void> => {
   try {
     stopSession();
   } finally {
-    publisher.stop();
-    await publisher.tickNow();
+    rt.publisher.stop();
+    await rt.publisher.tickNow();
   }
+  await rt.onSessionEnd();
 };
 
 interface ControllerRuntime {
   watcher: GpsWatcher;
   requestPermission: () => Promise<ForegroundPermissionResult>;
   publisher: TrackTelemetryPublisher;
+  onSessionEnd: () => Promise<void>;
   subscription: GpsSubscription | null;
   startPromise: Promise<TrackModeStartResult> | null;
   generation: number;
@@ -131,6 +133,7 @@ const runtimeFor = (deps: TrackModeControllerDeps): ControllerRuntime => ({
   requestPermission:
     deps.requestPermission ?? requestForegroundLocationPermission,
   publisher: publisherFor(deps),
+  onSessionEnd: deps.onSessionEnd ?? recordFinishedGpsSession,
   subscription: null,
   startPromise: null,
   generation: 0,
@@ -171,7 +174,7 @@ const stopTrackMode = async (rt: ControllerRuntime): Promise<void> => {
   if (rt.subscription === null) return;
   rt.subscription.stop();
   rt.subscription = null;
-  await endSession(rt.publisher);
+  await endSession(rt);
   log("info", "Track mode stopped");
 };
 

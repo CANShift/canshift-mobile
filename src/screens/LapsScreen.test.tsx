@@ -13,6 +13,7 @@ import {
 import { useTimerStore } from "../stores/timer.store";
 import { useTimerSessionsStore } from "../stores/timer-sessions.store";
 import { STRINGS } from "../strings";
+import { HISTORY_STRINGS } from "../history-strings";
 
 const mockStart = jest.fn(() => Promise.resolve({ started: true as const }));
 const mockStop = jest.fn(() => Promise.resolve());
@@ -53,11 +54,13 @@ const metrics = {
   insets: { top: 47, left: 0, right: 0, bottom: 34 },
 };
 
+const mockOpenHistory = jest.fn();
+
 const renderLaps = () =>
   render(
     <SafeAreaProvider initialMetrics={metrics}>
       <NavigationContainer>
-        <LapsScreen />
+        <LapsScreen onOpenHistory={mockOpenHistory} />
       </NavigationContainer>
     </SafeAreaProvider>,
   );
@@ -85,6 +88,15 @@ const gloveHeight = (view: View, label: string): boolean => {
 };
 
 const initialTimer = useTimerStore.getState();
+
+describe("Laps screen — history", () => {
+  it("opens the session history", async () => {
+    clearAll();
+    const view = await renderLaps();
+    await press(view, HISTORY_STRINGS.open);
+    expect(mockOpenHistory).toHaveBeenCalledTimes(1);
+  });
+});
 
 describe("Laps screen — GPS timing", () => {
   beforeEach(() => {

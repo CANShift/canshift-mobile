@@ -1,10 +1,18 @@
 import { STRINGS } from "../strings";
 import { formatChrono, formatDelta } from "./lap-time";
+import type { LapRecord } from "../stores/track-session.store";
+import type { SessionLap } from "./timer-laps";
 
 export interface TimedLap {
   number: number;
   ms: number;
 }
+
+export const gpsTimedLaps = (laps: readonly LapRecord[]): TimedLap[] =>
+  laps.map((lap) => ({ number: lap.number, ms: lap.durationMs }));
+
+export const timerTimedLaps = (laps: readonly SessionLap[]): TimedLap[] =>
+  laps.map((lap) => ({ number: lap.index, ms: lap.lapMs }));
 
 export interface LapLine {
   key: string;
