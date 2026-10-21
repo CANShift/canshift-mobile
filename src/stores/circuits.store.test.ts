@@ -8,8 +8,22 @@ import {
   setCircuitStorage,
   useCircuitsStore,
 } from "./circuits.store";
-import type { CircuitStorage, SavedCircuit } from "../services/circuit-storage";
+import {
+  fileCircuitStorage,
+  type CircuitStorage,
+  type SavedCircuit,
+} from "../services/circuit-storage";
 import { CIRCUIT_STRINGS } from "../circuit-strings";
+import {
+  memoryFiles,
+  resetMemoryFileSystem,
+} from "../testing/memory-file-system";
+
+jest.mock("expo-file-system", () =>
+  jest.requireActual<typeof import("../testing/memory-file-system")>(
+    "../testing/memory-file-system",
+  ),
+);
 
 const mockToast = jest.fn();
 
@@ -43,7 +57,11 @@ const memoryStorage = (
   let saved: readonly SavedCircuit[] = initial;
   return {
     storage: {
-      load: () => Promise.resolve({ value: [...saved], failed: loadFails }),
+      load: () =>
+        Promise.resolve({
+          value: [...saved],
+          failure: loadFails ? ("set-aside" as const) : null,
+        }),
       save: (circuits) => {
         if (!saveFails) saved = [...circuits];
         return Promise.resolve(!saveFails);
@@ -129,7 +147,7 @@ describe("circuits store", () => {
     expect(mockToast).toHaveBeenCalledTimes(1);
     expect(mockToast).toHaveBeenCalledWith({
       type: "error",
-      text1: CIRCUIT_STRINGS.unreadable,
+      text1: CIRCUIT_STRINGS.unreadable["set-aside"],
     });
   });
 
@@ -153,5 +171,25 @@ describe("circuits store", () => {
     await hydrateCircuits();
     await flush();
     expect(memory.snapshot().map((c) => c.id)).toEqual(["c-1", "c-7"]);
+  });
+
+  it("sets an unreadable circuits file aside and saves the next circuit", async () => {
+    resetMemoryFileSystem();
+    memoryFiles.set("canshift-circuits.json", "{");
+    setCircuitStorage(fileCircuitStorage);
+    await hydrateCircuits();
+    expect(mockToast).toHaveBeenCalledWith({
+      type: "error",
+      text1: CIRCUIT_STRINGS.unreadable["set-aside"],
+    });
+
+    armHere();
+    saveArmedLine("Home", 9);
+    await flush();
+
+    await expect(fileCircuitStorage.load()).resolves.toEqual({
+      value: [expect.objectContaining({ id: "c-9", name: "Home" })],
+      failure: null,
+    });
   });
 });

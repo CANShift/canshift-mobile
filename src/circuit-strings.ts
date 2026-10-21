@@ -17,7 +17,10 @@ export const CIRCUIT_STRINGS = {
   cancel: "Cancel",
   deleteTitle: (name: string): string => `Delete ${name}?`,
   deleteBody: "The line you saved here is removed. Laps stay.",
-  unreadable: "Saved circuits couldn’t be read.",
+  unreadable: {
+    "set-aside": "Saved circuits couldn’t be read, so that file was set aside.",
+    kept: "Saved circuits couldn’t be read.",
+  },
   unsaved:
     "Circuit changes couldn’t be saved. They stay until you close the app.",
 } as const;

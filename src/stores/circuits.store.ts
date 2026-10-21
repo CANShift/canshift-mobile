@@ -51,11 +51,11 @@ const commit = (circuits: SavedCircuit[]): void => {
 
 export const hydrateCircuits = async (): Promise<void> => {
   if (useCircuitsStore.getState().hydrated) return;
-  const { value, failed } = await activeStorage.load();
+  const { value, failure } = await activeStorage.load();
   const savedBeforeHydration = useCircuitsStore.getState().circuits;
   const circuits = [...value, ...savedBeforeHydration];
   useCircuitsStore.setState({ hydrated: true, circuits });
-  if (failed) announce(CIRCUIT_STRINGS.unreadable);
+  if (failure !== null) announce(CIRCUIT_STRINGS.unreadable[failure]);
   if (savedBeforeHydration.length > 0) persistCircuits(circuits);
 };
 

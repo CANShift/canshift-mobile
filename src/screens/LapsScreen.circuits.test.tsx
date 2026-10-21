@@ -81,7 +81,7 @@ const startWith = (circuits: SavedCircuit[]): void => {
   saved = circuits;
   useCircuitsStore.setState({ hydrated: false, circuits: [], armed: null });
   setCircuitStorage({
-    load: () => Promise.resolve({ value: [...saved], failed: false }),
+    load: () => Promise.resolve({ value: [...saved], failure: null }),
     save: (next) => {
       saved = [...next];
       return Promise.resolve(true);

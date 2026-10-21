@@ -1,6 +1,7 @@
 import { File, Paths } from "expo-file-system";
 import type { z } from "zod";
-import { persist, type PersistResult } from "./persist";
+import { log } from "../stores/log.store";
+import { persist } from "./persist";
 
 export interface JsonFileSpec<T> {
   fileName: string;
@@ -9,36 +10,73 @@ export interface JsonFileSpec<T> {
   empty: T;
 }
 
+export type ReadFailure = "set-aside" | "kept";
+
+interface LoadResult<T> {
+  value: T;
+  failure: ReadFailure | null;
+}
+
 export interface JsonFileStorage<T> {
-  load: () => Promise<PersistResult<T>>;
+  load: () => Promise<LoadResult<T>>;
   save: (value: T) => Promise<boolean>;
 }
 
-const readParsed = async <T>(spec: JsonFileSpec<T>): Promise<T> => {
-  const file = new File(Paths.document, spec.fileName);
-  if (!file.exists) return spec.empty;
-  return spec.schema.parse(JSON.parse(await file.text()));
+const documentFile = (name: string): File => new File(Paths.document, name);
+
+const setAsideName = (fileName: string, nowMs: number): string =>
+  `${fileName.replace(/\.json$/, "")}.unreadable-${String(nowMs)}.json`;
+
+const setAside = async <T>(spec: JsonFileSpec<T>): Promise<ReadFailure> => {
+  const { failed } = await persist(
+    `Setting aside the unreadable ${spec.what}`,
+    () =>
+      documentFile(spec.fileName).move(
+        documentFile(setAsideName(spec.fileName, Date.now())),
+      ),
+    undefined,
+  );
+  return failed ? "kept" : "set-aside";
+};
+
+const loadFile = async <T>(spec: JsonFileSpec<T>): Promise<LoadResult<T>> => {
+  const file = documentFile(spec.fileName);
+  if (!file.exists) return { value: spec.empty, failure: null };
+  const { value, failed } = await persist(
+    `Reading the stored ${spec.what}`,
+    async () => spec.schema.parse(JSON.parse(await file.text())),
+    spec.empty,
+  );
+  if (!failed) return { value, failure: null };
+  return { value, failure: await setAside(spec) };
+};
+
+const saveFile = async <T>(
+  spec: JsonFileSpec<T>,
+  value: T,
+): Promise<boolean> => {
+  const { failed } = await persist(
+    `Persisting the ${spec.what}`,
+    () => documentFile(spec.fileName).write(JSON.stringify(value)),
+    undefined,
+  );
+  return !failed;
 };
 
 export const createJsonFileStorage = <T>(
   spec: JsonFileSpec<T>,
-): JsonFileStorage<T> => ({
-  load: () =>
-    persist(
-      `Reading the stored ${spec.what}`,
-      () => readParsed(spec),
-      spec.empty,
-    ),
-  save: async (value) => {
-    const { failed } = await persist(
-      `Persisting the ${spec.what}`,
-      async () => {
-        await new File(Paths.document, spec.fileName).write(
-          JSON.stringify(value),
-        );
-      },
-      undefined,
-    );
-    return !failed;
-  },
-});
+): JsonFileStorage<T> => {
+  let writesBlocked = false;
+  return {
+    load: async () => {
+      const result = await loadFile(spec);
+      writesBlocked = result.failure === "kept";
+      return result;
+    },
+    save: (value) => {
+      if (!writesBlocked) return saveFile(spec, value);
+      log("warn", `Persisting the ${spec.what} skipped: unreadable file kept`);
+      return Promise.resolve(false);
+    },
+  };
+};
