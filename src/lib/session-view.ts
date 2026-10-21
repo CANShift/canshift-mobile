@@ -32,8 +32,11 @@ export interface StatTile {
   value: string;
 }
 
-export const sessionDate = (startedAt: number): string =>
+const sessionDate = (startedAt: number): string =>
   new Date(startedAt).toLocaleString(undefined, DATE_FORMAT);
+
+export const sessionMeta = (session: HistorySession): string =>
+  `${sessionDate(session.startedAt)} · ${HISTORY_STRINGS.lapCount(session.laps.length)}`;
 
 export const sessionTitle = (session: HistorySession): string =>
   session.label === "" ? sessionDate(session.startedAt) : session.label;
@@ -68,7 +71,6 @@ export const statTiles = (session: HistorySession): StatTile[] => {
     { label: HISTORY_STRINGS.best, value: chronoOrNone(stats.bestMs) },
     { label: HISTORY_STRINGS.average, value: chronoOrNone(stats.averageMs) },
     { label: HISTORY_STRINGS.consistency, value: spreadText(stats.spreadMs) },
-    { label: HISTORY_STRINGS.laps, value: String(stats.lapCount) },
     ...topSpeedTiles(session.maxSpeedMs),
   ];
 };
