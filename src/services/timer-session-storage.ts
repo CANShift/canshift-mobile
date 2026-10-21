@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { createJsonFileStorage } from "../lib/json-file-storage";
+import {
+  createJsonFileStorage,
+  type JsonFileStorage,
+} from "../lib/json-file-storage";
 
 const sessionLapSchema = z.object({
   index: z.number().int().positive(),
@@ -16,19 +19,14 @@ const sessionSchema = z.object({
 
 export type StoredTimerSession = z.infer<typeof sessionSchema>;
 
-export interface TimerSessionStorage {
-  load: () => Promise<StoredTimerSession[]>;
-  save: (sessions: readonly StoredTimerSession[]) => Promise<boolean>;
-}
+export type TimerSessionStorage = JsonFileStorage<
+  readonly StoredTimerSession[]
+>;
 
-const timerSessionsFile = createJsonFileStorage<readonly StoredTimerSession[]>({
-  fileName: "canshift-timer-sessions.json",
-  what: "timer sessions",
-  schema: z.array(sessionSchema),
-  empty: [],
-});
-
-export const fileTimerSessionStorage: TimerSessionStorage = {
-  load: async () => [...(await timerSessionsFile.load()).value],
-  save: timerSessionsFile.save,
-};
+export const fileTimerSessionStorage: TimerSessionStorage =
+  createJsonFileStorage<readonly StoredTimerSession[]>({
+    fileName: "canshift-timer-sessions.json",
+    what: "timer sessions",
+    schema: z.array(sessionSchema),
+    empty: [],
+  });

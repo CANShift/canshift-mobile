@@ -20,12 +20,15 @@ interface TimerSessionsState {
   activeKey: string | null;
   activeBucket: ActiveBucket | null;
   persistFailed: boolean;
+  readFailed: boolean;
 }
 
 let activeStorage: TimerSessionStorage = fileTimerSessionStorage;
+let writesBlocked = false;
 
 export const setTimerSessionStorage = (storage: TimerSessionStorage): void => {
   activeStorage = storage;
+  writesBlocked = false;
 };
 
 export const useTimerSessionsStore = create<TimerSessionsState>()(() => ({
@@ -34,9 +37,11 @@ export const useTimerSessionsStore = create<TimerSessionsState>()(() => ({
   activeKey: null,
   activeBucket: null,
   persistFailed: false,
+  readFailed: false,
 }));
 
 const persistSessions = (sessions: readonly StoredTimerSession[]): void => {
+  if (writesBlocked) return;
   void activeStorage.save(sessions).then((persisted) => {
     useTimerSessionsStore.setState({ persistFailed: !persisted });
   });
@@ -46,9 +51,14 @@ export const acknowledgePersistFailure = (): void => {
   useTimerSessionsStore.setState({ persistFailed: false });
 };
 
+export const acknowledgeTimerReadFailure = (): void => {
+  useTimerSessionsStore.setState({ readFailed: false });
+};
+
 export const hydrateTimerSessions = async (): Promise<void> => {
   if (useTimerSessionsStore.getState().hydrated) return;
-  const stored = await activeStorage.load();
+  const { value: stored, failed } = await activeStorage.load();
+  writesBlocked = failed;
   const recordedBeforeHydration = useTimerSessionsStore.getState().sessions;
   const storedKeys = new Set(
     recordedBeforeHydration.map((session) => session.key),
@@ -57,7 +67,11 @@ export const hydrateTimerSessions = async (): Promise<void> => {
     ...stored.filter((session) => !storedKeys.has(session.key)),
     ...recordedBeforeHydration,
   ].slice(-MAX_STORED_SESSIONS);
-  useTimerSessionsStore.setState({ hydrated: true, sessions });
+  useTimerSessionsStore.setState({
+    hydrated: true,
+    sessions,
+    readFailed: failed,
+  });
   if (recordedBeforeHydration.length > 0) persistSessions(sessions);
 };
 

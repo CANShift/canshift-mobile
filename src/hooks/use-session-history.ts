@@ -7,6 +7,7 @@ import {
 } from "../stores/gps-sessions.store";
 import {
   acknowledgePersistFailure,
+  acknowledgeTimerReadFailure,
   hydrateTimerSessions,
   useTimerSessionsStore,
 } from "../stores/timer-sessions.store";
@@ -21,13 +22,17 @@ export interface SessionHistoryModel {
 
 const useStorageFailure = (): StorageFailure | null => {
   const gpsFailure = useGpsSessionsStore((s) => s.storageFailure);
-  const timerFailed = useTimerSessionsStore((s) => s.persistFailed);
-  return gpsFailure ?? (timerFailed ? "write" : null);
+  const timerReadFailed = useTimerSessionsStore((s) => s.readFailed);
+  const timerWriteFailed = useTimerSessionsStore((s) => s.persistFailed);
+  if (gpsFailure !== null) return gpsFailure;
+  if (timerReadFailed) return "read";
+  return timerWriteFailed ? "write" : null;
 };
 
 const dismissStorageNote = (): void => {
   acknowledgeGpsStorageFailure();
   acknowledgePersistFailure();
+  acknowledgeTimerReadFailure();
 };
 
 export const useSessionHistory = (): SessionHistoryModel => {

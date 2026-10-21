@@ -18,10 +18,12 @@ interface GpsSessionsState {
 
 let activeStorage: GpsSessionStorage = fileGpsSessionStorage;
 let hydration: Promise<void> | null = null;
+let writesBlocked = false;
 
 export const setGpsSessionStorage = (storage: GpsSessionStorage): void => {
   activeStorage = storage;
   hydration = null;
+  writesBlocked = false;
 };
 
 export const useGpsSessionsStore = create<GpsSessionsState>()(() => ({
@@ -32,6 +34,7 @@ export const useGpsSessionsStore = create<GpsSessionsState>()(() => ({
 
 const loadStored = async (): Promise<void> => {
   const { value, failed } = await activeStorage.load();
+  writesBlocked = failed;
   useGpsSessionsStore.setState({
     hydrated: true,
     sessions: value.slice(-MAX_GPS_SESSIONS),
@@ -52,6 +55,7 @@ const failureAfterWrite = (persisted: boolean): StorageFailure | null => {
 
 const commit = async (sessions: StoredGpsSession[]): Promise<void> => {
   useGpsSessionsStore.setState({ sessions });
+  if (writesBlocked) return;
   const persisted = await activeStorage.save(sessions);
   useGpsSessionsStore.setState({
     storageFailure: failureAfterWrite(persisted),

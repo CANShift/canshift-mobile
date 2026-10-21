@@ -35,14 +35,15 @@ const TIMER: StoredTimerSession = {
 const useStorage = (
   gps: readonly StoredGpsSession[],
   timer: StoredTimerSession[],
-  gpsReadFails = false,
+  readFails: { gps?: boolean; timer?: boolean } = {},
 ) => {
   setGpsSessionStorage({
-    load: () => Promise.resolve({ value: gps, failed: gpsReadFails }),
+    load: () => Promise.resolve({ value: gps, failed: readFails.gps ?? false }),
     save: () => Promise.resolve(true),
   });
   setTimerSessionStorage({
-    load: () => Promise.resolve(timer),
+    load: () =>
+      Promise.resolve({ value: timer, failed: readFails.timer ?? false }),
     save: () => Promise.resolve(true),
   });
 };
@@ -90,9 +91,12 @@ describe("Sessions screen", () => {
     expect(view.getByText(HISTORY_STRINGS.emptyTitle)).toBeTruthy();
   });
 
-  it("tells the user when the saved sessions couldn't be read", async () => {
-    useStorage([], [], true);
-    const view = await renderSessions();
-    expect(view.getByText(HISTORY_STRINGS.readFailed)).toBeTruthy();
-  });
+  it.each(["gps", "timer"] as const)(
+    "tells the user when the saved %s sessions couldn't be read",
+    async (source) => {
+      useStorage([], [], { [source]: true });
+      const view = await renderSessions();
+      expect(view.getByText(HISTORY_STRINGS.readFailed)).toBeTruthy();
+    },
+  );
 });

@@ -17,7 +17,7 @@ import type {
 const createMemoryStorage = (initial: StoredTimerSession[] = []) => {
   let stored: StoredTimerSession[] = initial;
   const storage: TimerSessionStorage = {
-    load: () => Promise.resolve(stored),
+    load: () => Promise.resolve({ value: stored, failed: false }),
     save: (sessions) => {
       stored = [...sessions];
       return Promise.resolve(true);
@@ -140,7 +140,7 @@ describe("timer sessions store", () => {
 
   it("surfaces a failed write instead of losing the session in silence", async () => {
     setTimerSessionStorage({
-      load: () => Promise.resolve([]),
+      load: () => Promise.resolve({ value: [], failed: false }),
       save: () => Promise.resolve(false),
     });
     await hydrateTimerSessions();
@@ -161,7 +161,7 @@ describe("timer sessions store", () => {
   it("clears the warning once a write succeeds again", async () => {
     let ok = false;
     setTimerSessionStorage({
-      load: () => Promise.resolve([]),
+      load: () => Promise.resolve({ value: [], failed: false }),
       save: () => Promise.resolve(ok),
     });
     await hydrateTimerSessions();
@@ -213,5 +213,20 @@ describe("timer sessions store", () => {
     const sessions = useTimerSessionsStore.getState().sessions;
     expect(sessions).toHaveLength(1);
     expect(sessions[0]?.laps.map((lap) => lap.index)).toEqual([2]);
+  });
+
+  it("reports a failed read and never overwrites the unread file", async () => {
+    const save = jest.fn(() => Promise.resolve(true));
+    setTimerSessionStorage({
+      load: () => Promise.resolve({ value: [], failed: true }),
+      save,
+    });
+    await hydrateTimerSessions();
+    expect(useTimerSessionsStore.getState().readFailed).toBe(true);
+
+    recordSessionLap({ sessionId: 1, index: 1, lapMs: 900, totalMs: 900 });
+
+    expect(useTimerSessionsStore.getState().sessions).toHaveLength(1);
+    expect(save).not.toHaveBeenCalled();
   });
 });

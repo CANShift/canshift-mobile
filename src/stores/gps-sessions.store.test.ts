@@ -29,7 +29,11 @@ const memoryStorage = (
   let stored = initial;
   const storage: GpsSessionStorage = {
     load: () =>
-      Promise.resolve({ value: stored, failed: options.readFails ?? false }),
+      Promise.resolve(
+        options.readFails === true
+          ? { value: [], failed: true }
+          : { value: stored, failed: false },
+      ),
     save: (sessions) => {
       stored = sessions;
       return Promise.resolve(options.writes?.() ?? true);
@@ -78,12 +82,19 @@ describe("GPS sessions store", () => {
     expect(snapshot()).toEqual([{ ...session(1), label: "Magny-Cours" }]);
   });
 
-  it("reports a failed read on the store", async () => {
-    setGpsSessionStorage(memoryStorage([], { readFails: true }).storage);
+  it("reports a failed read and never overwrites the unread file", async () => {
+    const unread = [session(1)];
+    const { storage, snapshot } = memoryStorage(unread, { readFails: true });
+    setGpsSessionStorage(storage);
     await hydrateGpsSessions();
     expect(useGpsSessionsStore.getState().storageFailure).toBe("read");
+
     acknowledgeGpsStorageFailure();
+    await saveGpsSession(session(2));
+
     expect(useGpsSessionsStore.getState().storageFailure).toBeNull();
+    expect(useGpsSessionsStore.getState().sessions).toHaveLength(1);
+    expect(snapshot()).toBe(unread);
   });
 
   it("reports a failed write, and clears it once a write succeeds", async () => {
