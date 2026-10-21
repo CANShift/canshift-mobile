@@ -5,7 +5,7 @@ import { useTrackSessionStore } from "../stores/track-session.store";
 import { useGpsFixStore } from "../stores/gps-fix.store";
 import { gpsFix, type GpsFix } from "../lib/gps-fix";
 import { gpsSetupStep, type GpsSetupStep } from "../lib/gps-setup";
-import type { TimedLap } from "../lib/lap-deltas";
+import { gpsTimedLaps, type TimedLap } from "../lib/lap-deltas";
 import {
   resetLine,
   setLineHere,
@@ -35,10 +35,7 @@ export interface GpsTimingModel {
 
 const useTimedLaps = (): readonly TimedLap[] => {
   const laps = useTrackSessionStore((s) => s.laps);
-  return useMemo(
-    () => laps.map((lap) => ({ number: lap.number, ms: lap.durationMs })),
-    [laps],
-  );
+  return useMemo(() => gpsTimedLaps(laps), [laps]);
 };
 
 const useStopConfirmation = (): Pick<

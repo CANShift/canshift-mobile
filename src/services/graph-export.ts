@@ -1,5 +1,4 @@
-import { Share } from "react-native";
-import { File, Paths } from "expo-file-system";
+import { shareTextFile } from "./share-file";
 import { type SignalKey } from "../constants/ble";
 import type { TelemetrySample } from "../stores/telemetry.store";
 
@@ -26,7 +25,9 @@ export const exportGraphCsv = async (
   samples: readonly TelemetrySample[],
   signals: readonly SignalKey[],
 ): Promise<void> => {
-  const file = new File(Paths.cache, EXPORT_FILE_NAME);
-  await file.write(buildGraphCsv(samples, signals));
-  await Share.share({ url: file.uri, title: "CANShift graph export" });
+  await shareTextFile(
+    EXPORT_FILE_NAME,
+    buildGraphCsv(samples, signals),
+    "CANShift graph export",
+  );
 };
