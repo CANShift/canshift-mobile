@@ -48,7 +48,7 @@ export const setLineHere = (): boolean => {
   const sample = getLatestSample();
   if (sample === undefined) return false;
   if (sample.headingDeg < 0) {
-    Toast.show({ type: "error", text1: STRINGS.laps.setLineHint });
+    Toast.show({ type: "error", text1: STRINGS.laps.setLineMoving });
     return false;
   }
   const placed = startFinishLineFromPosition(sample);
