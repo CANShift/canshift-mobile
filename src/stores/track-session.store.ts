@@ -45,6 +45,7 @@ let head = 0;
 let size = 0;
 let writeIndex = 0;
 let detector: LapCrossingDetector | null = null;
+let lineCrossed = false;
 
 export const useTrackSessionStore = create<TrackSessionState>(() => ({
   recording: false,
@@ -58,6 +59,7 @@ export const useTrackSessionStore = create<TrackSessionState>(() => ({
 
 export const startSession = (nowMs: number = Date.now()): void => {
   detector?.reset();
+  lineCrossed = false;
   useTrackSessionStore.setState({
     recording: true,
     sessionStartMs: nowMs,
@@ -90,6 +92,7 @@ export const clearAll = (): void => {
   size = 0;
   writeIndex = 0;
   detector = null;
+  lineCrossed = false;
   useTrackSessionStore.setState({
     recording: false,
     sessionStartMs: 0,
@@ -111,6 +114,11 @@ const detectLapCrossing = (sample: GpsSample): void => {
     lng: sample.lng,
   });
   if (crossingMs === null) return;
+  if (!lineCrossed) {
+    lineCrossed = true;
+    useTrackSessionStore.setState({ sessionStartMs: crossingMs });
+    return;
+  }
   const startMs = lapStartMs(state.laps, state.sessionStartMs);
   if (crossingMs <= startMs) return;
   recordLap(startMs, crossingMs);

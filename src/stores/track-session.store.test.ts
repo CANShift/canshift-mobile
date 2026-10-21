@@ -191,16 +191,28 @@ describe("track-session.store", () => {
   describe("lap detection from the GPS sample stream", () => {
     const line = { a: { lat: 0, lng: -1 }, b: { lat: 0, lng: 1 } };
 
-    it("records a lap when the trace crosses the armed start/finish line", () => {
+    it("starts timing on the first crossing without recording a lap", () => {
       armStartFinishLine(line);
       startSession(1000);
       pushSample(sample(1000, 0.5, 0));
       pushSample(sample(2000, -0.5, 0));
       const state = useTrackSessionStore.getState();
+      expect(state.laps).toEqual([]);
+      expect(state.sessionStartMs).toBe(1500);
+    });
+
+    it("records a lap on the second crossing", () => {
+      armStartFinishLine(line);
+      startSession(1000);
+      pushSample(sample(1000, 0.5, 0));
+      pushSample(sample(2000, -0.5, 0));
+      pushSample(sample(3000, 0.5, 0));
+      pushSample(sample(4000, -0.5, 0));
+      const state = useTrackSessionStore.getState();
       expect(state.laps).toEqual([
-        { number: 1, startMs: 1000, endMs: 1500, durationMs: 500 },
+        { number: 1, startMs: 1500, endMs: 3500, durationMs: 2000 },
       ]);
-      expect(state.bestLapMs).toBe(500);
+      expect(state.bestLapMs).toBe(2000);
     });
 
     it("chains laps between consecutive crossings and tracks the best lap", () => {
@@ -210,15 +222,17 @@ describe("track-session.store", () => {
       pushSample(sample(2000, -0.5, 0));
       pushSample(sample(3000, 0.5, 0));
       pushSample(sample(4000, -0.5, 0));
+      pushSample(sample(5000, 0.5, 0));
+      pushSample(sample(7000, -0.5, 0));
       const state = useTrackSessionStore.getState();
       expect(state.laps).toHaveLength(2);
       expect(state.laps[1]).toEqual({
         number: 2,
-        startMs: 1500,
-        endMs: 3500,
-        durationMs: 2000,
+        startMs: 3500,
+        endMs: 6000,
+        durationMs: 2500,
       });
-      expect(state.bestLapMs).toBe(500);
+      expect(state.bestLapMs).toBe(2000);
     });
 
     it("ignores crossings while not recording", () => {
@@ -233,9 +247,11 @@ describe("track-session.store", () => {
       startSession(1000);
       pushSample(sample(1000, 0.5, 0));
       pushSample(sample(2000, -0.5, 0));
-      stopSession();
       pushSample(sample(3000, 0.5, 0));
       pushSample(sample(4000, -0.5, 0));
+      stopSession();
+      pushSample(sample(5000, 0.5, 0));
+      pushSample(sample(6000, -0.5, 0));
       expect(useTrackSessionStore.getState().laps).toHaveLength(1);
     });
 
