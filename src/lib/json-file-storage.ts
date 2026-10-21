@@ -1,6 +1,5 @@
 import { File, Paths } from "expo-file-system";
 import type { z } from "zod";
-import { log } from "../stores/log.store";
 import { persist, type PersistResult } from "./persist";
 
 export interface JsonFileSpec<T> {
@@ -18,10 +17,7 @@ export interface JsonFileStorage<T> {
 const readParsed = async <T>(spec: JsonFileSpec<T>): Promise<T> => {
   const file = new File(Paths.document, spec.fileName);
   if (!file.exists) return spec.empty;
-  const parsed = spec.schema.safeParse(JSON.parse(await file.text()));
-  if (parsed.success) return parsed.data;
-  log("warn", `Stored ${spec.what} malformed — starting empty`);
-  return spec.empty;
+  return spec.schema.parse(JSON.parse(await file.text()));
 };
 
 export const createJsonFileStorage = <T>(
