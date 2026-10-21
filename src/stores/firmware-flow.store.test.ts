@@ -97,6 +97,24 @@ describe("the firmware update flow", () => {
     expect(cmds(flow.opened[0])).toEqual([0x10]);
   });
 
+  it("leaves the wrong dash alone on close", async () => {
+    const flow = setup([{ version: "0.19.0" }]);
+    await toReady(flow);
+    await flow.store.getState().close();
+    expect(flow.opened).toHaveLength(1);
+    expect(cmds(flow.opened[0])).toEqual([0x10]);
+    expect(flow.deps.ble.resume).toHaveBeenCalledTimes(1);
+  });
+
+  it("takes the right dash out of workshop mode after a retry finds it", async () => {
+    const flow = setup([{ version: "0.19.0" }, {}]);
+    await toReady(flow);
+    await flow.store.getState().retry();
+    expect(flow.store.getState().view).toEqual({ kind: "ready" });
+    await flow.store.getState().close();
+    expect(cmds(flow.opened[1]).at(-1)).toBe(CMD_REBOOT);
+  });
+
   it("refuses a dash of another board", async () => {
     const flow = setup();
     await flow.store.getState().open(PKG, "0.20.2", "crowpanel_43");

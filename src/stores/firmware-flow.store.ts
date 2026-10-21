@@ -106,6 +106,7 @@ const isLinkedDash = (
 const refuseDifferentDash = ({ session, set }: Flow, socket: DashSocket) => {
   socket.close();
   session.socket = null;
+  session.inWorkshop = false;
   set({ view: { kind: "failed", failure: { kind: "differentDash" } } });
 };
 
@@ -128,6 +129,7 @@ const connect = async (
     return;
   }
   session.socket = opened.kind === "open" ? opened.socket : null;
+  session.inWorkshop ||= opened.kind === "open";
   set({ view: VIEW_AFTER_OPEN[opened.kind] });
 };
 
