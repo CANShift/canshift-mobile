@@ -1,8 +1,18 @@
-import { GPS_SETUP_VIEWS, gpsSetupStep } from "./gps-setup";
+import { GPS_SETUP_VIEWS, gpsSetupView } from "./gps-setup";
 import type { GpsFix } from "./gps-fix";
+import type { SavedCircuit } from "../services/circuit-storage";
+import { CIRCUIT_STRINGS } from "../circuit-strings";
 
-describe("gpsSetupStep", () => {
-  it.each<[GpsFix, boolean, string]>([
+const circuit: SavedCircuit = {
+  id: "c-1",
+  name: "Lignières",
+  line: { a: { lat: 47, lng: 7 }, b: { lat: 47, lng: 7.0004 } },
+  forwardBearingDeg: 0,
+  savedAt: 1,
+};
+
+describe("gpsSetupView", () => {
+  it.each<[GpsFix, boolean, keyof typeof GPS_SETUP_VIEWS]>([
     ["denied", false, "denied"],
     ["denied", true, "denied"],
     ["searching", false, "waiting"],
@@ -10,7 +20,19 @@ describe("gpsSetupStep", () => {
     ["ready", false, "placeLine"],
     ["ready", true, "ready"],
   ])("fix %s with line set %s is %s", (fix, lineSet, step) => {
-    expect(gpsSetupStep(fix, lineSet)).toBe(step);
+    expect(gpsSetupView(fix, lineSet, null)).toBe(GPS_SETUP_VIEWS[step]);
+  });
+
+  it("offers the nearby circuit instead of placing a line", () => {
+    const view = gpsSetupView("ready", false, circuit);
+    expect(view.action).toBe("reuseCircuit");
+    expect(view.label).toBe(CIRCUIT_STRINGS.use("Lignières"));
+    expect(view.enabled).toBe(true);
+  });
+
+  it("ignores a nearby circuit once a line is armed or without a fix", () => {
+    expect(gpsSetupView("ready", true, circuit)).toBe(GPS_SETUP_VIEWS.ready);
+    expect(gpsSetupView("weak", false, circuit)).toBe(GPS_SETUP_VIEWS.waiting);
   });
 });
 

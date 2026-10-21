@@ -1,9 +1,11 @@
 import { STRINGS } from "../strings";
+import { CIRCUIT_STRINGS } from "../circuit-strings";
+import type { SavedCircuit } from "../services/circuit-storage";
 import type { GpsFix } from "./gps-fix";
 
-export type GpsSetupStep = "denied" | "waiting" | "placeLine" | "ready";
+type FixedStep = "denied" | "waiting" | "placeLine" | "ready";
 
-type GpsSetupAction = "openSettings" | "setLine" | "start";
+type GpsSetupAction = "openSettings" | "setLine" | "reuseCircuit" | "start";
 
 export interface GpsSetupView {
   label: string;
@@ -13,7 +15,7 @@ export interface GpsSetupView {
   showsLine: boolean;
 }
 
-export const GPS_SETUP_VIEWS: Record<GpsSetupStep, GpsSetupView> = {
+export const GPS_SETUP_VIEWS: Record<FixedStep, GpsSetupView> = {
   denied: {
     label: STRINGS.laps.openSettings,
     action: "openSettings",
@@ -44,12 +46,28 @@ export const GPS_SETUP_VIEWS: Record<GpsSetupStep, GpsSetupView> = {
   },
 };
 
-const FIX_STEP: Record<GpsFix, GpsSetupStep | null> = {
+const reuseCircuitView = (circuit: SavedCircuit): GpsSetupView => ({
+  label: CIRCUIT_STRINGS.use(circuit.name),
+  action: "reuseCircuit",
+  enabled: true,
+  hint: CIRCUIT_STRINGS.useHint,
+  showsLine: true,
+});
+
+const FIX_STEP: Record<GpsFix, FixedStep | null> = {
   denied: "denied",
   searching: "waiting",
   weak: "waiting",
   ready: null,
 };
 
-export const gpsSetupStep = (fix: GpsFix, lineSet: boolean): GpsSetupStep =>
-  FIX_STEP[fix] ?? (lineSet ? "ready" : "placeLine");
+export const gpsSetupView = (
+  fix: GpsFix,
+  lineSet: boolean,
+  near: SavedCircuit | null,
+): GpsSetupView => {
+  const fixStep = FIX_STEP[fix];
+  if (fixStep !== null) return GPS_SETUP_VIEWS[fixStep];
+  if (lineSet) return GPS_SETUP_VIEWS.ready;
+  return near === null ? GPS_SETUP_VIEWS.placeLine : reuseCircuitView(near);
+};
