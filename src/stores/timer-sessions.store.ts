@@ -11,6 +11,7 @@ import {
   type TimerSessionStorage,
 } from "../services/timer-session-storage";
 import { relabel, withoutSession } from "../lib/session-label";
+import type { ReadFailure } from "../lib/json-file-storage";
 
 export const MAX_STORED_SESSIONS = 50;
 
@@ -20,15 +21,15 @@ interface TimerSessionsState {
   activeKey: string | null;
   activeBucket: ActiveBucket | null;
   persistFailed: boolean;
-  readFailed: boolean;
+  readFailure: ReadFailure | null;
 }
 
 let activeStorage: TimerSessionStorage = fileTimerSessionStorage;
-let writesBlocked = false;
+let hydration: Promise<void> | null = null;
 
 export const setTimerSessionStorage = (storage: TimerSessionStorage): void => {
   activeStorage = storage;
-  writesBlocked = false;
+  hydration = null;
 };
 
 export const useTimerSessionsStore = create<TimerSessionsState>()(() => ({
@@ -37,11 +38,10 @@ export const useTimerSessionsStore = create<TimerSessionsState>()(() => ({
   activeKey: null,
   activeBucket: null,
   persistFailed: false,
-  readFailed: false,
+  readFailure: null,
 }));
 
 const persistSessions = (sessions: readonly StoredTimerSession[]): void => {
-  if (writesBlocked) return;
   void activeStorage.save(sessions).then((persisted) => {
     useTimerSessionsStore.setState({ persistFailed: !persisted });
   });
@@ -52,13 +52,11 @@ export const acknowledgePersistFailure = (): void => {
 };
 
 export const acknowledgeTimerReadFailure = (): void => {
-  useTimerSessionsStore.setState({ readFailed: false });
+  useTimerSessionsStore.setState({ readFailure: null });
 };
 
-export const hydrateTimerSessions = async (): Promise<void> => {
-  if (useTimerSessionsStore.getState().hydrated) return;
-  const { value: stored, failed } = await activeStorage.load();
-  writesBlocked = failed;
+const loadStored = async (): Promise<void> => {
+  const { value: stored, failure } = await activeStorage.load();
   const recordedBeforeHydration = useTimerSessionsStore.getState().sessions;
   const storedKeys = new Set(
     recordedBeforeHydration.map((session) => session.key),
@@ -70,9 +68,15 @@ export const hydrateTimerSessions = async (): Promise<void> => {
   useTimerSessionsStore.setState({
     hydrated: true,
     sessions,
-    readFailed: failed,
+    readFailure: failure,
   });
   if (recordedBeforeHydration.length > 0) persistSessions(sessions);
+};
+
+export const hydrateTimerSessions = (): Promise<void> => {
+  if (useTimerSessionsStore.getState().hydrated) return Promise.resolve();
+  hydration ??= loadStored();
+  return hydration;
 };
 
 type LapEntry = StoredTimerSession["laps"][number];
@@ -138,9 +142,9 @@ export const recordSessionLap = (
   if (state.hydrated) persistSessions(placement.sessions);
 };
 
-export const clearTimerSessions = (): void => {
+export const clearTimerSessions = async (): Promise<void> => {
+  await hydrateTimerSessions();
   useTimerSessionsStore.setState({
-    hydrated: true,
     sessions: [],
     activeKey: null,
     activeBucket: null,

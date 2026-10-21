@@ -5,10 +5,11 @@ import {
   type StoredGpsSession,
 } from "../services/gps-session-storage";
 import { relabel, withoutSession } from "../lib/session-label";
+import type { ReadFailure } from "../lib/json-file-storage";
 
 export const MAX_GPS_SESSIONS = 20;
 
-export type StorageFailure = "read" | "write";
+export type StorageFailure = ReadFailure | "write";
 
 interface GpsSessionsState {
   hydrated: boolean;
@@ -18,12 +19,10 @@ interface GpsSessionsState {
 
 let activeStorage: GpsSessionStorage = fileGpsSessionStorage;
 let hydration: Promise<void> | null = null;
-let writesBlocked = false;
 
 export const setGpsSessionStorage = (storage: GpsSessionStorage): void => {
   activeStorage = storage;
   hydration = null;
-  writesBlocked = false;
 };
 
 export const useGpsSessionsStore = create<GpsSessionsState>()(() => ({
@@ -33,12 +32,11 @@ export const useGpsSessionsStore = create<GpsSessionsState>()(() => ({
 }));
 
 const loadStored = async (): Promise<void> => {
-  const { value, failed } = await activeStorage.load();
-  writesBlocked = failed;
+  const { value, failure } = await activeStorage.load();
   useGpsSessionsStore.setState({
     hydrated: true,
     sessions: value.slice(-MAX_GPS_SESSIONS),
-    storageFailure: failed ? "read" : null,
+    storageFailure: failure,
   });
 };
 
@@ -55,7 +53,6 @@ const failureAfterWrite = (persisted: boolean): StorageFailure | null => {
 
 const commit = async (sessions: StoredGpsSession[]): Promise<void> => {
   useGpsSessionsStore.setState({ sessions });
-  if (writesBlocked) return;
   const persisted = await activeStorage.save(sessions);
   useGpsSessionsStore.setState({
     storageFailure: failureAfterWrite(persisted),

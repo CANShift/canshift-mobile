@@ -76,6 +76,7 @@ export const statTiles = (session: HistorySession): StatTile[] => {
 };
 
 export const STORAGE_NOTES: Record<StorageFailure, string> = {
-  read: HISTORY_STRINGS.readFailed,
+  "set-aside": HISTORY_STRINGS.readFailedSetAside,
+  kept: HISTORY_STRINGS.readFailedKept,
   write: HISTORY_STRINGS.writeFailed,
 };

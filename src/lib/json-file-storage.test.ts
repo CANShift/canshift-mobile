@@ -1,27 +1,16 @@
 import { z } from "zod";
 import { createJsonFileStorage } from "./json-file-storage";
+import {
+  memoryFileFaults,
+  memoryFiles,
+  resetMemoryFileSystem,
+} from "../testing/memory-file-system";
 
-const mockFiles = new Map<string, string>();
-
-jest.mock("expo-file-system", () => ({
-  Paths: { document: "doc" },
-  File: class {
-    private readonly name: string;
-    constructor(_dir: string, name: string) {
-      this.name = name;
-    }
-    get exists(): boolean {
-      return mockFiles.has(this.name);
-    }
-    text(): Promise<string> {
-      return Promise.resolve(mockFiles.get(this.name) ?? "");
-    }
-    write(content: string): Promise<void> {
-      mockFiles.set(this.name, content);
-      return Promise.resolve();
-    }
-  },
-}));
+jest.mock("expo-file-system", () =>
+  jest.requireActual<typeof import("../testing/memory-file-system")>(
+    "../testing/memory-file-system",
+  ),
+);
 
 const storage = createJsonFileStorage({
   fileName: "numbers.json",
@@ -30,27 +19,61 @@ const storage = createJsonFileStorage({
   empty: [] as number[],
 });
 
+const setAsideFiles = (): string[] =>
+  [...memoryFiles.keys()].filter((name) =>
+    /^numbers\.unreadable-\d+\.json$/.test(name),
+  );
+
 describe("createJsonFileStorage", () => {
   beforeEach(() => {
-    mockFiles.clear();
+    resetMemoryFileSystem();
   });
 
   it("reads empty when the file does not exist yet", async () => {
-    await expect(storage.load()).resolves.toEqual({ value: [], failed: false });
+    await expect(storage.load()).resolves.toEqual({
+      value: [],
+      failure: null,
+    });
   });
 
   it("round-trips what it saved", async () => {
     await expect(storage.save([1, 2])).resolves.toBe(true);
     await expect(storage.load()).resolves.toEqual({
       value: [1, 2],
-      failed: false,
+      failure: null,
     });
   });
 
-  it("reports a malformed file as a failed read", async () => {
-    mockFiles.set("numbers.json", '["a"]');
-    await expect(storage.load()).resolves.toEqual({ value: [], failed: true });
-    mockFiles.set("numbers.json", "{");
-    await expect(storage.load()).resolves.toEqual({ value: [], failed: true });
+  it.each(['["a"]', "{"])(
+    "sets an unreadable file (%s) aside and saves normally afterwards",
+    async (content) => {
+      memoryFiles.set("numbers.json", content);
+      await expect(storage.load()).resolves.toEqual({
+        value: [],
+        failure: "set-aside",
+      });
+      expect(setAsideFiles().map((name) => memoryFiles.get(name))).toEqual([
+        content,
+      ]);
+
+      await expect(storage.save([3])).resolves.toBe(true);
+      await expect(storage.load()).resolves.toEqual({
+        value: [3],
+        failure: null,
+      });
+    },
+  );
+
+  it("keeps the file and refuses writes when it can't be set aside", async () => {
+    memoryFiles.set("numbers.json", "{");
+    memoryFileFaults.moves = true;
+
+    await expect(storage.load()).resolves.toEqual({
+      value: [],
+      failure: "kept",
+    });
+    await expect(storage.save([3])).resolves.toBe(false);
+    expect(memoryFiles.get("numbers.json")).toBe("{");
+    expect(setAsideFiles()).toEqual([]);
   });
 });

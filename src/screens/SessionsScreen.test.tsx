@@ -12,6 +12,7 @@ import {
 } from "../stores/timer-sessions.store";
 import type { StoredGpsSession } from "../services/gps-session-storage";
 import type { StoredTimerSession } from "../services/timer-session-storage";
+import type { ReadFailure } from "../lib/json-file-storage";
 
 const GPS: StoredGpsSession = {
   key: "g-2000",
@@ -35,15 +36,16 @@ const TIMER: StoredTimerSession = {
 const useStorage = (
   gps: readonly StoredGpsSession[],
   timer: StoredTimerSession[],
-  readFails: { gps?: boolean; timer?: boolean } = {},
+  readFailures: { gps?: ReadFailure; timer?: ReadFailure } = {},
 ) => {
   setGpsSessionStorage({
-    load: () => Promise.resolve({ value: gps, failed: readFails.gps ?? false }),
+    load: () =>
+      Promise.resolve({ value: gps, failure: readFailures.gps ?? null }),
     save: () => Promise.resolve(true),
   });
   setTimerSessionStorage({
     load: () =>
-      Promise.resolve({ value: timer, failed: readFails.timer ?? false }),
+      Promise.resolve({ value: timer, failure: readFailures.timer ?? null }),
     save: () => Promise.resolve(true),
   });
 };
@@ -91,12 +93,17 @@ describe("Sessions screen", () => {
     expect(view.getByText(HISTORY_STRINGS.emptyTitle)).toBeTruthy();
   });
 
-  it.each(["gps", "timer"] as const)(
-    "tells the user when the saved %s sessions couldn't be read",
-    async (source) => {
-      useStorage([], [], { [source]: true });
+  it.each([
+    ["gps", "set-aside", HISTORY_STRINGS.readFailedSetAside],
+    ["timer", "set-aside", HISTORY_STRINGS.readFailedSetAside],
+    ["gps", "kept", HISTORY_STRINGS.readFailedKept],
+    ["timer", "kept", HISTORY_STRINGS.readFailedKept],
+  ] as const)(
+    "tells the user when the saved %s sessions couldn't be read (%s)",
+    async (source, failure, note) => {
+      useStorage([], [], { [source]: failure });
       const view = await renderSessions();
-      expect(view.getByText(HISTORY_STRINGS.readFailed)).toBeTruthy();
+      expect(view.getByText(note)).toBeTruthy();
     },
   );
 });

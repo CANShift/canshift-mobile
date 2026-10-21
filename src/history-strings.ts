@@ -31,8 +31,10 @@ export const HISTORY_STRINGS = {
     `${plural(laps, "lap", "laps")} and the recorded data will be removed from this phone.`,
   delete: "Delete",
   cancel: "Cancel",
-  readFailed:
-    "Saved sessions couldn’t be read. New sessions are still kept until you close the app.",
+  readFailedSetAside:
+    "Saved sessions couldn’t be read, so that file was set aside. New sessions are saved as usual.",
+  readFailedKept:
+    "Saved sessions couldn’t be read. New sessions are kept until you close the app.",
   writeFailed:
-    "Sessions can’t be saved: the phone is out of storage. They stay until you close the app.",
+    "Sessions can’t be saved on this phone. They stay until you close the app.",
 } as const;

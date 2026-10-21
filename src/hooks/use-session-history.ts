@@ -22,10 +22,10 @@ export interface SessionHistoryModel {
 
 const useStorageFailure = (): StorageFailure | null => {
   const gpsFailure = useGpsSessionsStore((s) => s.storageFailure);
-  const timerReadFailed = useTimerSessionsStore((s) => s.readFailed);
+  const timerReadFailure = useTimerSessionsStore((s) => s.readFailure);
   const timerWriteFailed = useTimerSessionsStore((s) => s.persistFailed);
   if (gpsFailure !== null) return gpsFailure;
-  if (timerReadFailed) return "read";
+  if (timerReadFailure !== null) return timerReadFailure;
   return timerWriteFailed ? "write" : null;
 };
 

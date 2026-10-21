@@ -61,14 +61,14 @@ describe("Session detail screen", () => {
     useGpsSessionsStore.setState(initialGps, true);
     useTimerSessionsStore.setState(initialTimer, true);
     setGpsSessionStorage({
-      load: () => Promise.resolve({ value: stored, failed: false }),
+      load: () => Promise.resolve({ value: stored, failure: null }),
       save: (sessions) => {
         stored = sessions;
         return Promise.resolve(true);
       },
     });
     setTimerSessionStorage({
-      load: () => Promise.resolve({ value: [], failed: false }),
+      load: () => Promise.resolve({ value: [], failure: null }),
       save: () => Promise.resolve(true),
     });
   });

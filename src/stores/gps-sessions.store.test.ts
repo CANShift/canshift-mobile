@@ -12,6 +12,7 @@ import type {
   GpsSessionStorage,
   StoredGpsSession,
 } from "../services/gps-session-storage";
+import type { ReadFailure } from "../lib/json-file-storage";
 
 const session = (startedAt: number): StoredGpsSession => ({
   key: `g-${String(startedAt)}`,
@@ -24,15 +25,15 @@ const session = (startedAt: number): StoredGpsSession => ({
 
 const memoryStorage = (
   initial: readonly StoredGpsSession[] = [],
-  options: { readFails?: boolean; writes?: () => boolean } = {},
+  options: { readFailure?: ReadFailure; writes?: () => boolean } = {},
 ) => {
   let stored = initial;
   const storage: GpsSessionStorage = {
     load: () =>
       Promise.resolve(
-        options.readFails === true
-          ? { value: [], failed: true }
-          : { value: stored, failed: false },
+        options.readFailure === undefined
+          ? { value: stored, failure: null }
+          : { value: [], failure: options.readFailure },
       ),
     save: (sessions) => {
       stored = sessions;
@@ -82,19 +83,19 @@ describe("GPS sessions store", () => {
     expect(snapshot()).toEqual([{ ...session(1), label: "Magny-Cours" }]);
   });
 
-  it("reports a failed read and never overwrites the unread file", async () => {
-    const unread = [session(1)];
-    const { storage, snapshot } = memoryStorage(unread, { readFails: true });
+  it("reports a set-aside read and keeps saving new sessions", async () => {
+    const { storage, snapshot } = memoryStorage([], {
+      readFailure: "set-aside",
+    });
     setGpsSessionStorage(storage);
     await hydrateGpsSessions();
-    expect(useGpsSessionsStore.getState().storageFailure).toBe("read");
+    expect(useGpsSessionsStore.getState().storageFailure).toBe("set-aside");
 
     acknowledgeGpsStorageFailure();
     await saveGpsSession(session(2));
 
     expect(useGpsSessionsStore.getState().storageFailure).toBeNull();
-    expect(useGpsSessionsStore.getState().sessions).toHaveLength(1);
-    expect(snapshot()).toBe(unread);
+    expect(snapshot()).toEqual([session(2)]);
   });
 
   it("reports a failed write, and clears it once a write succeeds", async () => {
