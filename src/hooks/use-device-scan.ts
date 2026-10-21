@@ -103,8 +103,7 @@ const useConnector = (
       BleService.stopScan();
       setConnecting(device);
       try {
-        await BleService.connect(device.id);
-        onConnected();
+        if (await BleService.connect(device.id)) onConnected();
       } catch (err) {
         surfaceError(err);
       } finally {

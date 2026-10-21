@@ -30,6 +30,7 @@ export const BLE_CHAR_CAN_MONITOR =
 export const BLE_DEVICE_NAME = "CANShift" as const;
 
 export const BLE_PREFERRED_MTU = 247;
+export const BLE_CONNECT_TIMEOUT_MS = 15_000;
 
 export interface SignalMeta {
   label: string;

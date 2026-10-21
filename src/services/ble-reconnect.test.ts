@@ -61,7 +61,7 @@ describe("BleReconnector", () => {
     await loop;
 
     expect(connect).toHaveBeenCalledTimes(1);
-    expect(connect).toHaveBeenCalledWith("dev-1");
+    expect(connect).toHaveBeenCalledWith("dev-1", expect.any(AbortSignal));
     expect(stopScan).toHaveBeenCalled();
     expect(useReconnectStore.getState().isReconnecting).toBe(false);
   });

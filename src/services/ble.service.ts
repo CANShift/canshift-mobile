@@ -1,10 +1,6 @@
 import type { BleManager, Device } from "react-native-ble-plx";
 import { State } from "react-native-ble-plx";
-import {
-  BLE_SERVICE_UUID,
-  BLE_DEVICE_NAME,
-  BLE_PREFERRED_MTU,
-} from "../constants/ble";
+import { BLE_SERVICE_UUID, BLE_DEVICE_NAME } from "../constants/ble";
 import { useDeviceStore } from "../stores/device.store";
 import { clearBuffer } from "../stores/telemetry.store";
 import { log } from "../stores/log.store";
@@ -43,6 +39,7 @@ import {
 } from "./ble/ble-permission-state";
 import { handleRestoredState } from "./ble/ble-restore";
 import { DeviceLink } from "./ble/ble-link";
+import { openDashDevice } from "./ble/ble-open";
 import { CanMonitorFeed } from "./ble/ble-can-monitor";
 import { notifyDashLost } from "./notifications/dash-loss-notifications";
 
@@ -118,7 +115,7 @@ export class BleService {
 
   private reconnectorDeps(): BleReconnectDeps {
     return {
-      connect: (deviceId) => this.connectInternal(deviceId),
+      connect: (deviceId, signal) => this.connectInternal(deviceId, signal),
       startScan: (onResult) => {
         void this.manager.startDeviceScan(
           [BLE_SERVICE_UUID],
@@ -157,46 +154,51 @@ export class BleService {
     void this.manager.stopDeviceScan();
   }
 
-  async connect(deviceId: string): Promise<void> {
+  async connect(deviceId: string): Promise<boolean> {
     this.cancelReconnect();
     clearMutedAlerts();
     return this.connectInternal(deviceId);
   }
 
-  private async connectInternal(deviceId: string): Promise<void> {
-    const { setConnectionState } = useDeviceStore.getState();
-
+  private async connectInternal(
+    deviceId: string,
+    signal?: AbortSignal,
+  ): Promise<boolean> {
     await this.ensureAndroidBlePermissions();
 
-    setConnectionState("connecting");
+    useDeviceStore.getState().setConnectionState("connecting");
     log("info", `Connecting to device ${deviceId}`);
 
     this.userInitiatedDisconnect = false;
     this.link.removeSubscriptions();
 
     try {
-      const device = await this.openDevice(deviceId);
-      this.markConnected(deviceId, device);
+      const device = await openDashDevice(this.manager, this.link, deviceId);
+      if (!this.connectAbandoned(signal)) {
+        this.markConnected(deviceId, device);
+        return true;
+      }
+      await device.cancelConnection();
     } catch (err) {
-      this.link.removeSubscriptions();
-      this.link.setDevice(null);
-      setConnectionState("idle");
-      throw err;
+      if (!this.connectAbandoned(signal)) {
+        this.dropLink();
+        throw err;
+      }
     }
+    log("info", `Connect to ${deviceId} abandoned`);
+    const linked = this.link.current?.id ?? deviceId;
+    if (linked === deviceId) this.dropLink();
+    return false;
   }
 
-  private async openDevice(deviceId: string): Promise<Device> {
-    const device = await this.manager.connectToDevice(deviceId, {
-      autoConnect: false,
-      requestMTU: BLE_PREFERRED_MTU,
-    });
-    await device.discoverAllServicesAndCharacteristics();
-    this.link.setDevice(device);
-    await this.link.seedStatus(device);
-    await this.link.seedTimer(device);
-    await this.link.seedAlert(device);
-    await this.link.seedPages(device);
-    return device;
+  private connectAbandoned(signal?: AbortSignal): boolean {
+    return this.userInitiatedDisconnect || signal?.aborted === true;
+  }
+
+  private dropLink(): void {
+    this.link.removeSubscriptions();
+    this.link.setDevice(null);
+    useDeviceStore.getState().setConnectionState("idle");
   }
 
   private markConnected(deviceId: string, device: Device): void {

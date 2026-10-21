@@ -53,7 +53,7 @@ interface ScanOutcome {
 }
 
 export interface BleReconnectDeps {
-  connect: (deviceId: string) => Promise<void>;
+  connect: (deviceId: string, signal: AbortSignal) => Promise<unknown>;
   startScan: (
     onResult: (error: unknown, deviceId: string | null) => void,
   ) => void;
@@ -117,7 +117,7 @@ export class BleReconnector {
     signal: AbortSignal,
   ): Promise<"aborted" | "connected" | "failed"> {
     try {
-      await this.deps.connect(deviceId);
+      await this.deps.connect(deviceId, signal);
       if (isAborted(signal)) return "aborted";
       log("info", `Auto-reconnect: succeeded on attempt ${String(attempt)}`);
       return "connected";
