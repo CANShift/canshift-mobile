@@ -4,23 +4,26 @@ import { useIsFocused } from "@react-navigation/native";
 import { useTrackSessionStore } from "../stores/track-session.store";
 import { useGpsFixStore } from "../stores/gps-fix.store";
 import { gpsFix, type GpsFix } from "../lib/gps-fix";
-import { gpsSetupStep, type GpsSetupStep } from "../lib/gps-setup";
+import { gpsSetupView, type GpsSetupView } from "../lib/gps-setup";
 import type { TimedLap } from "../lib/lap-deltas";
 import {
   resetLine,
+  reuseCircuit,
   setLineHere,
   startTrackMode,
   stopTrackMode,
 } from "../lib/track-mode-actions";
 import { useCurrentLapMs } from "./use-current-lap-ms";
 import { useGpsPreview } from "./use-gps-preview";
+import { useCircuits, type CircuitsModel } from "./use-circuits";
 
 export interface GpsTimingModel {
   recording: boolean;
   fix: GpsFix;
-  step: GpsSetupStep;
+  view: GpsSetupView;
   accuracyM: number | null;
   lineSet: boolean;
+  circuits: CircuitsModel;
   laps: readonly TimedLap[];
   currentLapMs: number;
   confirmingStop: boolean;
@@ -29,6 +32,7 @@ export interface GpsTimingModel {
   cancelStop: () => void;
   confirmStop: () => void;
   setLine: () => void;
+  reuseCircuit: () => void;
   resetLine: () => void;
   openSettings: () => void;
 }
@@ -61,6 +65,18 @@ const useStopConfirmation = (): Pick<
   };
 };
 
+const useLineActions = (
+  circuits: CircuitsModel,
+): Pick<GpsTimingModel, "setLine" | "reuseCircuit" | "resetLine"> => ({
+  setLine: () => {
+    setLineHere();
+  },
+  reuseCircuit: () => {
+    if (circuits.near !== null) reuseCircuit(circuits.near);
+  },
+  resetLine,
+});
+
 export const useGpsTiming = (visible: boolean): GpsTimingModel => {
   const recording = useTrackSessionStore((s) => s.recording);
   const lineSet = useTrackSessionStore((s) => s.startFinishSet);
@@ -69,20 +85,19 @@ export const useGpsTiming = (visible: boolean): GpsTimingModel => {
   const stopConfirmation = useStopConfirmation();
   useGpsPreview(useIsFocused() && visible && !recording);
   const fix = gpsFix(permission, accuracyM);
+  const circuits = useCircuits(fix === "ready");
   return {
     recording,
     fix,
-    step: gpsSetupStep(fix, lineSet),
+    view: gpsSetupView(fix, lineSet, circuits.near),
     accuracyM,
     lineSet,
+    circuits,
     laps: useTimedLaps(),
     currentLapMs: useCurrentLapMs(),
     ...stopConfirmation,
+    ...useLineActions(circuits),
     start: () => void startTrackMode(),
-    setLine: () => {
-      setLineHere();
-    },
-    resetLine,
     openSettings: () => void Linking.openSettings(),
   };
 };

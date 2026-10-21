@@ -10,6 +10,8 @@ import {
   clearStartFinishLine,
   getLatestSample,
 } from "../stores/track-session.store";
+import { rememberArmedLine } from "../stores/circuits.store";
+import type { SavedCircuit } from "../services/circuit-storage";
 import { STRINGS } from "../strings";
 import { reportFailure } from "./report-dash-failure";
 
@@ -45,11 +47,21 @@ export const stopTrackMode = async (): Promise<void> => {
 export const setLineHere = (): boolean => {
   const sample = getLatestSample();
   if (sample === undefined) return false;
-  const { line, forwardBearingDeg } = startFinishLineFromPosition(sample);
-  armStartFinishLine(line, { forwardBearingDeg });
+  const placed = startFinishLineFromPosition(sample);
+  armStartFinishLine(placed.line, {
+    forwardBearingDeg: placed.forwardBearingDeg,
+  });
+  rememberArmedLine({ ...placed, circuitId: null });
   return true;
+};
+
+export const reuseCircuit = (circuit: SavedCircuit): void => {
+  const { line, forwardBearingDeg } = circuit;
+  armStartFinishLine(line, { forwardBearingDeg });
+  rememberArmedLine({ line, forwardBearingDeg, circuitId: circuit.id });
 };
 
 export const resetLine = (): void => {
   clearStartFinishLine();
+  rememberArmedLine(null);
 };

@@ -1,0 +1,23 @@
+export const CIRCUIT_STRINGS = {
+  use: (name: string): string => `Use ${name}`,
+  useHint: "Your saved line is close. Tap Set here to place a new one.",
+  setHere: "Set here",
+  save: "Save",
+  manage: "Circuits",
+  sheetTitle: "Saved circuits",
+  sheetSubtitle: "Lines you saved to reuse on the next visit.",
+  empty: "No saved circuits yet. Set a line, then tap Save.",
+  done: "Done",
+  rename: "Rename",
+  delete: "Delete",
+  saveTitle: "Save this line",
+  renameTitle: "Rename circuit",
+  nameLabel: "Circuit name",
+  defaultName: (n: number): string => `Circuit ${String(n)}`,
+  cancel: "Cancel",
+  deleteTitle: (name: string): string => `Delete ${name}?`,
+  deleteBody: "The line you saved here is removed. Laps stay.",
+  unreadable: "Saved circuits couldn’t be read.",
+  unsaved:
+    "Circuit changes couldn’t be saved. They stay until you close the app.",
+} as const;
