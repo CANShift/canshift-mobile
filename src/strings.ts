@@ -162,6 +162,7 @@ export const STRINGS = {
     lineNotSet: "Not set",
     setLineHere: "Set line here",
     setLineHint: "Tap Set line here while rolling across the line.",
+    setLineMoving: "Start rolling, then tap Set line here.",
     resetLine: "Reset line",
     lineSet: "Line set",
     startTrackMode: "Start track mode",

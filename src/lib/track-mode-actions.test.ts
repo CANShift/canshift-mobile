@@ -39,7 +39,7 @@ describe("setLineHere", () => {
     expect(useCircuitsStore.getState().armed).toBeNull();
     expect(mockToast).toHaveBeenCalledWith({
       type: "error",
-      text1: STRINGS.laps.setLineHint,
+      text1: STRINGS.laps.setLineMoving,
     });
   });
 
