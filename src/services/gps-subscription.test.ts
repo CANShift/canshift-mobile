@@ -75,7 +75,7 @@ describe("startGpsSubscription", () => {
     });
   });
 
-  it("maps null speed and heading to 0", async () => {
+  it("maps a null speed to 0 and a null heading to unknown", async () => {
     const { watcher, emit } = makeWatcher();
     await startGpsSubscription(watcher);
 
@@ -93,7 +93,7 @@ describe("startGpsSubscription", () => {
       lat: 0,
       lng: 0,
       speedMs: 0,
-      headingDeg: 0,
+      headingDeg: -1,
     });
   });
 

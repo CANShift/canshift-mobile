@@ -1,6 +1,8 @@
 import { pushSample } from "../stores/track-session.store";
 import { setGpsAccuracy } from "../stores/gps-fix.store";
 
+const UNKNOWN_HEADING_DEG = -1;
+
 export interface GpsWatcherUpdate {
   t: number;
   lat: number;
@@ -28,7 +30,7 @@ export const startGpsSubscription = async (
       lat: update.lat,
       lng: update.lng,
       speedMs: update.speedMs ?? 0,
-      headingDeg: update.headingDeg ?? 0,
+      headingDeg: update.headingDeg ?? UNKNOWN_HEADING_DEG,
     });
   });
   let stopped = false;
