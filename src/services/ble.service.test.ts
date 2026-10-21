@@ -272,6 +272,78 @@ describe("BleService connect", () => {
   });
 });
 
+describe("BleService pending connect", () => {
+  beforeEach(() => {
+    jest.useFakeTimers({ doNotFake: ["setImmediate"] });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  const makeLinkableDevice = () => ({
+    id: "dev-1",
+    name: "CANShift-test",
+    discoverAllServicesAndCharacteristics: jest.fn(() => Promise.resolve()),
+    readCharacteristicForService: jest.fn(() =>
+      Promise.resolve({ value: null }),
+    ),
+    monitorCharacteristicForService: jest.fn(() => ({ remove: jest.fn() })),
+    onDisconnected: jest.fn(() => ({ remove: jest.fn() })),
+    cancelConnection: jest.fn(() => Promise.resolve()),
+  });
+
+  const makePendingService = () => {
+    const device = makeLinkableDevice();
+    let open: (value: unknown) => void = () => undefined;
+    const connectToDevice = jest.fn(
+      (_id: string, _options: { timeout?: number }) =>
+        new Promise((resolve) => {
+          open = resolve;
+        }),
+    );
+    const service = new BleService({
+      managerFactory: () =>
+        ({
+          destroy: jest.fn(),
+          stopDeviceScan: jest.fn(),
+          connectToDevice,
+        }) as unknown as BleManager,
+      requestAndroidPermissions: () =>
+        Promise.resolve({ kind: "not_applicable" }),
+    });
+    return {
+      service,
+      device,
+      connectToDevice,
+      open: () => {
+        open(device);
+      },
+    };
+  };
+
+  it("bounds the connect attempt with a timeout", async () => {
+    const { service, connectToDevice, open } = makePendingService();
+    const connecting = service.connect("dev-1");
+    await flush();
+    open();
+    await expect(connecting).resolves.toBe(true);
+    expect(connectToDevice.mock.calls[0]?.[1].timeout).toBeGreaterThan(0);
+  });
+
+  it("drops a link that opens after the user cancelled", async () => {
+    const { service, device, open } = makePendingService();
+    const connecting = service.connect("dev-1");
+    await flush();
+    await service.disconnect();
+    open();
+    await expect(connecting).resolves.toBe(false);
+    expect(device.cancelConnection).toHaveBeenCalled();
+    expect(useDeviceStore.getState().connectionState).toBe("idle");
+    expect(useDeviceStore.getState().deviceId).toBeNull();
+  });
+});
+
 describe("BleService scan errors", () => {
   it("propagates the BleError verbatim so it can be classified, not a bare Error", async () => {
     const scan = {

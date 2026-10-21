@@ -18,7 +18,7 @@ type Found = (device: {
 let mockPermission: { kind: string; platform?: string } = { kind: "ok" };
 let mockFound: Found = () => undefined;
 let mockFinishScan: () => void = () => undefined;
-const mockConnect = jest.fn((_id: string) => Promise.resolve());
+const mockConnect = jest.fn((_id: string) => Promise.resolve(true));
 const mockSimStart = jest.fn();
 
 jest.mock("../services/ble.service", () => ({
