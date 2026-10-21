@@ -56,7 +56,7 @@ const renderLaps = () =>
   render(
     <SafeAreaProvider initialMetrics={metrics}>
       <NavigationContainer>
-        <LapsScreen />
+        <LapsScreen onOpenHistory={jest.fn()} />
       </NavigationContainer>
     </SafeAreaProvider>,
   );
