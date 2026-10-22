@@ -206,6 +206,7 @@ describe("track-session.store", () => {
       startSession(1000);
       pushSample(sample(1000, 0.5, 0));
       pushSample(sample(2000, -0.5, 0));
+      pushSample(sample(2500, 0.5, 5));
       pushSample(sample(3000, 0.5, 0));
       pushSample(sample(4000, -0.5, 0));
       const state = useTrackSessionStore.getState();
@@ -220,8 +221,10 @@ describe("track-session.store", () => {
       startSession(1000);
       pushSample(sample(1000, 0.5, 0));
       pushSample(sample(2000, -0.5, 0));
+      pushSample(sample(2500, 0.5, 5));
       pushSample(sample(3000, 0.5, 0));
       pushSample(sample(4000, -0.5, 0));
+      pushSample(sample(4500, 0.5, 5));
       pushSample(sample(5000, 0.5, 0));
       pushSample(sample(7000, -0.5, 0));
       const state = useTrackSessionStore.getState();
@@ -247,6 +250,7 @@ describe("track-session.store", () => {
       startSession(1000);
       pushSample(sample(1000, 0.5, 0));
       pushSample(sample(2000, -0.5, 0));
+      pushSample(sample(2500, 0.5, 5));
       pushSample(sample(3000, 0.5, 0));
       pushSample(sample(4000, -0.5, 0));
       stopSession();
