@@ -68,7 +68,7 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.24.0",
+    "@babel/core": "^7.29.13",
     "@eslint/js": "^10.0.1",
     "@react-native/jest-preset": "0.88.0",
     "@react-native/metro-config": "0.88.0",
